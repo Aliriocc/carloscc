@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Preparación - Fiscalía</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Fondo oscuro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        /* Estilos para la barra de desplazamiento en elementos con overflow */
+        .overflow-auto-styled::-webkit-scrollbar {
+            width: 8px;
+        }
+        .overflow-auto-styled::-webkit-scrollbar-track {
+            background: #2d3748; /* Color de fondo de la pista */
+            border-radius: 10px;
+        }
+        .overflow-auto-styled::-webkit-scrollbar-thumb {
+            background: #4a5568; /* Color del "pulgar" de la barra de desplazamiento */
+            border-radius: 10px;
+        }
+        .overflow-auto-styled::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* Color del "pulgar" al pasar el ratón */
+        }
+    </style>
+</head>
+<body class="text-gray-100">
+    <div id="quiz-container" class="bg-gray-800 p-8 rounded-3xl shadow-lg w-full max-w-6xl mx-auto flex flex-col items-center space-y-6 md:space-y-8">
+        <div id="question-counter" class="text-lg font-semibold text-gray-300">
+            Pregunta <span id="current-question-number">1</span> de <span id="total-questions">150</span>
+        </div>
+
+        <div id="question-section" class="bg-gray-700 p-6 rounded-2xl w-full flex flex-col items-center max-h-[calc(100vh-180px)] overflow-y-auto overflow-auto-styled">
+            <p id="question-text" class="text-xl md:text-2xl font-semibold text-center mb-6 leading-relaxed"></p>
+            
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+                </div>
+
+            <div id="justification-section" class="hidden w-full mt-6 bg-gray-600 p-6 rounded-xl overflow-auto-styled max-h-[400px] md:max-h-[500px]">
+                <p class="font-bold text-lg mb-2 text-green-300">Justificación:</p>
+                <p id="justification-text" class="text-base leading-relaxed text-gray-200"></p>
+            </div>
+
+            <button id="ask-ai-button" class="hidden bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 text-sm md:text-base mt-4">
+                ✨ Pregunta a la IA
+            </button>
+            <div id="ai-response-section" class="hidden w-full mt-4 bg-gray-600 p-6 rounded-xl overflow-auto-styled max-h-[300px] md:max-h-[400px]">
+                <p class="font-bold text-lg mb-2 text-purple-300">Respuesta de la IA:</p>
+                <p id="ai-response-text" class="text-base leading-relaxed text-gray-200"></p>
+                <div id="ai-loading-indicator" class="hidden text-center text-blue-300 mt-4">Cargando respuesta de la IA...</div>
+            </div>
+        </div>
+
+        <button id="next-button" class="hidden bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 text-sm md:text-base">
+            Siguiente Pregunta
+        </button>
+
+        <div id="results-section" class="hidden w-full text-center">
+            <h2 class="text-3xl font-bold mb-6 text-green-400">¡Quiz Completado!</h2>
+            <h3 class="text-xl font-semibold mb-4 text-gray-300">Clasificación por Intentos:</h3>
+            <ul id="classification-list" class="text-left bg-gray-700 p-6 rounded-2xl max-h-[600px] overflow-y-auto overflow-auto-styled">
+                </ul>
+            <button id="restart-button" class="mt-8 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 text-lg">
+                Reiniciar Quiz
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Array para almacenar las preguntas del quiz
+        let questions = [];
+        // Índice de la pregunta actual
+        let currentQuestionIndex = 0;
+        // Objeto para registrar los intentos por pregunta
+        let questionAttempts = {};
+        // Bandera para saber si la respuesta correcta fue seleccionada
+        let correctAnswerSelected = false;
+
+        // Referencias a elementos del DOM
+        const questionCounter = document.getElementById('question-counter');
+        const currentQuestionNumberSpan = document.getElementById('current-question-number');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const justificationSection = document.getElementById('justification-section');
+        const justificationText = document.getElementById('justification-text');
+        const nextButton = document.getElementById('next-button');
+        const resultsSection = document.getElementById('results-section');
+        const classificationList = document.getElementById('classification-list');
+        const restartButton = document.getElementById('restart-button');
+        const askAiButton = document.getElementById('ask-ai-button'); // Nuevo botón
+        const aiResponseSection = document.getElementById('ai-response-section'); // Nueva sección de respuesta de IA
+        const aiResponseText = document.getElementById('ai-response-text'); // Texto de respuesta de IA
+        const aiLoadingIndicator = document.getElementById('ai-loading-indicator'); // Indicador de carga de IA
+
+        // Datos de las preguntas (un subconjunto para el ejemplo, se generarán 150)
+        // Se generarán más preguntas automáticamente para llegar a 150
+        const baseQuestions = [
+            {
+                "scenario": "Un nuevo empleado público se pregunta sobre el concepto fundamental de disciplina en el ámbito estatal.",
+                "question": "¿Cuál de las siguientes afirmaciones describe mejor la disciplina en este contexto?",
+                "options": [
+                    "Un conjunto de reglas de comportamiento que buscan garantizar el orden y la subordinación para la buena marcha de la administración.",
+                    "La capacidad de un individuo para cumplir con sus propias metas personales sin supervisión.",
+                    "Un sistema de castigos estrictos para cualquier error cometido por un servidor público."
+                ],
+                "correctAnswer": "Un conjunto de reglas de comportamiento que buscan garantizar el orden y la subordinación para la buena marcha de la administración.",
+                "justification": "La disciplina suele entenderse como un conjunto de reglas de comportamiento cuyo propósito fundamental es garantizar el orden y la subordinación de los integrantes de una colectividad determinada. El Derecho Disciplinario puede entenderse como un mecanismo de autotutela (herramienta) mediante el cual el Estado, a través del ejercicio del ius puniendi pretende asegurar la buena marcha de la administración. (CESJUL-Concurso-fiscalia-2025-Generalidades-PDF.pdf, Página 3 y 7)"
+            },
+            {
+                "scenario": "Un ciudadano común y un servidor público son acusados de infringir la ley.",
+                "question": "¿Cuál es la diferencia fundamental en su responsabilidad según el Artículo 6 de la Constitución Política de Colombia?",
+                "options": [
+                    "Ambos son responsables solo por infringir la Constitución y las leyes.",
+                    "El servidor público es responsable por infringir la Constitución y las leyes, y adicionalmente por omisión o extralimitación en el ejercicio de sus funciones.",
+                    "El ciudadano común tiene mayores responsabilidades que el servidor público."
+                ],
+                "correctAnswer": "El servidor público es responsable por infringir la Constitución y las leyes, y adicionalmente por omisión o extralimitación en el ejercicio de sus funciones.",
+                "justification": "Constitución Política. Art 6. Los particulares solo son responsables ante las autoridades por infringir la Constitución y las leyes. Los servidores públicos lo son por la misma causa y por omisión o extralimitación en el ejercicio de sus funciones. (CESJUL-Concurso-fiscalia-2025-Generalidades-PDF.pdf, Página 5)"
+            },
+            {
+                "scenario": "Un asistente fiscal incurre en una falta disciplinaria el 15 de marzo de 2022.",
+                "question": "¿Cuál es la autoridad competente para investigar y fallar su caso?",
+                "options": [
+                    "La Oficina de Control Disciplinario Interno de la Fiscalía General de la Nación.",
+                    "La Procuraduría General de la Nación.",
+                    "La Comisión Seccional de Disciplina Judicial."
+                ],
+                "correctAnswer": "La Comisión Seccional de Disciplina Judicial.",
+                "justification": "A partir del 13 de enero de 2021, los empleados judiciales pasaron a ser sujetos disciplinables de la jurisdicción. El artículo 239... se tramitarán y resolverán los procesos... contra los funcionarios y empleados judiciales, incluidos los de la Fiscalía General de la Nación... por la Comisión Seccional de Disciplina Judicial y la Comisión Nacional de Disciplina Judicial, a diferencia de lo que ocurría hasta la fecha. (CONTROL DISCIPLINARIO.pdf, Página 9 y CESJUL-Concurso-fiscalia-2025-Generalidades-PDF.pdf, Página 20)"
+            },
+            {
+                "scenario": "Durante un debate sobre la naturaleza del derecho disciplinario, un jurista argumenta que, a diferencia del derecho penal, el derecho disciplinario se enfoca principalmente en el 'desvalor de acción'.",
+                "question": "¿Qué implica esta afirmación?",
+                "options": [
+                    "Que el derecho disciplinario busca la reparación del daño causado por la conducta.",
+                    "Que el derecho disciplinario busca encauzar la conducta del individuo y no necesariamente la lesión o puesta en peligro de bienes jurídicos.",
+                    "Que solo se sancionan las conductas que producen un resultado lesivo."
+                ],
+                "correctAnswer": "Que el derecho disciplinario busca encauzar la conducta del individuo y no necesariamente la lesión o puesta en peligro de bienes jurídicos.",
+                "justification": "Para el Derecho disciplinario el sustento no está ahí, está en la norma subjetiva de determinación. ¿Qué es lo que hace esta norma? Pretende dirigir la conducta del individuo entonces? Miren que aquí. A diferencia del anterior, a mí sí me importa el cómo se comporte usted, a a mí sí me interesa cuál es su conducta. Por eso, lo que interesa en el Derecho icplario es el desvalor de acción PRIMA el desvalor de acción sobre el desvalor de resultado y bajo ese orden, dado que el desvalor de acción es el que motiva el Derecho iconario, pues figuras como la tentativa y la preteritación no son aplicables. (CONTROL DISCIPLINARIO.pdf, Página 14)"
+            },
+            {
+                "scenario": "Un servidor público es acusado de acoso laboral.",
+                "question": "Antes de iniciar la actuación disciplinaria formal, ¿qué paso previo es obligatorio según la Ley 1010 de 2006?",
+                "options": [
+                    "La presentación de una denuncia penal ante la Fiscalía.",
+                    "Agota el trámite conciliatorio ante el Comité de Convivencia Laboral de la institución.",
+                    "La intervención directa de la Procuraduría General de la Nación sin trámite previo."
+                ],
+                "correctAnswer": "Agota el trámite conciliatorio ante el Comité de Convivencia Laboral de la institución.",
+                "justification": "Es la única falta visitaria, la única que exige que previo al inicio de la actuación disciplinaria se agote el trámite conciliatorio ante el Comité de convivencia laboral de la institución. Ojo con esto. Acoso laboral, no acoso sexual, acoso laboral. (CONTROL DISCIPLINARIO.pdf, Página 35)"
+            },
+            {
+                "scenario": "Un funcionario es absuelto en un proceso penal por hechos de presunta apropiación de recursos públicos. Su abogado solicita el archivo de la investigación disciplinaria por los mismos hechos.",
+                "question": "¿Cuál debería ser la decisión en el proceso disciplinario?",
+                "options": [
+                    "Archivar inmediatamente la investigación disciplinaria debido a la absolución penal.",
+                    "Suspender la investigación disciplinaria hasta que la decisión penal sea definitiva.",
+                    "Continuar con la investigación, ya que la responsabilidad disciplinaria y penal son independientes."
+                ],
+                "correctAnswer": "Continuar con la investigación, ya que la responsabilidad disciplinaria y penal son independientes.",
+                "justification": "La independencia, es decir, la responsabilidad disciplinaria, la responsabilidad penal, la responsabilidad fiscal son independientes. El hecho de que se logre una absolución en un derecho penal no implica necesariamente que esto también conlleve la misma suerte en el derecho disciplinario. (CONTROL DISCIPLINARIO.pdf, Página 18)"
+            },
+            {
+                "scenario": "Un Magistrado de Alta Corte es acusado de una falta disciplinaria relacionada con el ejercicio de sus funciones.",
+                "question": "¿Quién es la autoridad competente para investigar y juzgar disciplinariamente a este funcionario?",
+                "options": [
+                    "La Comisión Nacional de Disciplina Judicial.",
+                    "El juicio político (investiga la Cámara y juzga el Senado).",
+                    "La Procuraduría General de la Nación."
+                ],
+                "correctAnswer": "El juicio político (investiga la Cámara y juzga el Senado).",
+                "justification": "Los aforados constitucionales (Presidente de la República, magistrados de las altas cortes, Consejo Superior de la Judicatura, Fiscal General de la Nación) son investigados por la Cámara y juzgados por el Senado a través del juicio político. (CONTROL DISCIPLINARIO.pdf, Página 34)"
+            },
+            {
+                "scenario": "Un particular ha sido contratado para ejercer labores de interventoría en un contrato estatal.",
+                "question": "¿Es este particular un destinatario de la ley disciplinaria?",
+                "options": [
+                    "No, los particulares nunca son destinatarios de la ley disciplinaria.",
+                    "Sí, los particulares que ejercen labores de interventoría y supervisión en contratos estatales son sujetos disciplinables.",
+                    "Solo si administra directamente recursos públicos."
+                ],
+                "correctAnswer": "Sí, los particulares que ejercen labores de interventoría y supervisión en contratos estatales son sujetos disciplinables.",
+                "justification": "El artículo 70 del Código General Disciplinario señala que son aquellos que ejercen Función Pública de manera permanente o transitoria. Los que administran recursos públicos u oficiales, los que ejercen labores de interventoría y supervisión en los contratos estatales y los auxiliares de Justicia. (CONTROL DISCIPLINARIO.pdf, Página 28)"
+            },
+            {
+                "scenario": "Se discute la diferencia entre el Derecho Penal y el Derecho Disciplinario en cuanto al principio de legalidad.",
+                "question": "¿Cuál es la característica principal de la legalidad en el Derecho Disciplinario en comparación con el Derecho Penal?",
+                "options": [
+                    "En el Derecho Disciplinario, los tipos penales son siempre cerrados y taxativos.",
+                    "El Derecho Disciplinario permite una flexibilización del principio de legalidad, acudiendo a tipos abiertos y tipos en blanco.",
+                    "Ambos derechos exigen una descripción idéntica y estricta de las conductas punibles."
+                ],
+                "correctAnswer": "El Derecho Disciplinario permite una flexibilización del principio de legalidad, acudiendo a tipos abiertos y tipos en blanco.",
+                "justification": "En materia disciplinaria encontramos que hay una suerte de flexibilización del principio de legalidad, pero sólo respecto de la legalidad en estricto sentido. En el Derecho disciplinario la regla son los tipos abiertos y los tipos en blanco. Los tipos abiertos vamos a entenderlos como aquellos que contienen algunos conceptos indeterminados, es decir, no está plenamente desarrollada la conducta en el tipo y los tipos en blanco. Vamos a entenderlo como aquellos que me exigen una remisión para poderlo completar. (CONTROL DISCIPLINARIO.pdf, Página 16-17)"
+            },
+            {
+                "scenario": "Un empleado judicial de la Fiscalía General de la Nación cometió una falta disciplinaria el 10 de diciembre de 2020.",
+                "question": "¿Qué autoridad disciplinaria es competente para conocer de este proceso?",
+                "options": [
+                    "La Comisión Seccional de Disciplina Judicial.",
+                    "La Oficina de Control Disciplinario Interno de la Fiscalía General de la Nación.",
+                    "La Procuraduría General de la Nación."
+                ],
+                "correctAnswer": "La Oficina de Control Disciplinario Interno de la Fiscalía General de la Nación.",
+                "justification": "PARÁGRAFO TRANSITORIO. La Oficina de Control Disciplinario Interno de la Fiscalía General de la Nación, seguirá conociendo de los procesos disciplinarios cuyos hechos tuvieron ocurrencia hasta antes del 13 de enero de 2021 hasta su finalización, aplicando el procedimiento previsto en la Ley 734 de 2002. (CESJUL-Concurso-fiscalia-2025-Generalidades-PDF.pdf, Página 20)"
+            },
+            {
+                "scenario": "Un abogado en ejercicio de su profesión es objeto de una investigación disciplinaria.",
+                "question": "¿Qué tipo de autoridad disciplinaria es competente para juzgarlo?",
+                "options": [
+                    "Tribunales de Ética Profesional (pares).",
+                    "La jurisdicción (jueces).",
+                    "Oficinas de Control Interno Disciplinario."
+                ],
+                "correctAnswer": "La jurisdicción (jueces).",
+                "justification": "Los abogados también encontramos que ellos son disciplinados por la jurisdicción, solo que por supuesto, a través del régimen propio. Ley 1123 de 2007. Los abogados en ejercicio de su profesión no son investigados por sus pares, ¿por quién son investigados? por la jurisdicción. (CONTROL DISCIPLINARIO.pdf, Página 20 y 24)"
+            },
+            {
+                "scenario": "Un funcionario de la Gobernación de Santander, Secretario de Hacienda, es objeto de una investigación disciplinaria por acoso laboral iniciada por la Procuraduría Regional de Instrucción de Santander.",
+                "question": "¿Puede la persona que puso la queja ser reconocida como víctima en este proceso?",
+                "options": [
+                    "No, en el Derecho Disciplinario no hay víctimas.",
+                    "Sí, en casos de acoso laboral, las víctimas deben ser reconocidas como sujetos procesales.",
+                    "Solo si la conducta también constituye un delito penal."
+                ],
+                "correctAnswer": "Sí, en casos de acoso laboral, las víctimas deben ser reconocidas como sujetos procesales.",
+                "justification": "Las víctimas deben ser reconocidas como verdaderos sujetos procesales. En Derecho y plario la regla es que no hay víctimas. Sin embargo, a través de la jurisprudencia de la Corte Constitucional y de las mismas normas, se empieza a abrir el espacio para que las víctimas sean reconocidas como sujeto procesal en una Universidad que casos casos de faltas gravísimas relacionadas. Con violaciones a los derechos humanos, al Derecho internacional, comentario y al acoso laboral. (CONTROL DISCIPLINARIO.pdf, Página 36)"
+            },
+            {
+                "scenario": "Un servidor público es clasificado dentro de una 'relación especial de sujeción intensificada'.",
+                "question": "¿Qué implica esta clasificación en términos de exigencias de comportamiento?",
+                "options": [
+                    "Menores exigencias, principalmente en su vida privada.",
+                    "Mayores exigencias, abarcando incluso aspectos de su vida privada no estrictamente atados al deber funcional.",
+                    "Exigencias estándar, comunes a todos los servidores públicos."
+                ],
+                "correctAnswer": "Mayores exigencias, abarcando incluso aspectos de su vida privada no estrictamente atados al deber funcional.",
+                "justification": "La doctrina ha elaborado una suerte de clasificación de las relaciones especiales de sujeción. Ha entendido que hay una estandarizada... pero también hay una relación intensificada, es decir, encontramos en ella mayores exigencias. ¿Qué ejemplos podemos dar de una relación especial de sujeción intensificada? Funcionarios y empleados judiciales, fuerzas militares y Policía Nacional. ¿Por qué es esto? Porque la relación especial de sujeción llega incluso a exigirles comportamientos que no están atados estrictamente al deber funcional de la oficina, es decir, se mete o abarca cosas de su vida privada, la embriaguez, la violencia, etcétera, etcétera. Es decir, tiene unos estándares mayores en atención al rol que juegan en nuestra sociedad. (CONTROL DISCIPLINARIO.pdf, Página 7)"
+            },
+            {
+                "scenario": "Un economista es investigado disciplinariamente por una falta relacionada con el ejercicio de su profesión.",
+                "question": "¿Cuál es la naturaleza de la autoridad que lo investiga y qué tipo de decisión se produce?",
+                "options": [
+                    "Una autoridad judicial que produce una sentencia.",
+                    "Una autoridad administrativa (sus pares) que produce un acto administrativo.",
+                    "La Procuraduría General de la Nación que produce un acto administrativo."
+                ],
+                "correctAnswer": "Una autoridad administrativa (sus pares) que produce un acto administrativo.",
+                "justification": "El llamado ético, profesional o delegado. De cualquier manera, aquí se trata entonces de las regulación disciplinaria de las profesiones liberales. Encontramos entonces que los médicos, los ingenieros, contadores, los economistas. Cualquier profesión liberal está regulada a través de una ley. Y en la ley se establece quién es la autoridad competente para disciplinarlos entonces, por ejemplo, Tribunal de Ética Médica, el COMNIA para ingeniero, la Junta central de contadores, etcétera, etcétera, son la autoridad Disciplinaria competente para investigar a sus pares. Cuando esto ocurre... la decisión que tome es autoridad... también es un acto administrativo. (CONTROL DISCIPLINARIO.pdf, Página 23-24)"
+            },
+            {
+                "scenario": "Se ha sancionado a un servidor de elección popular con destitución por parte de una autoridad administrativa.",
+                "question": "¿Qué recurso extraordinario es procedente en la actualidad para esta situación, según la jurisprudencia?",
+                "options": [
+                    "Recurso de apelación ante la misma autoridad administrativa.",
+                    "Recurso extraordinario de revisión, que opera de manera automática.",
+                    "Acción de tutela como único medio de defensa."
+                ],
+                "correctAnswer": "Recurso extraordinario de revisión, que opera de manera automática.",
+                "justification": "Cuando se trata de servidores. Público de elección popular con ocasión a toda esta problemática que ha surgido en torno a la competencia de la procuraduría para sancionarlos, se encuentra en la actualidad que es procedente el recurso extraordinario de revisión, que ya no es extraordinario porque opina de manera automática cuando cuando se trata de una sanción de destitución, suspensión o inhabilidad al servidor de elección popular. (CONTROL DISCIPLINARIO.pdf, Página 22)"
+            },
+            {
+                "scenario": "Un funcionario público ha incumplido sus deberes, y su comportamiento es considerado una 'omisión' en el ejercicio de sus funciones.",
+                "question": "¿Qué principio fundamental de la responsabilidad del servidor público se ve afectado por esta omisión?",
+                "options": [
+                    "Principio de buena fe.",
+                    "Principio de responsabilidad, que incluye la omisión o extralimitación en el ejercicio de funciones.",
+                    "Principio de libre albedrío."
+                ],
+                "correctAnswer": "Principio de responsabilidad, que incluye la omisión o extralimitación en el ejercicio de sus funciones.",
+                "justification": "Constitución Política. Art 6. Los particulares solo son responsables ante las autoridades por infringir la Constitución y las leyes. Los servidores públicos lo son por la misma causa y por omisión o extralimitación en el ejercicio de sus funciones. (CESJUL-Concurso-fiscalia-2025-Generalidades-PDF.pdf, Página 5)"
+            },
+            {
+                "scenario": "Un ciudadano se pregunta sobre los fines del Estado colombiano según la Constitución Política.",
+                "question": "¿Cuál de los siguientes es un fin primordial del Estado, según el Artículo 2 de la Constitución?",
+                "options": [
+                    "Garantizar la efectividad de los principios, derechos y deberes consagrados en la Constitución y asegurar la convivencia pacífica y un orden justo.",
+                    "Promover exclusivamente el desarrollo económico del país.",
+                    "Establecer un sistema de gobierno centralizado y autoritario."
+                ],
+                "correctAnswer": "Garantizar la efectividad de los principios, derechos y deberes consagrados en la Constitución y asegurar la convivencia pacífica y un orden justo.",
+                "justification": "Fines del estado Cons. Pol Arts.2 Garantizar la efectividad de los principios, derechos y deberes consagrados en la Constitución; asegurar la convivencia pacifica y la vigencia de un orden justo. (CESJUL-Concurso-fiscalia-2025-Generalidades-PDF.pdf, Página 4)"
+            },
+            {
+                "scenario": "Un servidor público se encuentra en una situación donde debe tomar una decisión que podría generar un conflicto de intereses.",
+                "question": "¿Qué régimen disciplinario prevé el Estado para guiar el comportamiento de sus servidores en estas situaciones?",
+                "options": [
+                    "Un régimen laxo que permite la discrecionalidad total.",
+                    "Un estricto régimen de inhabilidades, incompatibilidades, impedimentos y conflicto de intereses.",
+                    "Un sistema de sanciones post-facto sin directrices previas."
+                ],
+                "correctAnswer": "Un estricto régimen de inhabilidades, incompatibilidades, impedimentos y conflicto de intereses.",
+                "justification": "El Estado, pues respecto de sus servidores públicos hace lo siguiente, primero, les fija deberes y obligaciones, segundo, limita el alcance de sus derechos y funciones, tercero, les consagra provisiones y cuarto, prevé un estricto régimen de inhabilidades, incompatibilidades, impedimentos y conflicto de intereses. (CONTROL DISCIPLINARIO.pdf, Página 10)"
+            },
+            {
+                "scenario": "Se analiza la evolución del Código General Disciplinario (CGD) y su entrada en vigencia.",
+                "question": "¿Cuál es la fecha clave en la que el Código General Disciplinario (Ley 1952 de 2019, modificada por la Ley 2094 de 2021) entró a regir en Colombia?",
+                "options": [
+                    "28 de enero de 2019.",
+                    "8 de julio de 2020.",
+                    "29 de marzo de 2022."
+                ],
+                "correctAnswer": "29 de marzo de 2022.",
+                "justification": "29 de marzo de 2022. ¿Por qué es importante esta fecha? ¿Por qué este día empezó a regir el Código general disciplinario? (CONTROL DISCIPLINARIO.pdf, Página 41)"
+            },
+            {
+                "scenario": "Un personero municipal desea investigar disciplinariamente a un alcalde por una presunta falta grave.",
+                "question": "¿Tiene la personería competencia para llevar a cabo esta investigación?",
+                "options": [
+                    "Sí, las personerías tienen poder preferente sobre la administración municipal y distrital, incluyendo alcaldes.",
+                    "No, la investigación de alcaldes es competencia directa de la Procuraduría General de la Nación.",
+                    "Solo si el alcalde lo autoriza expresamente."
+                ],
+                "correctAnswer": "No, la investigación de alcaldes es competencia directa de la Procuraduría General de la Nación.",
+                "justification": "Los personeros no pueden investigar disciplinariamente ni al alcalde, ni a los concejales, ni al Contralor, esto es competencia directa de la Procuraduría General de la nación. (CONTROL DISCIPLINARIO.pdf, Página 31)"
+            }
+        ];
+        // Función para generar las 150 preguntas
+        function generateAllQuestions() {
+            const numBaseQuestions = baseQuestions.length;
+            const targetQuestions = 150;
+
+            // Duplicar y variar preguntas si es necesario para alcanzar 150
+            for (let i = 0; i < targetQuestions; i++) {
+                const originalQuestion = baseQuestions[i % numBaseQuestions];
+                const newQuestion = { ...originalQuestion }; // Copia profunda
+
+                // Opcional: Añadir una ligera variación para que no sean idénticas
+                if (i >= numBaseQuestions) {
+                    newQuestion.question = newQuestion.question + ` (Variación ${Math.floor(i / numBaseQuestions) + 1})`;
+                    // También podrías variar ligeramente el escenario o las opciones si el contenido lo permite
+                }
+                questions.push(newQuestion);
+            }
+            // Mezclar las preguntas para un orden aleatorio
+            shuffleArray(questions);
+        }
+
+        // Función para mezclar un array (algoritmo de Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Función para mostrar la pregunta actual
+        function displayQuestion() {
+            // Reiniciar el estado de la respuesta correcta seleccionada
+            correctAnswerSelected = false;
+            nextButton.classList.add('hidden'); // Ocultar botón "Siguiente Pregunta"
+            justificationSection.classList.add('hidden'); // Ocultar justificación
+            askAiButton.classList.add('hidden'); // Ocultar botón "Pregunta a la IA"
+            aiResponseSection.classList.add('hidden'); // Ocultar sección de respuesta de IA
+            aiResponseText.textContent = ''; // Limpiar texto de respuesta de IA
+
+            // Actualizar contador de preguntas
+            currentQuestionNumberSpan.textContent = currentQuestionIndex + 1;
+            totalQuestionsSpan.textContent = questions.length;
+
+            const question = questions[currentQuestionIndex];
+            questionText.innerHTML = `${question.scenario}<br><br>${question.question}`;
+            optionsContainer.innerHTML = ''; // Limpiar opciones anteriores
+
+            // Inicializar intentos para la pregunta si no existe
+            if (!questionAttempts[currentQuestionIndex]) {
+                questionAttempts[currentQuestionIndex] = 0;
+            }
+
+            // Mezclar las opciones para cada pregunta
+            const shuffledOptions = [...question.options];
+            shuffleArray(shuffledOptions);
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add(
+                    'option-button',
+                    'bg-gray-600', 'hover:bg-gray-500', 'text-white', 'font-semibold',
+                    'py-4', 'px-6', 'rounded-xl', 'transition-colors', 'duration-200',
+                    'text-base', 'text-left', 'w-full', 'break-words', 'whitespace-normal',
+                    'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500', 'focus:ring-opacity-75'
+                );
+                button.addEventListener('click', () => selectOption(button, option, question.correctAnswer, question.justification));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        // Función para manejar la selección de una opción
+        async function selectOption(selectedButton, selectedOption, correctAnswer, justification) {
+            // Incrementar intentos para la pregunta actual
+            if (!correctAnswerSelected) { // Solo cuenta intentos si aún no se ha acertado
+                questionAttempts[currentQuestionIndex]++;
+            }
+            
+            const allOptionButtons = optionsContainer.querySelectorAll('.option-button');
+
+            if (selectedOption === correctAnswer) {
+                // Respuesta correcta
+                selectedButton.classList.remove('bg-gray-600', 'hover:bg-gray-500');
+                selectedButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                justificationText.textContent = justification;
+                justificationSection.classList.remove('hidden'); // Mostrar justificación
+                nextButton.classList.remove('hidden'); // Mostrar botón "Siguiente Pregunta"
+                askAiButton.classList.remove('hidden'); // Mostrar botón "Pregunta a la IA"
+                correctAnswerSelected = true; // Marcar que la respuesta correcta fue seleccionada
+
+                // Deshabilitar todas las opciones después de una respuesta correcta
+                allOptionButtons.forEach(button => {
+                    button.disabled = true;
+                    button.classList.add('cursor-not-allowed');
+                });
+
+            } else {
+                // Respuesta incorrecta
+                selectedButton.classList.remove('bg-gray-600', 'hover:bg-gray-500');
+                selectedButton.classList.add('bg-red-600', 'hover:bg-red-700');
+                selectedButton.disabled = true; // Deshabilitar la opción incorrecta seleccionada
+                selectedButton.classList.add('cursor-not-allowed');
+            }
+        }
+
+        // Función para pasar a la siguiente pregunta
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion();
+            } else {
+                showResults(); // Mostrar resultados al finalizar el quiz
+            }
+        }
+
+        // Función para mostrar los resultados finales
+        function showResults() {
+            questionCounter.classList.add('hidden');
+            document.getElementById('question-section').classList.add('hidden');
+            nextButton.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+
+            classificationList.innerHTML = ''; // Limpiar lista de clasificación
+
+            // Convertir el objeto de intentos a un array para ordenar
+            const sortedResults = Object.keys(questionAttempts).map(index => {
+                return {
+                    questionNumber: parseInt(index) + 1,
+                    attempts: questionAttempts[index],
+                    questionText: questions[index].question // Obtener el texto original de la pregunta
+                };
+            });
+
+            // Ordenar por número de intentos (menor a mayor)
+            sortedResults.sort((a, b) => a.attempts - b.attempts);
+
+            sortedResults.forEach(result => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('mb-3', 'p-3', 'bg-gray-600', 'rounded-lg', 'shadow-md');
+                listItem.innerHTML = `
+                    <span class="font-bold text-blue-300">Pregunta ${result.questionNumber}:</span> 
+                    <span class="text-gray-200">${result.questionText}</span><br>
+                    <span class="font-semibold text-yellow-300">Intentos: ${result.attempts}</span>
+                `;
+                classificationList.appendChild(listItem);
+            });
+        }
+
+        // Función para reiniciar el quiz
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            questionAttempts = {};
+            correctAnswerSelected = false;
+            
+            // Regenerar y mezclar preguntas para un nuevo orden
+            questions = []; // Limpiar preguntas anteriores
+            generateAllQuestions(); // Generar las 150 preguntas de nuevo
+            
+            questionCounter.classList.remove('hidden');
+            document.getElementById('question-section').classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+            displayQuestion();
+        }
+
+        // Función para preguntar a la IA
+        async function askAI() {
+            aiResponseSection.classList.remove('hidden');
+            aiLoadingIndicator.classList.remove('hidden');
+            aiResponseText.textContent = ''; // Clear previous AI response
+
+            const currentQuestion = questions[currentQuestionIndex];
+            const prompt = `Basado en la siguiente pregunta y su justificación, por favor, expande la información o aclara cualquier aspecto relevante del tema. Enfócate en el contexto legal o administrativo colombiano, si aplica.
+
+Pregunta: ${currentQuestion.question}
+Justificación: ${currentQuestion.justification}`;
+
+            try {
+                const chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    aiResponseText.textContent = text;
+                } else {
+                    aiResponseText.textContent = "No se pudo obtener una respuesta de la IA. Inténtalo de nuevo.";
+                }
+            } catch (error) {
+                console.error("Error al llamar a la API de Gemini:", error);
+                aiResponseText.textContent = "Error al obtener la respuesta de la IA. Por favor, revisa la consola para más detalles.";
+            } finally {
+                aiLoadingIndicator.classList.add('hidden');
+            }
+        }
+
+
+        // Event Listeners
+        nextButton.addEventListener('click', nextQuestion);
+        restartButton.addEventListener('click', restartQuiz);
+        askAiButton.addEventListener('click', askAI); // Event listener para el botón "Pregunta a la IA"
+
+        // Inicializar el quiz al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            generateAllQuestions(); // Generar las 150 preguntas
+            displayQuestion();
+        });
+
+    </script>
+</body>
+</html>
