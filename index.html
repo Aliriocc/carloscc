@@ -117,6 +117,7 @@
         `;
 
         // Embedded HTML content for the "Ética, Tratamiento y Seguridad" quiz (index2.html structure)
+        // UPDATED with content from the uploaded index2.html
         const eticaQuizHtml = `
             <div id="quiz-container" class="bg-gray-800 p-8 rounded-3xl shadow-lg w-full max-w-7xl mx-auto my-8 flex flex-col items-center">
                 <h1 class="text-3xl md:text-4xl font-bold mb-8 text-center text-blue-400">Quiz de Ética y Políticas FGN</h1>
@@ -371,6 +372,7 @@
         ];
 
         // Question data for "Ética, Tratamiento y Seguridad" quiz
+        // UPDATED with content from the uploaded index2.html
         const eticaQuestions = [
             // --- CÓDIGO DE ÉTICA FGN ---
             {
@@ -401,7 +403,7 @@
                 options: [
                     "Sí, porque siente empatía por él y lo reconoce como persona de bien, bajo el principio de la buena fe.",
                     "No, debe aplicar el principio de igualdad de todos ante la ley y ser objetivo en su trato, sin modificar el procedimiento.",
-                    "Sí, pero solo if la situación no compromete la legalidad del proceso."
+                    "Sí, pero solo si la situación no compromete la legalidad del proceso."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Prima el principio de la igualdad de todos ante la ley, por lo cual no lo puedo tratar de manera diferente que a otros denunciados. Igualmente, solo tengo mis intuiciones subjetivas, mas no objetivas, sobre su personalidad y sus comportamientos. Tengo que ser objetivo en mi trato con él. (Código de Ética FGN, Sección 4.3.3 'El delincuente atípico', p. 33)"
@@ -412,7 +414,7 @@
                 options: [
                     "Sí, ya que la construcción y remodelación tienen costos elevados que es necesario controlar, priorizando la economía y eficiencia.",
                     "No, debe considerar el cuidado del medio ambiente y el uso razonable de los recursos naturales, construyendo un indicador de uso y escogiendo los más económicos a largo plazo que cumplan con este indicador.",
-                    "Sí, pero solo if no hay normas que regulen el impacto ambiental de estos elementos."
+                    "Sí, pero solo si no hay normas que regulen el impacto ambiental de estos elementos."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Prima la consideración del cuidado del medio ambiente, en aplicación del principio de la prevalencia del interés general sobre el interés particular (en este caso, el interés particular de la entidad en minimizar sus gastos). Le sigue el principio de la exigencia de los más altos estándares de mi profesión, lo que incluye valores tales como conocimiento, curiosidad, economía, eficacia y responsabilidad. (Código de Ética FGN, Sección 4.3.4 'Uso de agua y luz en las sedes', p. 34)"
@@ -687,7 +689,7 @@
                 options: [
                     "Sí, para demostrar transparencia y evitar conflictos con la ciudadanía.",
                     "No, debe mantener la reserva de la investigación y la información confidencial, explicando los canales legales para solicitar acceso a la información pública, si aplica, sin ceder a la presión.",
-                    "Sí, if los manifestantes prometen no divulgar los detalles sensibles."
+                    "Sí, si los manifestantes prometen no divulgar los detalles sensibles."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Actúo con prudencia y objetividad. Protejo la información confidencial que conozco en razón de mi cargo. No la divulgo a personas no autorizadas. (Código de Ética FGN, Sección 3.1.5 'Confidencialidad', p. 24 y Sección 3.7.2 'Transparencia', p. 30)"
@@ -756,7 +758,7 @@
                 options: [
                     "Sí, los rumores a menudo contienen algo de verdad y pueden ser útiles.",
                     "No, mi labor está basada en un conocimiento adecuado y actualizado de teorías y hechos. No baso mis decisiones en rumores o 'noticias falsas'.",
-                    "Sí, if la decisión no es de alto impacto."
+                    "Sí, si la decisión no es de alto impacto."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Mi labor está basada en un conocimiento adecuado y actualizado de teorías y hechos. No baso mis decisiones en rumores o 'noticias falsas'. (Código de Ética FGN, Sección 3.1.4 'Conocimiento', p. 13)"
@@ -778,7 +780,7 @@
                 options: [
                     "Sí, un líder debe ser firme y decisivo.",
                     "No, no confundo autoridad con autoritarismo. Lidero con responsabilidad, considerando las consecuencias de mis decisiones y fomentando la autonomía.",
-                    "Sí, if el equipo es inexperto y necesita una dirección fuerte."
+                    "Sí, si el equipo es inexperto y necesita una dirección fuerte."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No confundo autoridad con autoritarismo. Lidero con responsabilidad. (Código de Ética FGN, Sección 3.2.1 'Liderazgo', p. 15)"
@@ -800,7 +802,7 @@
                 options: [
                     "Sí, es natural tener prejuicios y pueden ayudar a evaluar la credibilidad.",
                     "No, no discrimino a nadie por ser supuestamente diferente, ni por su situación social o económica. No dudo del usuario por un prejuicio que pueda tener.",
-                    "Sí, if los prejuicios se basan en experiencias previas."
+                    "Sí, si los prejuicios se basan en experiencias previas."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No discrimino a nadie por ser supuestamente diferente. No discrimino a nadie por su situación social o económica. No dudo del usuario por un prejuicio que pueda tener en relación a su grupo social, étnico, raza, género, y demás. (Código de Ética FGN, Sección 3.3.1 'Justicia', p. 17)"
@@ -809,9 +811,9 @@
                 scenario: "Usted, en su participación en procesos ante la rama judicial, posterga decisiones y actividades que darían solución a un caso, demostrando desinterés.",
                 question: "¿Es esta una conducta acorde con sus responsabilidades?",
                 options: [
-                    "Sí, if el caso no es prioritario o hay otros más urgentes.",
+                    "Sí, si el caso no es prioritario o hay otros más urgentes.",
                     "No, no postergo las decisiones ni actividades que den solución a un caso. No demuestro desinterés en mis actuaciones. No evado mis funciones y responsabilidades.",
-                    "Sí, if la postergación no afecta directamente la vida de las personas."
+                    "Sí, si la postergación no afecta directamente la vida de las personas."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No postergo las decisiones ni actividades que den solución a un caso. No demuestro desinterés en mis actuaciones. No evado mis funciones y responsabilidades. (Código de Ética FGN, Sección 3.4.2 'Diligencia', p. 18)"
@@ -833,7 +835,7 @@
                 options: [
                     "Sí, es una forma de motivar o disciplinar al personal.",
                     "No, no permito que se creen áreas de trabajo que tengan fama de ser lugares para 'castigados', o bien, de 'privilegiados'. Trato a los servidores con atención a sus méritos y circunstancias.",
-                    "Sí, if ayuda a la eficiencia general del departamento."
+                    "Sí, si ayuda a la eficiencia general del departamento."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No permito que se creen áreas de trabajo que tengan fama de ser lugares para 'castigados', o bien, de 'privilegiados'. Trato a los servidores con atención a sus méritos, condiciones y circunstancias particulares. (Código de Ética FGN, Sección 3.6.1 'Legalidad', p. 20)"
@@ -842,9 +844,9 @@
                 scenario: "Usted es responsable de la comunicación institucional de la Fiscalía. Decide privilegiar a una empresa de medios específica por una relación personal.",
                 question: "¿Es esta una práctica aceptable?",
                 options: [
-                    "Sí, if la empresa de medios es eficiente y garantiza buena difusión.",
+                    "Sí, si la empresa de medios es eficiente y garantiza buena difusión.",
                     "No, no privilegio a empresas de medios específicos. Soy imparcial en las comunicaciones en relación con intereses políticos, institucionales o personales.",
-                    "Sí, if la empresa de medios ofrece un trato preferencial a la Fiscalía."
+                    "Sí, si la empresa de medios ofrece un trato preferencial a la Fiscalía."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No privilegio a empresas de medios específicos. Soy imparcial en las comunicaciones en relación con intereses políticos, institucionales o personales. (Código de Ética FGN, Sección 3.8.1 'Servicio al bien general', p. 22)"
@@ -866,7 +868,7 @@
                 options: [
                     "Sí, el impacto ambiental es responsabilidad de otras áreas especializadas.",
                     "No, nunca tomo en cuenta el impacto ambiental de mis decisiones. No reviso los procedimientos de mi área con el fin de disminuir su impacto sobre el medio ambiente o el uso de recursos naturales. (Código de Ética FGN, Sección 3.10.1 'Responsabilidad', p. 24)",
-                    "Sí, if el impacto no es significativo a corto plazo."
+                    "Sí, si el impacto no es significativo a corto plazo."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Nunca tomo en cuenta el impacto ambiental de mis decisiones. No reviso los procedimientos de mi área con el fin de disminuir su impacto sobre el medio ambiente o el uso de recursos naturales. (Código de Ética FGN, Sección 3.10.1 'Responsabilidad', p. 24)"
@@ -877,7 +879,7 @@
                 options: [
                     "Sí, es una forma de ser proactivo y presentar una imagen positiva.",
                     "No, no incluyo información no solicitada. No uso formas retóricas para oscurecer o embellecer cierta información. Mi relación con los organismos de control se fundamenta en la transparencia.",
-                    "Sí, if la información adicional es relevante y ayuda a la comprensión."
+                    "Sí, si la información adicional es relevante y ayuda a la comprensión."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No incluyo información no solicitada. No uso formas retóricas para oscurecer o embellecer cierta información. Mi relación con los organismos de control se fundamenta en la transparencia. (Código de Ética FGN, Sección 3.11.1 'Transparencia', p. 25)"
@@ -889,7 +891,7 @@
                 question: "¿Es siempre necesaria la autorización del titular para registrar sus datos personales?",
                 options: [
                     "Sí, la Fiscalía solo registrará datos personales con la autorización del titular, o en los casos permitidos por la ley o autorización judicial.",
-                    "No, la Fiscalía puede registrar datos personales sin autorización if es para fines de investigación.",
+                    "No, la Fiscalía puede registrar datos personales sin autorización si es para fines de investigación.",
                     "Solo es necesaria la autorización para datos sensibles."
                 ],
                 correctAnswerIndex: 0,
@@ -899,9 +901,9 @@
                 scenario: "Un funcionario de la Fiscalía está tratando datos personales que son incompletos y podrían inducir a error.",
                 question: "¿Está permitido este tipo de tratamiento de datos?",
                 options: [
-                    "Sí, if los datos son complementados posteriormente.",
+                    "Sí, si los datos son complementados posteriormente.",
                     "No, no se realizará en la Fiscalía General de la Nación tratamiento de datos parciales, incompletos, fraccionados o que induzcan a error, por expresa prohibición legal.",
-                    "Sí, if los datos no son sensibles."
+                    "Sí, si los datos no son sensibles."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No se realizará en la Fiscalía General de la Nación tratamiento de datos parciales, incompletos, fraccionados o que induzcan a error, por expresa prohibición legal. (Política de Tratamiento de Datos Personales, Artículo Cuarto, Principio de integridad, p. 4)"
@@ -910,9 +912,9 @@
                 scenario: "La Fiscalía ha recolectado datos personales para una finalidad específica (ej. vinculación de personal). Ahora, un área diferente quiere usar esos mismos datos para un estudio estadístico no relacionado con la finalidad original.",
                 question: "¿Es esto conforme al principio de finalidad?",
                 options: [
-                    "Sí, if el estudio es beneficioso para la institución.",
+                    "Sí, si el estudio es beneficioso para la institución.",
                     "No, la Fiscalía General de la Nación sujetará a tratamiento los Datos Personales en su poder, únicamente para el cumplimiento de las funciones de la Entidad y la finalidad autorizada por el titular.",
-                    "Sí, if los datos son anonimizados después del estudio."
+                    "Sí, si los datos son anonimizados después del estudio."
                 ],
                 correctAnswerIndex: 1,
                 justification: "La Fiscalía General de la Nación sujetará a tratamiento los Datos Personales en su poder, únicamente para el cumplimiento de las funciones de la Entidad. En caso de tratarse de datos de procesos de apoyo a la gestión y estratégicos, éstos solamente pueden ser tratados para la finalidad autorizada por el titular. (Política de Tratamiento de Datos Personales, Artículo Cuarto, Principio de finalidad, p. 4-5)"
@@ -934,7 +936,7 @@
                 options: [
                     "No, una vez que los datos están en la Fiscalía, no pueden ser suprimidos.",
                     "Sí, revocar la autorización y/o solicitar la supresión del dato por parte de la Fiscalía General de la Nación, cuando en el tratamiento no se respeten los principios, derechos y garantías constitucionales y legales.",
-                    "Solo if la Fiscalía está de acuerdo con su argumento."
+                    "Solo si la Fiscalía está de acuerdo con su argumento."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Revocar la autorización y/o solicitar la supresión del dato por parte de la Fiscalía General de la Nación, cuando en el tratamiento no se respeten los principios, derechos y garantías constitucionales y legales. (Política de Tratamiento de Datos Personales, Artículo Sexto, Derechos del Titular, p. 6)"
@@ -943,9 +945,9 @@
                 scenario: "Un funcionario de la Fiscalía tiene acceso a información que contiene datos personales de ciudadanos. ¿Cuál es su responsabilidad principal con respecto a esta información?",
                 question: "¿Cuál es la responsabilidad del funcionario con los datos personales a los que tiene acceso?",
                 options: [
-                    "Puede utilizarlos para fines personales if no los divulga a terceros.",
+                    "Puede utilizarlos para fines personales si no los divulga a terceros.",
                     "Es responsable de otorgarles la debida utilización, sin perjuicio de la responsabilidad penal y/o disciplinaria que se derive del incumplimiento de este deber.",
-                    "Solo es responsable if la información es sensible."
+                    "Solo es responsable si la información es sensible."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Los funcionarios de la Fiscalía General de la Nación que tengan acceso a información que contenga Datos Personales de los funcionarios o de los ciudadanos en general, son responsables de otorgarles a los mismos la debida utilización, sin perjuicio de la responsabilidad penal y/o disciplinaria que se derive del incumplimiento de este deber. (Política de Tratamiento de Datos Personales, Artículo Décimo, 'Debida utilización', p. 9)"
@@ -967,9 +969,9 @@
                 scenario: "Un servidor de la Fiscalía ha terminado su contrato de trabajo. ¿Qué debe hacer con los activos de información que estaban a su cargo?",
                 question: "¿Qué acción es obligatoria al finalizar el contrato de trabajo?",
                 options: [
-                    "Puede conservar los activos de información if los considera útiles para su desarrollo profesional.",
+                    "Puede conservar los activos de información si los considera útiles para su desarrollo profesional.",
                     "Deberá entregar los activos de información que estén a su cargo al Jefe inmediato.",
-                    "Puede eliminar la información que considera personal antes de entregar el equipo."
+                    "Puede eliminar la información que considere personal antes de entregar el equipo."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Con la terminación del contrato de trabajo con la FISCALÍA GENERAL DE LA NACIÓN se deberá entregar los activos de información que estén a su cargo al Jefe inmediato. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Sección 5.2 'Seguridad del Recurso Humano', p. 7)"
@@ -989,9 +991,9 @@
                 scenario: "Un funcionario de la Fiscalía desea instalar un nuevo programa en su computador institucional que considera útil para su trabajo, pero no cuenta con la autorización de la Oficina de Informática.",
                 question: "¿Está permitido instalar software sin autorización?",
                 options: [
-                    "Sí, if el programa es de código abierto y no tiene costo.",
+                    "Sí, si el programa es de código abierto y no tiene costo.",
                     "No, el usuario responsable del activo informático no debe instalar ningún programa sin previa autorización del jefe Inmediato y de la Oficina de Informática.",
-                    "Sí, if el programa es ampliamente utilizado en otras entidades."
+                    "Sí, si el programa es ampliamente utilizado en otras entidades."
                 ],
                 correctAnswerIndex: 1,
                 justification: "El usuario responsable del activo informático no debe instalar ningún programa sin previa autorización del jefe Inmediato y de la Oficina de Informática. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Sección 5.4.1 'Propietario de los activos', p. 8)"
@@ -1000,9 +1002,9 @@
                 scenario: "Un servidor de la Fiscalía está utilizando los recursos informáticos (computador, internet) para fines políticos, religiosos o de diversión personal.",
                 question: "¿Es este un uso aceptable de los recursos informáticos de la Entidad?",
                 options: [
-                    "Sí, if no interfiere con sus funciones laborales.",
+                    "Sí, si no interfiere con sus funciones laborales.",
                     "No, el usuario empleará exclusivamente los recursos informáticos para desarrollar su trabajo en función del cargo que desempeña. No para fines políticos, religiosos, comerciales o de diversión personal.",
-                    "Sí, if lo hace fuera del horario laboral."
+                    "Sí, si lo hace fuera del horario laboral."
                 ],
                 correctAnswerIndex: 1,
                 justification: "El usuario empleará exclusivamente los recursos informáticos para desarrollar su trabajo en función del cargo que desempeña. No para fines políticos, religiosos, comerciales o de diversión personal. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Sección 5.4.2 'Uso aceptable de los activos', p. 8)"
@@ -1011,9 +1013,9 @@
                 scenario: "Un funcionario de la Fiscalía desea enviar un correo electrónico oficial importante desde su cuenta personal de correo electrónico.",
                 question: "¿Está permitido enviar comunicaciones oficiales desde una cuenta personal?",
                 options: [
-                    "Sí, if la cuenta personal es segura y confiable.",
+                    "Sí, si la cuenta personal es segura y confiable.",
                     "No, el usuario debe enviar y recibir la información de la Entidad inherente al desarrollo de su labor a través de la cuenta de correo electrónico institucional que le fue asignada y no a través de cuentas de correo personales.",
-                    "Sí, if el destinatario es un contacto personal."
+                    "Sí, si el destinatario es un contacto personal."
                 ],
                 correctAnswerIndex: 1,
                 justification: "El usuario debe enviar y recibir la información de la Entidad inherente al desarrollo de su labor a través de la cuenta de correo electrónico institucional que le fue asignada y no a través de cuentas de correo personales, públicas o comerciales. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Sección 5.4.3.1 'Correo Electrónico Institucional', p. 9)"
@@ -1022,9 +1024,9 @@
                 scenario: "Un usuario de la red de la Fiscalía está accediendo a sitios con contenido pornográfico u ofensivo que no están enmarcados dentro de procesos de investigación.",
                 question: "¿Es esta una actividad permitida?",
                 options: [
-                    "Sí, if lo hace en su tiempo libre y no afecta a otros.",
+                    "Sí, si lo hace en su tiempo libre y no afecta a otros.",
                     "No, se prohíbe el uso de los recursos informáticos para la consulta o envío de material pornográfico, racista u ofensivo, a menos que haga parte de una investigación.",
-                    "Sí, if utiliza una red privada virtual (VPN)."
+                    "Sí, si utiliza una red privada virtual (VPN)."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Se prohíbe el uso de los recursos informáticos para la consulta o envío de material pornográfico, racista u ofensivo, a menos que haga parte de una investigación. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 19, Sección 5.8 'Gestión de la Seguridad de las Redes')"
@@ -1055,9 +1057,9 @@
                 scenario: "Un funcionario de la Fiscalía quiere instalar un programa de mensajería instantánea (como Skype o Messenger) en su computador institucional para comunicarse con contactos externos por razones laborales.",
                 question: "¿Está permitido el uso de estos servicios sin autorización?",
                 options: [
-                    "Sí, if es para fines laborales y mejora la comunicación.",
+                    "Sí, si es para fines laborales y mejora la comunicación.",
                     "No, se restringe el uso de servicios de mensajería instantánea y redes sociales debido a riesgos de seguridad informática, salvo autorización expresa y asumiendo el riesgo.",
-                    "Sí, if el programa es de una marca reconocida."
+                    "Sí, si el programa es de una marca reconocida."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Se restringe al interior de la entidad el uso de los servicios de mensajería instantánea tales como News, Real Audio, Netmeeting, Skype, Messenger y redes sociales tales como Facebook y Twitter entre otras redes sociales, constituyen un riesgo de seguridad informática, debido a los ataques y la información que se filtra a través de ellos. Si el usuario necesita utilizar alguno de estos servicios por razones laborales, deberá ser solicitado mediante diligenciamiento del formato correspondiente... (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 11, Sección 5.4.3.2 'Uso del servicio de Internet proporcionado por la entidad')"
@@ -1101,7 +1103,7 @@
                 options: [
                     "Sí, toda la información de la Fiscalía es pública por transparencia.",
                     "No, se trata de información preliminar y no definitiva, la cual no será pública de conformidad con lo previsto en la ley.",
-                    "Sí, if el documento no contiene datos sensibles."
+                    "Sí, si el documento no contiene datos sensibles."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Documento en construcción. Se trata de aquella información preliminar y no definitiva, propia del proceso deliberatorio de las dependencias de la Fiscalía General de la Nación, los cuales no serán públicos de conformidad con lo previsto en el artículo 5° de la Ley 1712 de 2014. (Política de Tratamiento de Datos Personales, Artículo Tercero, Definiciones, p. 3)"
@@ -1110,9 +1112,9 @@
                 scenario: "Un funcionario de la Fiscalía desea publicar opiniones personales en la página web institucional.",
                 question: "¿Está permitido publicar opiniones personales en la web institucional?",
                 options: [
-                    "Sí, if las opiniones son constructivas y no ofensivas.",
+                    "Sí, si las opiniones son constructivas y no ofensivas.",
                     "No, se prohíbe publicar opiniones personales como si fueran propias de la Entidad.",
-                    "Sí, if las opiniones están relacionadas con el ámbito laboral."
+                    "Sí, si las opiniones están relacionadas con el ámbito laboral."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Se prohíbe publicar opiniones personales como si fueran propias de la Entidad. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 18, Sección 5.7 'Propiedad y Procesamiento de la Información')"
@@ -1132,9 +1134,9 @@
                 scenario: "Un funcionario de la Fiscalía se niega a realizar las tareas asignadas argumentando que no son 'su trabajo' y que no son relevantes para la sociedad.",
                 question: "¿Es esta una actitud acorde con el compromiso ético de un servidor público?",
                 options: [
-                    "Sí, if las tareas realmente no corresponden a su perfil.",
+                    "Sí, si las tareas realmente no corresponden a su perfil.",
                     "No, no considero que mi trabajo como servidor es un 'favor' que le hago a la ciudadanía. Me identifico con los fines de la función pública y de la Fiscalía y actúo de acuerdo con ellos.",
-                    "Sí, if busca una reasignación de tareas."
+                    "Sí, si busca una reasignación de tareas."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No considero que mi trabajo como servidor es un 'favor' que le hago a la ciudadanía. No asumo que mi trabajo como servidor es irrelevante para la sociedad. (Código de Ética FGN, Sección 3.1.5 'Compromiso', p. 13)"
@@ -1145,7 +1147,7 @@
                 options: [
                     "Sí, la evaluación es subjetiva y personal del directivo.",
                     "No, no juzgo a los servidores por preferencias, amistades o prejuicios de ninguna índole. Trato a los servidores con atención a sus méritos, condiciones y circunstancias particulares.",
-                    "Sí, if los prejuicios se basan en observaciones previas."
+                    "Sí, si los prejuicios se basan en observaciones previas."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No juzgo a los servidores por preferencias, amistades o prejuicios de ninguna índole. Trato a los servidores con atención a sus méritos, condiciones y circunstancias particulares. (Código de Ética FGN, Sección 3.6.1 'Legalidad', p. 20)"
@@ -1189,7 +1191,7 @@
                 options: [
                     "Sí, es una forma de reflejar la realidad social.",
                     "No, no reflejo prejuicios propios o sociales en la representación de personas que no comparten los modos de vida míos o de la presunta mayoría de la sociedad.",
-                    "Sí, if los prejuicios son ampliamente compartidos."
+                    "Sí, si los prejuicios son ampliamente compartidos."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No reflejo prejuicios propios o sociales en la representación de personas que no comparten los modos de vida míos o de la presunta mayoría de la sociedad. (Código de Ética FGN, Sección 3.8.1 'Servicio al bien general', p. 22)"
@@ -1211,7 +1213,7 @@
                 options: [
                     "Los usuarios tienen la libertad de elegir las herramientas que prefieran.",
                     "Los usuarios de la FISCALÍA GENERAL DE LA NACIÓN están obligados a utilizar las herramientas informáticas que la Entidad les proporciona para el desarrollo de su trabajo.",
-                    "Solo deben usar las herramientas if son más eficientes que los métodos manuales."
+                    "Solo deben usar las herramientas si son más eficientes que los métodos manuales."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Los usuarios de la FISCALÍA GENERAL DE LA NACIÓN están obligados a utilizar las herramientas informáticas que la Entidad les proporciona para el desarrollo de su trabajo. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 8, Sección 5.4.2 'Uso aceptable de los activos')"
@@ -1222,7 +1224,7 @@
                 options: [
                     "Sí, la información parcial es suficiente para decisiones rápidas.",
                     "No, no me doy por satisfecho con información parcial. Me dedico a obtener un conocimiento preciso y completo de la realidad, en cuanto sea relevante para el ejercicio de mi cargo o función.",
-                    "Sí, if la decisión no es crítica."
+                    "Sí, si la decisión no es crítica."
                 ],
                 correctAnswerIndex: 1,
                 justification: "No me doy por satisfecho con información parcial. Me dedico a obtener un conocimiento preciso y completo de la realidad, en cuanto sea relevante para el ejercicio de mi cargo o función. (Código de Ética FGN, Sección 3.1.4 'Conocimiento', p. 13)"
@@ -1242,9 +1244,9 @@
                 scenario: "Un funcionario de la Fiscalía observa que un colega está utilizando una cuenta de usuario compartida para acceder a los recursos informáticos de la Entidad.",
                 question: "¿Es esta una práctica permitida?",
                 options: [
-                    "Sí, if la cuenta compartida facilita el trabajo en equipo.",
+                    "Sí, si la cuenta compartida facilita el trabajo en equipo.",
                     "No, el 'nombre de usuario' debe ser único e intransferible, es decir que está prohibido el acceso a los recursos informáticos de la Entidad por medio de un 'nombre de usuario' compartido o que no se le haya asignado.",
-                    "Sí, if ambos usuarios tienen los mismos permisos."
+                    "Sí, si ambos usuarios tienen los mismos permisos."
                 ],
                 correctAnswerIndex: 1,
                 justification: "El 'nombre de usuario' debe ser único e intransferible, es decir que está prohibido el acceso a los recursos informáticos de la Entidad por medio de un 'nombre de usuario' compartido o que no se le haya asignado. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 14, Sección 5.6.1 'Registro de Usuarios')"
@@ -1299,7 +1301,7 @@
                 options: [
                     "Solo la aprobación del jefe inmediato.",
                     "La autorización de la Oficina de Informática.",
-                    "No se necesita ninguna autorización if el equipo es propio."
+                    "No se necesita ninguna autorización si el equipo es propio."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Realizar la instalación de equipos a la red institucional sin ser autorizado por la Oficina de Informática. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 16, Sección 5.6.5 'Controles sobre el uso de la red')"
@@ -1308,9 +1310,9 @@
                 scenario: "Un servidor de la Fiscalía está utilizando la red de computadores de la Entidad para obtener acceso no autorizado a información en otros computadores.",
                 question: "¿Es esta una acción permitida?",
                 options: [
-                    "Sí, if la información es relevante para su trabajo.",
+                    "Sí, si la información es relevante para su trabajo.",
                     "No, se prohíbe el uso de la red de computadores de la Entidad para obtener acceso no autorizado a información o servicios en otros computadores.",
-                    "Sí, if no deja rastro de su actividad."
+                    "Sí, si no deja rastro de su actividad."
                 ],
                 correctAnswerIndex: 1,
                 justification: "Se prohíbe el uso de la red de computadores de la Entidad para obtener acceso no autorizado a información o servicios en otros computadores. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 19, Sección 5.8 'Gestión de la Seguridad de las Redes')"
@@ -1349,15 +1351,15 @@
                 justification: "Ley General de Archivo: Ley 594 de 2000 El Párrafo 1 del artículo 19... 'establece la obligación de garantizar la autenticidad, integridad y la inalterabilidad de la información allí consignada...' (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 1, Sección 'CONSIDERANDO', literal d)"
             },
             {
-                scenario: "Un directivo y debe asegurar que los servidores a su cargo conozcan y cumplan con las Políticas de Seguridad de la Información. ¿Cuál es su responsabilidad principal en este aspecto?",
+                scenario: "Usted es un directivo y debe asegurar que los servidores a su cargo conozcan y cumplan con las Políticas de Seguridad de la Información. ¿Cuál es su responsabilidad principal en este aspecto?",
                 question: "¿Cuál es la responsabilidad de los directivos respecto a las Políticas de Seguridad de la Información?",
-                "options": [
+                options: [
                     "Solo notificar al personal de la existencia de las políticas.",
                     "Conocer, divulgar, cumplir y hacer cumplir la Política de Seguridad de la Información vigente.",
                     "Delegar completamente la responsabilidad en la Oficina de Informática."
                 ],
-                "correctAnswerIndex": 1,
-                "justification": "Los servidores de la Entidad y principalmente los Directores Nacionales, Directores Seccionales, Jefes de Oficina, Jefes de División, Jefes de Sección, Jefes de Unidades y en general todos aquellos servidores y funcionarios de la Entidad con personal a cargo, tienen la responsabilidad de: Conocer, divulgar, cumplir y hacer cumplir la Política de Seguridad de la Información vigente. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 21, Sección 2 'Usuarios de los activos informáticos')"
+                correctAnswerIndex: 1,
+                justification: "Los servidores de la Entidad y principalmente los Directores Nacionales, Directores Seccionales, Jefes de Oficina, Jefes de División, Jefes de Sección, Jefes de Unidades y en general todos aquellos servidores y funcionarios de la Entidad con personal a cargo, tienen la responsabilidad de: Conocer, divulgar, cumplir y hacer cumplir la Política de Seguridad de la Información vigente. (POLITICAS-SEG-DE-LA-INFORMACION.pdf, Página 21, Sección 2 'Usuarios de los activos informáticos')"
             }
         ];
 
@@ -1422,17 +1424,14 @@
         // Initialize the quiz with a specific set of questions
         function startQuiz(questionsData) {
             currentQuestions = []; // Clear previous questions
-            const targetQuestions = 150; // Target for disciplinario quiz, can be adjusted for etica if needed
+            const targetDisciplinarioQuestions = 150; // Target for disciplinario quiz
 
             if (quizType === 'disciplinario') {
                 const numBaseQuestions = questionsData.length;
-                for (let i = 0; i < targetQuestions; i++) {
+                for (let i = 0; i < targetDisciplinarioQuestions; i++) {
                     const originalQuestion = questionsData[i % numBaseQuestions];
                     const newQuestion = { ...originalQuestion }; // Deep copy
-                    // Optionally add variation for duplicated questions
-                    if (i >= numBaseQuestions) {
-                        newQuestion.question = newQuestion.question + ` (Variación ${Math.floor(i / numBaseQuestions) + 1})`;
-                    }
+                    // No need to add variation text unless specifically requested, just duplicate
                     currentQuestions.push(newQuestion);
                 }
             } else { // For etica quiz, use the questions as is
@@ -1448,16 +1447,14 @@
             currentQuestions.forEach((q, index) => {
                 let originalIdx;
                 if (quizType === 'disciplinario') {
-                    // Find original index in disciplinarioBaseQuestions
+                    // For disciplinario, map back to the original base question index for accurate tracking
                     originalIdx = disciplinarioBaseQuestions.indexOf(q);
-                    // If it's a duplicated question, find its base index
-                    if (originalIdx === -1) {
-                        // This implies it's a variation, so we need to find the base question it derived from
-                        // This is a simplification; a more robust solution would involve unique IDs for questions
-                        // For now, we'll just use the current index as the 'original index' for duplicated questions
-                        // to ensure attempts are tracked, even if the 'originalIndex' isn't truly original.
-                        // Or, better, pass the original index during duplication.
-                        // For now, let's just use the current index for tracking attempts in the ranking.
+                    if (originalIdx === -1) { // If it's a duplicated question, find its original base index
+                        // This assumes the duplicated questions are direct copies of the base questions
+                        // A more robust solution for tracking original index of duplicated questions might involve
+                        // adding a unique ID to each question in the base array and then referencing that ID.
+                        // For simplicity, we'll just use the current index for tracking attempts in the ranking
+                        // if a direct match isn't found in the base array (which shouldn't happen with direct copies).
                         originalIdx = index; // Fallback to current index for tracking in ranking
                     }
                 } else if (quizType === 'etica') {
