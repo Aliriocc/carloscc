@@ -3,851 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seguridad-Tratamiento-Etica</title>
+    <title>Juego de Memorización de Frases</title>
+    
+    <!-- Tailwind CSS desde CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* Aplicamos la fuente Inter a todo el cuerpo */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* bg-gray-800 */
-            color: #e2e8f0; /* text-gray-200 */
-        }
-        .quiz-container {
-            width: 95%; /* Mayor parte del ancho */
-            max-width: 1200px; /* Max-width generoso */
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .question-section {
-            background-color: #2d3748; /* bg-gray-700 */
-            border-radius: 1.5rem; /* rounded-3xl */
-            padding: 1.5rem; /* p-6, reducido un poco */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            min-height: 300px; 
-            max-height: calc(100vh - 220px); /* Ajustado para el nuevo header */
-            display: flex;
-            flex-direction: column;
-        }
-        .question-content-area {
-            flex-grow: 1;
-            overflow-y: auto; 
-        }
-        .option-button {
-            background-color: #4a5568; /* bg-gray-600 */
-            border-radius: 0.75rem; /* rounded-xl */
-            padding: 0.75rem 1.5rem; /* py-3 px-6 */
-            transition: background-color 0.3s ease, transform 0.1s ease;
-            border: 2px solid transparent;
-        }
-        .option-button:hover {
-            background-color: #718096; /* bg-gray-500 */
-        }
-        .option-button:active {
-            transform: scale(0.98);
-        }
-        .option-button.correct {
-            background-color: #48bb78; /* bg-green-500 */
-            color: #1a202c;
-            border-color: #38a169; /* border-green-600 */
-        }
-        .option-button.incorrect {
-            background-color: #f56565; /* bg-red-500 */
-            color: #1a202c;
-            border-color: #e53e3e; /* border-red-600 */
-        }
-        .justification-text-container { 
-            background-color: #1a202c; 
-            border: 1px solid #4a5568; 
-            border-radius: 0.75rem; 
-            padding: 1rem 1.5rem; 
-            margin-top: 1rem; 
-            max-height: 350px; 
-            overflow-y: auto; 
-            color: #e2e8f0; 
-        }
-        .action-button { /* Clase común para botones de acción */
-            color: white;
-            padding: 0.5rem 1rem; 
-            font-size: 0.875rem; 
-            border-radius: 0.75rem; 
-            transition: background-color 0.3s ease;
-        }
-        .next-button {
-            background-color: #4299e1; /* bg-blue-500 */
-        }
-        .next-button:hover {
-            background-color: #3182ce; /* bg-blue-600 */
-        }
-        .terminate-button {
-            background-color: #e53e3e; /* bg-red-600 */
-        }
-        .terminate-button:hover {
-            background-color: #c53030; /* bg-red-700 */
-        }
-        .progress-text {
-            color: #a0aec0; /* text-gray-400 */
-        }
-        .results-container {
-            background-color: #2d3748; 
-            border-radius: 1.5rem; 
-            padding: 2rem; 
-            margin-top: 2rem; 
-        }
-        .results-table th, .results-table td {
-            border: 1px solid #4a5568; 
-            padding: 0.75rem; 
-            text-align: left;
-        }
-        .results-table th {
-            background-color: #4a5568; 
-        }
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #2d3748; 
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #718096; 
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a0aec0; 
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-4 sm:p-6 lg:p-8">
+<body class="bg-gray-100 text-gray-800">
 
-    <div id="quiz-app" class="quiz-container">
-        <header class="mb-6 flex justify-between items-center w-full">
-            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Seguridad-Tratamiento-Etica</h1>
-            <p id="progress-text" class="text-sm sm:text-base lg:text-lg progress-text ml-4 whitespace-nowrap">Cargando...</p>
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <!-- Encabezado de la aplicación -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Memorizar Frases</h1>
         </header>
 
-        <main id="quiz-main-content" class="w-full">
-            <section id="question-section" class="question-section mb-4">
-                <div class="question-content-area">
-                    <p id="scenario-text" class="text-base sm:text-lg mb-2 text-gray-300"></p>
-                    <h2 id="question-text" class="text-lg sm:text-xl font-semibold mb-4"></h2>
-                    <div id="options-container" class="space-y-2 sm:space-y-3">
-                        </div>
-                    <div id="justification-container" class="hidden mt-4"> 
-                        <p id="justification-text" class="justification-text-container text-sm sm:text-base"></p>
-                    </div>
-                </div>
-            </section>
-            
-            <div class="flex justify-between items-center mt-3"> <button id="terminate-button" class="action-button terminate-button hidden">Terminar</button>
-                 <button id="next-button" class="action-button next-button hidden">Siguiente Pregunta</button>
+        <!-- Contenedor de Acceso -->
+        <div id="access-gate" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Control de Acceso</h2>
+            <p class="text-gray-500 mb-6">Por favor, introduce tu clave para continuar.</p>
+            <div class="relative">
+                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                    </svg>
+                 </div>
+                <input type="password" id="access-key-input" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Clave de acceso">
             </div>
-        </main>
+            <button id="validate-key-btn" class="w-full mt-4 bg-gray-800 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-gray-900 transition">Validar</button>
+            <p id="error-message" class="text-red-500 font-medium mt-4 hidden"></p>
+        </div>
 
-        <section id="results-section" class="results-container hidden w-full">
-            <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Resultados Finales</h2>
-            <div class="overflow-x-auto">
-                <table id="results-table" class="w-full text-sm sm:text-base results-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Pregunta</th>
-                            <th>Intentos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
-            </div>
-             <div class="mt-8 text-center">
-                <button id="restart-button" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-3 px-6 rounded-xl transition-colors">
-                    Reiniciar Quiz
+
+        <!-- Contenedor de inicio (oculto por defecto) -->
+        <div id="start-container" class="text-center mb-6 hidden">
+            <p class="text-gray-600 mb-6">¡Acceso concedido! Elige una opción para comenzar.</p>
+            <div class="flex flex-col sm:flex-row sm:justify-center gap-4">
+                <button id="start-game-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Iniciar Juego
+                </button>
+                <button id="review-btn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">
+                    Repaso General
                 </button>
             </div>
+        </div>
+
+        <!-- Contenedor principal del juego (inicialmente oculto) -->
+        <main id="game-container" class="hidden">
+            <!-- Selectores de Cajas -->
+            <section id="box-selectors" class="flex flex-wrap justify-center gap-2 mb-6">
+                <!-- Los botones de las cajas se generarán aquí con JavaScript -->
+            </section>
+
+            <!-- Contenedor de la tarjeta -->
+            <section id="card-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-xl min-h-[450px] flex items-center justify-center flex-col">
+                <!-- El contenido de la tarjeta o mensajes se mostrarán aquí -->
+            </section>
+        </main>
+        
+        <!-- Contenedor de la pantalla final de repaso (inicialmente oculto) -->
+        <section id="final-review-container" class="hidden text-center">
+            <!-- El contenido del repaso final se generará aquí -->
         </section>
+
     </div>
 
-    <script>
-        const quizData = [
-          {
-            "id": 1, "scenario": "Un fiscal está manejando un caso de alto perfil mediático. Un periodista le ofrece una suma de dinero a cambio de información exclusiva sobre los avances de la investigación, que aún se encuentra bajo reserva.", "questionText": "¿Cuál debería ser la actuación del fiscal conforme al Código de Ética de la Fiscalía General de la Nación?", "options": [{ "text": "Aceptar el dinero y entregar información no comprometedora para no afectar el caso.", "correct": false },{ "text": "Rechazar la oferta, informar a sus superiores sobre el intento de soborno y mantener la reserva de la investigación.", "correct": true },{ "text": "Entregar la información de forma anónima para evitar ser descubierto y usar el dinero para gastos personales.", "correct": false }], "justification": "Según el Código de Ética, Sección 3.1.5 Compromiso: 'Me identifico con los fines de la función pública y de la Fiscalía y actúo de acuerdo con ellos... Exijo a los demás servidores el cumplimiento integral de la función pública.' Además, la Sección 3.1.3.1 Confidencialidad establece: 'Soy cuidadoso y responsable con la información sobre personas, organizaciones y la Fiscalía General de la Nación. Reconozco el carácter confidencial de esta información... No entrego esta información a los medios de comunicación sin que medie autorización expresa.' La actuación correcta es rechazar y reportar, manteniendo la confidencialidad."
-          },
-          {
-            "id": 2, "scenario": "Un técnico del CTI necesita acceder a un sistema de información para extraer evidencia crucial en una investigación. Su contraseña ha expirado y, por la urgencia, le pide a un compañero que le preste su usuario y contraseña temporalmente.", "questionText": "De acuerdo con las Políticas de Seguridad de la Información de la Fiscalía, ¿es correcta esta acción?", "options": [{ "text": "Sí, porque la urgencia del caso justifica compartir las credenciales temporalmente.", "correct": false },{ "text": "No, las credenciales de acceso son personales e intransferibles, y compartirlas constituye una violación a las políticas de seguridad.", "correct": true },{ "text": "Es aceptable si el compañero cambia su contraseña inmediatamente después de que el técnico la use.", "correct": false }], "justification": "Según las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.1 Registro de Usuarios, Normatividad c): 'El \"nombre de usuario\" debe ser único e intransferible, es decir que está prohibido el acceso a los recursos informáticos de la Entidad por medio de un \"nombre de usuario\" compartido o que no se le haya asignado.' Y Sección 5.6.2 Gestión de contraseñas para usuarios, Normatividad f): 'Se prohíbe el uso de contraseña compartida. Las contraseñas nunca deben ser compartidas o reveladas a otras personas diferentes al usuario autorizado.'"
-          },
-          {
-            "id": 3, "scenario": "Una ciudadana se acerca a la Fiscalía para conocer el estado de una denuncia que interpuso hace varios meses. El funcionario que la atiende le informa que no puede darle detalles porque la investigación es reservada y no le explica los canales adecuados para obtener información como titular del dato.", "questionText": "¿Qué principio de la Política de Tratamiento de Datos Personales podría estar vulnerándose principalmente en esta situación?", "options": [{ "text": "Principio de necesidad, ya que la información no es necesaria para la ciudadana.", "correct": false }, { "text": "Principio de acceso y circulación restringida, interpretado de forma que se le niega el derecho a ser informada adecuadamente como titular.", "correct": true }, { "text": "Principio de veracidad, ya que la información que se le da es incompleta.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Sexto, Numeral 3, establece el derecho del titular a 'Ser informado por la Fiscalía General de la Nación, previa solicitud del titular del dato, respecto al uso que se le ha dado a sus Datos Personales, salvo los casos en los que opere la reserva de la información.' Aunque la investigación puede ser reservada, se debe orientar al titular sobre sus derechos y los procedimientos, y el principio de acceso y circulación restringida debe equilibrarse con el derecho del titular a ser informado, dentro de los límites legales."
-          },
-          {
-            "id": 4, "scenario": "Un funcionario de la Fiscalía, en su tiempo libre y usando su computador personal, descarga software pirata y visita sitios web no seguros. Al día siguiente, usa una memoria USB personal en su equipo de trabajo en la Fiscalía para transferir unos archivos personales.", "questionText": "¿Qué riesgo principal para la seguridad de la información de la Fiscalía representa esta conducta, según las políticas?", "options": [{ "text": "Ninguno, ya que las actividades se realizaron en un equipo personal y en tiempo libre.", "correct": false }, { "text": "Un riesgo alto de infección por malware (virus, troyanos) que podría comprometer la red y los sistemas de la Fiscalía al introducir la USB.", "correct": true }, { "text": "Un riesgo bajo, siempre que el antivirus del equipo de la Fiscalía esté actualizado.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) buscan proteger los activos informáticos de amenazas. La Sección 5.8. Normatividad a) prohíbe 'distribuir archivos que contengan virus, troyanos, gusanos, spyware y en general todo tipo de software malicioso'. El uso de USB personales tras haber visitado sitios no seguros o descargado software pirata incrementa significativamente el riesgo de introducir malware en la red de la Fiscalía."
-          },
-          {
-            "id": 5, "scenario": "Un directivo de la Fiscalía asigna constantemente a un subalterno tareas que exceden su capacidad y horario laboral, sin reconocer sus esfuerzos y generando un ambiente de presión excesiva. El subalterno teme represalias si se queja.", "questionText": "¿Qué directriz ética, especialmente relevante para cargos directivos, está incumpliendo el directivo?", "options": [{ "text": "Liderazgo, al no organizar adecuadamente el trabajo.", "correct": false }, { "text": "Reconocimiento, al no proteger la dignidad del servidor, sobrecargándolo y no valorando su bienestar.", "correct": true }, { "text": "Calidad, ya que la sobrecarga podría afectar la calidad del trabajo del subalterno.", "correct": false }], "justification": "El Código de Ética, Sección 3.2 'Si tengo un cargo directivo', específicamente en 3.2.2 Reconocimiento, establece: 'Protejo la dignidad de los servidores a mi cargo... No los sobrecargo con tareas que no puedan cumplir con calidad y oportunamente. Evito asignar tareas fuera de las horas laborales, excepto cuando haya razones imperiosas.' La conducta del directivo va en contra de esta directriz."
-          },
-          {
-            "id": 6, "scenario": "Un funcionario de la Fiscalía recibe una solicitud de un ciudadano para acceder a sus datos personales contenidos en una base de datos administrativa de la entidad. El funcionario, argumentando carga laboral, no tramita la solicitud en el tiempo estipulado.", "questionText": "¿Qué derecho del titular de los datos se está vulnerando y qué normativa lo respalda?", "options": [{ "text": "Derecho a la intimidad, según el Código Penal.", "correct": false }, { "text": "Derecho a conocer, actualizar y rectificar sus Datos Personales, respaldado por la Ley 1581 de 2012 y la Política de Tratamiento de Datos Personales de la FGN.", "correct": true }, { "text": "Derecho a la libre expresión, ya que no se le permite comunicarse efectivamente.", "correct": false }], "justification": "El Artículo Sexto de la Política de Tratamiento de Datos Personales de la FGN (Resolución 0-0152 de 2018), que se basa en la Ley 1581 de 2012 (Artículo 8), establece el derecho del titular a 'Conocer, actualizar y rectificar sus Datos Personales'. El Artículo Octavo de la misma resolución establece los procedimientos y plazos para atender estas solicitudes, y no tramitarla a tiempo vulnera este derecho."
-          },
-          {
-            "id": 7, "scenario": "Durante un proceso de contratación, un funcionario de la Fiscalía encargado de evaluar propuestas nota que uno de los oferentes es una empresa perteneciente a un amigo cercano. A pesar de esto, decide continuar con la evaluación sin informar de su relación.", "questionText": "¿Qué principio ético fundamental está comprometiendo el funcionario?", "options": [{ "text": "Conocimiento, ya que podría no tener toda la información para decidir.", "correct": false }, { "text": "Imparcialidad y Servicio al bien general, al no declarar un posible conflicto de interés que podría influir en su decisión.", "correct": true }, { "text": "Calidad, ya que la amistad podría llevarlo a ser menos exigente con la propuesta.", "correct": false }], "justification": "El Código de Ética, Sección 3.7.1 Imparcialidad (en el contexto de proveedores y contratistas), establece: 'No permito que mis decisiones de contratación sean influenciadas por vínculos familiares, de amistad o de otra índole.' Además, la Sección 3.1.1 Servicio al bien general indica: 'No permito que algún interés personal propio, de uno de mis familiares o de terceros influya en mis decisiones.' El funcionario debe declarar el conflicto de interés."
-          },
-          {
-            "id": 8, "scenario": "Un analista de la Oficina de Informática detecta un intento de acceso no autorizado a un servidor crítico de la Fiscalía. Decide investigarlo por su cuenta sin seguir el protocolo establecido para reportar incidentes de seguridad, para no generar alarma.", "questionText": "Según las Políticas de Seguridad de la Información, ¿es adecuada la actuación del analista?", "options": [{ "text": "Sí, si logra resolver el incidente rápidamente y sin mayores consecuencias.", "correct": false }, { "text": "No, debe seguir los protocolos establecidos para el reporte y manejo de incidentes de seguridad, involucrando a los responsables designados.", "correct": true }, { "text": "Parcialmente, debería informar solo después de confirmar la gravedad del incidente.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) establecen la necesidad de un manejo estructurado de la seguridad. Aunque no se detalla un protocolo específico de reporte de incidentes en los fragmentos, el Artículo Tercero define 'Incidente de Seguridad' y la Sección 5.1 'Gestión de la Seguridad de la Información' implica procesos organizados. Omitir el reporte formal va en contra del principio de una gestión coordinada y documentada de la seguridad, esencial para una respuesta efectiva y para prevenir futuros incidentes."
-          },
-          {
-            "id": 9, "scenario": "Un servidor público de la Fiscalía utiliza frecuentemente los recursos de la entidad (impresora, papel, internet) para asuntos personales no relacionados con su trabajo, argumentando que es un uso mínimo y no afecta sus labores.", "questionText": "¿Cómo se valora esta conducta desde la perspectiva del Código de Ética?", "options": [{ "text": "Es aceptable si no interfiere con sus responsabilidades principales.", "correct": false }, { "text": "No es ético, ya que los recursos públicos deben usarse para los fines institucionales y el bien general, no para beneficio particular.", "correct": true }, { "text": "Es una falta menor que puede ser pasada por alto si el servidor es eficiente en su trabajo.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.6 Calidad, establece: 'No uso mi tiempo laboral para fines personales.' Implícitamente, esto se extiende al uso de recursos. El principio de 'El interés general prevalece sobre el interés particular' (Sección 2) también aplica, indicando que los recursos de la Fiscalía son para el cumplimiento de su misión, no para uso personal. La Sección 5.4.2.g de las Políticas de Seguridad de la Información también prohíbe usar recursos para fines no laborales."
-          },
-          {
-            "id": 10, "scenario": "Una dependencia de la Fiscalía necesita adquirir un nuevo software. El jefe de la dependencia instruye a su equipo para que en las especificaciones técnicas se incluyan características tan específicas que solo un proveedor particular, amigo suyo, las cumple, excluyendo así a otros competidores.", "questionText": "¿Qué directriz ética relacionada con proveedores y contratistas se está vulnerando flagrantemente?", "options": [{ "text": "La directriz de exigir calidad a los proveedores.", "correct": false }, { "text": "La directriz de imparcialidad, al diseñar un proceso para favorecer a un oferente específico y no seleccionar con base en mérito de manera objetiva.", "correct": true }, { "text": "La directriz de mantener la reserva sobre las ofertas comerciales.", "correct": false }], "justification": "El Código de Ética, Sección 3.7.1 Imparcialidad, establece: 'Diseño convocatorias que contemplen y equilibren las necesidades de la entidad y las condiciones de los posibles oferentes... Selecciono a proveedores y contratistas con base en mérito, de manera objetiva y sin privilegios.' La acción descrita claramente viola la objetividad y la selección basada en mérito, favoreciendo intereses particulares."
-          },
-          {
-            "id": 11, "scenario": "Un funcionario de la Fiscalía tiene acceso a información sensible sobre un caso en curso. Un familiar le pide detalles sobre el caso por curiosidad.", "questionText": "¿Cómo debe proceder el funcionario según el Código de Ética?", "options": [{ "text": "Compartir solo detalles generales para satisfacer la curiosidad del familiar sin comprometer la investigación.", "correct": false }, { "text": "Negarse amablemente a compartir cualquier información, explicando la naturaleza confidencial de su trabajo.", "correct": true }, { "text": "Inventar una historia diferente para no revelar la verdad pero tampoco decepcionar al familiar.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.3.1 Confidencialidad, es claro: 'Soy cuidadoso y responsable con la información sobre personas, organizaciones y la Fiscalía General de la Nación. Reconozco el carácter confidencial de esta información... No convierto esta información en cuento entre colegas o familiares.'"
-          },
-          {
-            "id": 12, "scenario": "Un servidor de la Fiscalía descubre que un compañero está utilizando el correo electrónico institucional para coordinar actividades de un partido político.", "questionText": "¿Qué prohibición específica del uso del correo electrónico institucional se está infringiendo según las Políticas de Seguridad de la Información?", "options": [{ "text": "Enviar mensajes con información no solicitada (spam).", "correct": false }, { "text": "Utilizar el correo institucional para el envío de información no autorizada, como propaganda política.", "correct": true }, { "text": "Utilizar lenguaje inapropiado u ofensivo.", "correct": false }], "justification": "Según las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.3.1 Correo Electrónico Institucional, Prohibiciones en el uso del correo electrónico institucional, literal c): 'No se debe utilizar el correo institucional para el envío información no autorizada, tal como propaganda comercial, política o religiosa...'"
-          },
-          {
-            "id": 13, "scenario": "Una víctima de un delito solicita a la Fiscalía la supresión de sus datos personales de una base de datos pública de la entidad, argumentando que su divulgación la pone en riesgo.", "questionText": "¿Qué derecho fundamental de la víctima está directamente relacionado con esta solicitud, según la Política de Tratamiento de Datos Personales?", "options": [{ "text": "El derecho a la libertad de expresión.", "correct": false }, { "text": "El derecho a revocar la autorización y/o solicitar la supresión del dato cuando en el tratamiento no se respeten los principios, derechos y garantías.", "correct": true }, { "text": "El derecho a no ser discriminado.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Sexto, Numeral 4, establece el derecho del titular a: 'Revocar la autorización y/o solicitar la supresión del dato por parte de la Fiscalía General de la Nación, cuando en el tratamiento no se respeten los principios, derechos y garantías constitucionales y legales.'"
-          },
-          {
-            "id": 14, "scenario": "Un investigador del CTI, al realizar una inspección en una empresa, decide llevarse para su uso personal algunos elementos de papelería (bolígrafos, resmas de papel) que no son relevantes para la investigación.", "questionText": "¿Qué principio ético está vulnerando el investigador?", "options": [{ "text": "Diligencia, al no concentrarse exclusivamente en la recolección de pruebas.", "correct": false }, { "text": "Honestidad e Integridad (implícitos en el servicio público), al apropiarse indebidamente de bienes ajenos, aunque sean de poco valor.", "correct": true }, { "text": "Compromiso con la institución, ya que esos elementos podrían ser útiles para la Fiscalía.", "correct": false }], "justification": "El Código de Ética, en su Sección 2 'Los principios éticos', establece que 'Las acciones del servidor público son éticamente íntegras'. La apropiación de bienes, incluso de poco valor, durante una diligencia oficial va en contra de la integridad y honestidad esperada de un servidor público. Aunque no se mencione explícitamente el hurto de papelería, el principio general de integridad es aplicable."
-          },
-          {
-            "id": 15, "scenario": "Un jefe de unidad en la Fiscalía constantemente desestima las opiniones técnicas de los miembros de su equipo que son más jóvenes o tienen menos experiencia, basándose únicamente en su antigüedad.", "questionText": "¿Qué aspecto del valor 'Reconocimiento' (para cargos directivos) está fallando en aplicar el jefe?", "options": [{ "text": "No asignar tareas de acuerdo con sus capacidades y fortalezas.", "correct": false }, { "text": "No valorar sus conocimientos y aportes a la entidad, y no fomentar un ambiente de diálogo franco.", "correct": true }, { "text": "No proteger la dignidad de los servidores a su cargo.", "correct": false }], "justification": "El Código de Ética, Sección 3.2.2 Reconocimiento, indica: 'Los valoro como compañeros de trabajo, con sus fortalezas, debilidades y diversidad de caracteres y temperamentos. Valoro sus conocimientos y aportes a la entidad. Fomento un ambiente de trabajo que permita un diálogo franco con los servidores a mi cargo.' Desestimar aportes por antigüedad en lugar de mérito técnico va en contra de este principio."
-          },
-          {
-            "id": 16, "scenario": "Un funcionario es responsable de la custodia de información clasificada. Deja documentos sensibles sobre su escritorio al salir a almorzar, en un área donde transitan otros colegas no autorizados para ver dicha información.", "questionText": "¿Qué directriz específica sobre confidencialidad del Código de Ética está incumpliendo?", "options": [{ "text": "No entregar la información a los medios de comunicación sin autorización.", "correct": false }, { "text": "Ser cuidadoso con la documentación que deja en su escritorio y que lleva consigo.", "correct": true }, { "text": "No utilizar la información para obtener algún beneficio personal.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.3.1 Confidencialidad, establece como parte de 'Lo que hago': 'Soy cuidadoso con la documentación que dejo en mi escritorio y que llevo conmigo.' Dejar documentos sensibles desatendidos es una falta directa a esta directriz."
-          },
-          {
-            "id": 17, "scenario": "La Fiscalía va a implementar un nuevo sistema de información. Durante la fase de pruebas, se detectan varias vulnerabilidades de seguridad, pero por cumplir con los plazos de entrega, se decide lanzar el sistema sin corregirlas todas, planeando hacerlo después.", "questionText": "Desde la perspectiva de las Políticas de Seguridad de la Información, ¿qué principio se está comprometiendo?", "options": [{ "text": "La responsabilidad de los usuarios sobre los activos informáticos.", "correct": false }, { "text": "El objetivo de proteger los activos informáticos y garantizar la confidencialidad, integridad y disponibilidad de la información antes de la puesta en producción.", "correct": true }, { "text": "La necesidad de que el software esté debidamente licenciado.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Artículo Primero (Objetivo), establecen: 'La política de seguridad informática tiene por objetivo proteger los activos informáticos de la Fiscalía General de la Nación y garantizar un adecuado uso de la tecnología, ante amenazas... con el fin de asegurar el cumplimiento de la confidencialidad, integridad y disponibilidad de la información.' Lanzar un sistema con vulnerabilidades conocidas compromete este objetivo fundamental."
-          },
-          {
-            "id": 18, "scenario": "Un ciudadano presenta una queja ante la Fiscalía porque considera que sus datos personales fueron utilizados de forma inapropiada en una publicación de la entidad. La dependencia encargada no responde a su reclamación dentro del término legal.", "questionText": "¿Qué procedimiento establecido en la Política de Tratamiento de Datos Personales se está incumpliendo?", "options": [{ "text": "El procedimiento para solicitar prueba de la autorización del tratamiento de datos.", "correct": false }, { "text": "El procedimiento para la atención y respuesta a quejas y reclamos, específicamente el plazo para dar respuesta.", "correct": true }, { "text": "El procedimiento para la anonimización de datos sensibles en documentos públicos.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Octavo, Numeral 4, literal c), establece: 'La dependencia de la Entidad que en marco de sus competencias tenga acceso a los Datos Personales objeto de la reclamación, dará respuesta a la inconformidad dentro del término máximo de quince (15) días hábiles...'"
-          },
-          {
-            "id": 19, "scenario": "Un fiscal, al revisar un caso, se da cuenta de que el investigado es una persona influyente en la ciudad. Decide archivar el caso rápidamente con argumentos débiles para evitar confrontaciones, a pesar de existir méritos para continuar la investigación.", "questionText": "¿Qué principio ético fundamental está violando el fiscal con esta actuación?", "options": [{ "text": "El principio de conocimiento, al no profundizar en la investigación.", "correct": false }, { "text": "El principio de que el interés general prevalece sobre el interés particular y el de actuar con justicia e imparcialidad.", "correct": true }, { "text": "El principio de calidad, al no realizar un trabajo exhaustivo.", "correct": false }], "justification": "El Código de Ética, Sección 2 'Los principios éticos', establece: 'El interés general prevalece sobre el interés particular.' y 'Todas las personas son iguales ante la ley.' Además, la Sección 3.1.1 'Servicio al bien general' indica: 'Actúo con justicia... Soy imparcial en el momento de tomar decisiones. No dejo que el rango social, alto o bajo, o el poder de una persona influya en mis decisiones.'"
-          },
-          {
-            "id": 20, "scenario": "Un empleado de la Fiscalía utiliza su acceso a las bases de datos institucionales para consultar información personal de un vecino con el que tiene una disputa personal, sin ninguna relación con sus funciones laborales.", "questionText": "¿Cuál es la implicación de esta acción según las Políticas de Seguridad y el Código de Ética?", "options": [{ "text": "Es una falta administrativa menor si no divulga la información.", "correct": false }, { "text": "Es un uso indebido de los activos de información, una violación a la confidencialidad y un posible abuso de autoridad, contrario a las políticas de seguridad y los principios éticos.", "correct": true }, { "text": "Es aceptable si lo hace fuera del horario laboral para no afectar su productividad.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.2.g, prohíbe usar recursos informáticos para fines no laborales. El Código de Ética, Sección 3.1.3.1 Confidencialidad, exige responsabilidad con la información. Además, el Artículo Décimo de la Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018) establece la 'Debida utilización' y la responsabilidad por el incumplimiento. Usar el acceso para fines personales es una clara violación."
-          },
-          {
-            "id": 21, "scenario": "Un funcionario de la Fiscalía es asignado a una nueva área y se le otorga acceso a sistemas con información altamente sensible. No recibe capacitación sobre las políticas de seguridad específicas para esa información ni sobre los riesgos asociados.", "questionText": "¿Qué responsabilidad de la Oficina de Personal y de la Escuela de Estudios, según las Políticas de Seguridad de la Información, podría no estarse cumpliendo adecuadamente?", "options": [{ "text": "La responsabilidad de monitorear el acceso lógico y físico a las redes.", "correct": false }, { "text": "La responsabilidad de notificar al personal que ingresa sobre sus obligaciones (Oficina de Personal) y realizar capacitación continua en materia de seguridad informática (Escuela de Estudios).", "correct": true }, { "text": "La responsabilidad de definir la estructura de restricciones y excepciones de acceso a la información.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Artículo Sexto, establece las responsabilidades. Numeral 4.b (Oficina de Personal): 'Notificar a todo el personal que ingresa a la Institución, de sus obligaciones respecto del cumplimiento de la Política de Seguridad informática.' Numeral 5.a (Escuela de Estudios): 'Realizar las tareas de capacitación continua en materia de seguridad informática, a todos los servidores y funcionarios de la Fiscalía.'"
-          },
-          {
-            "id": 22, "scenario": "Durante una auditoría interna, se descubre que una dependencia de la Fiscalía no ha estado realizando copias de seguridad de su información crítica de manera regular, poniendo en riesgo la disponibilidad de la misma en caso de un incidente.", "questionText": "¿Quiénes son los primeros responsables de la integridad y respaldo de la información de la dependencia, según las Políticas de Seguridad?", "options": [{ "text": "Únicamente la Oficina de Informática, por ser la encargada de la infraestructura tecnológica.", "correct": false }, { "text": "Los Jefes de dependencia, sección o área son los primeros responsables, aunque pueden contar con asesoría técnica de la Oficina de Informática.", "correct": true }, { "text": "Cada funcionario individualmente es responsable de la información que maneja, sin responsabilidad del jefe directo.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.7 Propiedad y Procesamiento de la Información, Normatividad g): 'Los Jefes de dependencia, sección, o área, son los primeros responsables de la integridad y respaldo de la información inherente de la dependencia a su cargo. Dicha labor de respaldo podrá adelantarla con la asesoría técnica de la Oficina de Informática.'"
-          },
-          {
-            "id": 23, "scenario": "Un contratista que presta servicios a la Fiscalía necesita acceso remoto a ciertos sistemas. Se le otorgan credenciales sin firmar un acuerdo de confidencialidad específico ni recibir información clara sobre las políticas de seguridad de la entidad.", "questionText": "¿Qué requisito para el acceso de terceros a los sistemas de la Fiscalía se está omitiendo, según las Políticas de Seguridad?", "options": [{ "text": "Que el acceso sea monitoreado por el supervisor del contrato.", "correct": false }, { "text": "Que la solicitud de acceso esté respaldada por convenio o contrato, y que el tercero se comprometa al cumplimiento de las políticas y confidencialidad.", "correct": true }, { "text": "Que el contratista utilice su propio equipo para el acceso remoto.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.6 Autenticación de usuarios para conexiones externas de terceros, Normatividad a) y d): 'Toda solicitud de acceso... por parte de terceros, debe estar respaldada por convenio, contrato o acuerdo...' y 'Las credenciales de identificación serán entregadas... luego de diligenciar el formato correspondiente... que incluye el compromiso de confidencialidad y cumplimiento de las políticas establecidas por la Entidad.'"
-          },
-          {
-            "id": 24, "scenario": "Un funcionario observa que las luces y equipos de cómputo de su oficina permanecen encendidos innecesariamente fuera del horario laboral, generando un consumo excesivo de energía.", "questionText": "Aunque no se trate de un delito informático, ¿qué principio del Código de Ética relacionado con el uso de recursos y el medio ambiente podría aplicarse para fomentar una conducta más responsable?", "options": [{ "text": "El principio de legalidad, ya que podría existir una norma sobre ahorro energético.", "correct": false }, { "text": "El principio de responsabilidad en el uso de recursos y la consideración del impacto ambiental (Sección 3.10), promoviendo un uso razonable de los recursos.", "correct": true }, { "text": "El principio de conocimiento, informándose sobre el consumo energético.", "correct": false }], "justification": "El Código de Ética, Sección 3.10 'Si mi trabajo afecta el medio ambiente', Directriz 3.10.1 Responsabilidad: 'Soy responsable en el uso de los recursos naturales y en la afectación del medio ambiente. Hago un uso razonable y ajustado de los recursos naturales y de los insumos que afectan el medio ambiente.' Esto incluye el uso eficiente de la energía."
-          },
-          {
-            "id": 25, "scenario": "Un directivo de la Fiscalía recibe una denuncia anónima bien fundamentada sobre actos de corrupción cometidos por un miembro de su equipo. Decide no investigarla para evitar un escándalo que afecte la reputación de su área.", "questionText": "¿Qué directriz ética fundamental está ignorando el directivo?", "options": [{ "text": "La directriz de proteger la dignidad de los servidores a su cargo.", "correct": false }, { "text": "La directriz de Liderazgo con responsabilidad y el deber de actuar con integridad y promover la justicia, incluso si implica tomar decisiones difíciles.", "correct": true }, { "text": "La directriz de reconocer los errores institucionales y no tratar de esconderlos.", "correct": false }], "justification": "El Código de Ética, Sección 3.2.1 Liderazgo, establece: 'Lidero con responsabilidad.' y 'Considero las consecuencias de mis decisiones y actúo de tal manera que estas tengan efectos positivos sobre la Fiscalía, los servidores, los usuarios del sistema judicial y la sociedad.' Ignorar una denuncia de corrupción va en contra de la responsabilidad, la integridad (Sección 3.1.2) y el compromiso con la justicia (Sección 3.1.1)."
-          },
-          {
-            "id": 26, "scenario": "Un funcionario encargado de la gestión documental recibe una orden de destruir unos expedientes que, según la normativa de archivo, aún deben conservarse. La orden proviene de un superior que busca ocultar posibles irregularidades.", "questionText": "¿Cómo debería actuar el funcionario, considerando el principio de legalidad del Código de Ética?", "options": [{ "text": "Cumplir la orden del superior para evitar problemas laborales.", "correct": false }, { "text": "Negarse a cumplir una orden que considera ilegal, documentar la situación y, si es necesario, escalarla a una instancia superior o de control, basándose en el principio de legalidad.", "correct": true }, { "text": "Destruir los expedientes pero guardar copias en secreto por si acaso.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.2 Legalidad, establece: 'Mis acciones se guían por los principios de la legalidad y la integridad ética... Conozco y cumplo las normas que aplican a mi ámbito de acción.' Cumplir una orden ilegal va en contra de este principio. La Ley General de Archivo (Ley 594 de 2000), mencionada en las Políticas de Seguridad de la Información, también establece la obligación de garantizar la autenticidad e integridad de la información."
-          },
-          {
-            "id": 27, "scenario": "Un técnico de sistemas de la Fiscalía instala en su equipo de trabajo un software para minar criptomonedas, utilizando los recursos computacionales de la entidad para su beneficio personal.", "questionText": "¿Qué política específica sobre el uso aceptable de los activos informáticos está violando directamente?", "options": [{ "text": "La prohibición de modificar la configuración y características de un PC sin autorización.", "correct": false }, { "text": "La prohibición de emplear los recursos informáticos para fines distintos al desarrollo de su trabajo en función del cargo, como actividades con ánimo de lucro personal.", "correct": true }, { "text": "La necesidad de que el sistema operativo y la ofimática estén debidamente licenciados.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.2 Uso aceptable de los activos, Normatividad g): 'El usuario empleará exclusivamente los recursos informáticos para desarrollar su trabajo en función del cargo que desempeña. No para fines políticos, religiosos, comerciales o de diversión personal.' Minar criptomonedas es una actividad con ánimo de lucro personal que abusa de los recursos institucionales."
-          },
-          {
-            "id": 28, "scenario": "Un ciudadano solicita a la Fiscalía información sobre un proceso penal en el que él es el denunciante. El fiscal a cargo se niega a proporcionar cualquier tipo de información, incluso aquella a la que el ciudadano tendría derecho, alegando simplemente 'reserva sumarial' sin mayor explicación.", "questionText": "Además de vulnerar el derecho de acceso a la información del titular, ¿qué directriz ética sobre el trato a los usuarios del sistema judicial podría estar incumpliendo el fiscal?", "options": [{ "text": "No humillar al usuario ni someterlo a tratos o condiciones de vejación.", "correct": false }, { "text": "Le explico al usuario su situación y el procedimiento jurídico de manera clara y en términos entendibles para él.", "correct": true }, { "text": "Hacer uso medido y razonable de la fuerza.", "correct": false }], "justification": "El Código de Ética, Sección 3.3 'Si mi trabajo me relaciona con los usuarios del sistema judicial', Directriz 3.3.1 Justicia, establece como parte de 'Lo que hago': 'Le explico al usuario su situación y el procedimiento jurídico de manera clara y en términos entendibles para él.' Negar información sin una explicación adecuada o sin orientar sobre los derechos y procedimientos incumple esta directriz de trato justo y claro."
-          },
-          {
-            "id": 29, "scenario": "La Oficina de Informática de la Fiscalía planea implementar un nuevo sistema de autenticación para el acceso a la red, que requiere que los usuarios utilicen contraseñas más complejas y las cambien con mayor frecuencia. Algunos funcionarios se quejan de la medida por considerarla incómoda.", "questionText": "Desde la perspectiva de las Políticas de Seguridad de la Información, ¿por qué es fundamental implementar y mantener este tipo de controles de acceso rigurosos?", "options": [{ "text": "Principalmente para cumplir con estándares internacionales de gestión de calidad.", "correct": false }, { "text": "Para proteger la confidencialidad, integridad y disponibilidad de la información de la Fiscalía, gestionando adecuadamente la seguridad de las contraseñas y el acceso de usuarios.", "correct": true }, { "text": "Para reducir los costos de soporte técnico asociados a problemas de acceso.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) en su conjunto, y específicamente las secciones sobre Control de Acceso (5.5) y Gestión de Acceso de Usuarios (5.6), incluyendo la Gestión de Contraseñas (5.6.2), tienen como fin último asegurar la información. Contraseñas robustas y cambiadas periódicamente son controles esenciales para prevenir accesos no autorizados y proteger los activos informáticos."
-          },
-          {
-            "id": 30, "scenario": "Un servidor de la Fiscalía, con acceso a información reservada, es contactado por un antiguo compañero de universidad que ahora trabaja para una empresa privada. Este le solicita 'amistosamente' datos específicos de una investigación que podrían beneficiar a su empresa.", "questionText": "Según el Código de Ética, ¿cuál es la consideración primordial que debe guiar la respuesta del servidor?", "options": [{ "text": "La lealtad hacia su antiguo compañero y el deseo de mantener una buena relación.", "correct": false }, { "text": "El deber de confidencialidad, la primacía del interés general sobre el particular, y la prohibición de usar información privilegiada para beneficio de terceros.", "correct": true }, { "text": "La posibilidad de obtener un favor a cambio por parte de la empresa de su amigo en el futuro.", "correct": false }], "justification": "El Código de Ética es claro en varios puntos: Sección 3.1.3.1 Confidencialidad ('No utilizo esta información para obtener algún beneficio personal' o para terceros). Sección 3.1.1 Servicio al bien general ('Siempre privilegio el logro del bien general sobre el logro de bienes particulares o personales. No permito que algún interés personal propio, de uno de mis familiares o de terceros influya en mis decisiones'). La amistad no puede superponerse a estos deberes éticos."
-          },
-          {
-            "id": 31, "scenario": "Un funcionario está utilizando una estación de trabajo compartida en la Fiscalía. Al terminar su turno, simplemente cierra los programas pero no cierra su sesión de usuario en el sistema operativo.", "questionText": "¿Qué riesgo de seguridad introduce esta omisión según las buenas prácticas y las políticas de seguridad?", "options": [{ "text": "Un riesgo de desgaste acelerado del equipo por mantenerse encendido.", "correct": false }, { "text": "Un riesgo de acceso no autorizado a su sesión y a la información por parte del siguiente usuario, violando el principio de responsabilidad individual sobre la cuenta.", "correct": true }, { "text": "Ninguno, si el siguiente usuario también es un funcionario de la Fiscalía.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.1 Registro de Usuarios, Normatividad d) 'Los usuarios son responsables de todas las actividades que involucren el uso de su \"nombre de usuario\"'. No cerrar sesión en un equipo compartido facilita el acceso no autorizado a la sesión del usuario anterior."
-          },
-          {
-            "id": 32, "scenario": "La Fiscalía adquiere una nueva base de datos para almacenar información ciudadana. Durante la configuración, no se implementan mecanismos de anonimización o seudonimización para los datos que se usarán en entornos de prueba o desarrollo.", "questionText": "¿Qué principio de la Política de Tratamiento de Datos Personales se vería comprometido si se usan datos reales sin protección en entornos no productivos?", "options": [{ "text": "Principio de veracidad o calidad del dato.", "correct": false }, { "text": "Principio de seguridad y confidencialidad, al exponer datos personales a riesgos innecesarios en entornos menos controlados.", "correct": true }, { "text": "Principio de necesidad y proporcionalidad del dato.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Cuarto, Principios, Numeral 1 (Libertad, que implica consentimiento) y Artículo Quinto (Tratamiento y Finalidades) sugieren que los datos deben ser tratados para fines específicos y con las debidas protecciones. Usar datos reales sin protección en entornos de prueba aumenta el riesgo de exposición y uso indebido, afectando la seguridad y confidencialidad."
-          },
-          {
-            "id": 33, "scenario": "Un servidor público es testigo de cómo un colega recibe regalos costosos de un abogado que frecuentemente tramita casos en su despacho, y nota que los casos de ese abogado parecen tener un trámite preferencial.", "questionText": "¿Qué deber ético primordial debe considerar el servidor público que es testigo de esta situación?", "options": [{ "text": "La lealtad hacia su colega, evitando crearle problemas.", "correct": false }, { "text": "El deber de denunciar posibles actos de corrupción o faltas éticas que afecten la imparcialidad y la integridad de la institución, conforme al Código de Ética.", "correct": true }, { "text": "La discreción, ya que no es su responsabilidad directa intervenir en la conducta de otros.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.5 Compromiso: 'Exijo a los demás servidores el cumplimiento integral de la función pública.' Además, el principio de 'El interés general prevalece sobre el interés particular' (Sección 2) implica que no se deben tolerar actos que comprometan la justicia y la imparcialidad. Recibir regalos que puedan influir en decisiones es una falta grave."
-          },
-          {
-            "id": 34, "scenario": "Un funcionario de la Fiscalía utiliza la impresora y el papel de la oficina para imprimir todos los documentos de la tesis de maestría de su hijo.", "questionText": "Conforme al Código de Ética y las políticas de uso de recursos, ¿cómo se considera esta acción?", "options": [{ "text": "Permitida, si se hace fuera del horario laboral y no afecta sus tareas.", "correct": false }, { "text": "Un uso indebido de los recursos públicos para fines particulares, contrario a la ética y las políticas institucionales.", "correct": true }, { "text": "Aceptable, si el costo del papel y la tinta es mínimo y no representa un gasto significativo para la entidad.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.6 Calidad, 'Lo que no hago': 'No uso mi tiempo laboral para fines personales.' Esto se extiende al uso de recursos. Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.2 Uso aceptable de los activos, Normatividad g), prohíben el uso de recursos para fines no laborales."
-          },
-          {
-            "id": 35, "scenario": "Un jefe de departamento en la Fiscalía asigna a un nuevo miembro del equipo, sin experiencia previa en contratación, la tarea de liderar un proceso licitatorio complejo y de alto valor, sin ofrecerle la capacitación o el acompañamiento adecuados.", "questionText": "¿Qué responsabilidad como líder, según el Código de Ética, está descuidando principalmente el jefe?", "options": [{ "text": "Fomentar un ambiente de diálogo franco.", "correct": false }, { "text": "Asegurar que los servidores a su cargo tengan los conocimientos y herramientas para cumplir sus tareas con calidad (implícito en Liderazgo y Reconocimiento de capacidades).", "correct": true }, { "text": "Reconocer públicamente los logros del equipo.", "correct": false }], "justification": "El Código de Ética, Sección 3.2.1 Liderazgo: 'Dirijo mi área con claridad en cuanto a metas y procedimientos.' y 3.2.2 Reconocimiento: 'Asigno tareas de acuerdo con sus capacidades y fortalezas.' Asignar una tarea compleja sin la debida preparación o soporte va en contra de un liderazgo responsable que busca la calidad y el desarrollo de su personal."
-          },
-          {
-            "id": 36, "scenario": "Un sistema de información de la Fiscalía que maneja datos sensibles presenta una falla que es explotada por un atacante externo, resultando en una fuga de información. La investigación posterior revela que la falla era conocida pero no se había priorizado su corrección.", "questionText": "¿A qué se debe dar prioridad en la gestión de la seguridad de la información, según las políticas de la FGN?", "options": [{ "text": "A la implementación de nuevas funcionalidades antes que a la corrección de vulnerabilidades existentes.", "correct": false }, { "text": "A la protección de los activos informáticos y la información mediante la gestión proactiva de riesgos y vulnerabilidades.", "correct": true }, { "text": "A la reducción de costos en medidas de seguridad para optimizar el presupuesto.", "correct": false }], "justification": "El Artículo Primero (Objetivo) de las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) es 'proteger los activos informáticos... con el fin de asegurar el cumplimiento de la confidencialidad, integridad y disponibilidad de la información.' Esto implica una gestión proactiva de vulnerabilidades y su corrección prioritaria cuando son conocidas."
-          },
-          {
-            "id": 37, "scenario": "Un ciudadano solicita la actualización de su dirección de residencia en una base de datos de la Fiscalía, ya que la actual es incorrecta. El funcionario le indica que ese trámite es muy demorado y que no es realmente necesario.", "questionText": "¿Qué derecho del titular y qué principio del tratamiento de datos se están desconociendo?", "options": [{ "text": "El derecho a la portabilidad y el principio de transparencia.", "correct": false }, { "text": "El derecho a la rectificación (actualización) y el principio de veracidad o calidad del dato.", "correct": true }, { "text": "El derecho al olvido y el principio de finalidad.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Sexto, Numeral 1, establece el derecho del titular a 'Conocer, actualizar y rectificar sus Datos Personales'. El Artículo Cuarto, Numeral 3 (Principio de veracidad o calidad) establece que la información debe ser 'veraz, completa, exacta, actualizada...'"
-          },
-          {
-            "id": 38, "scenario": "Un fiscal utiliza un lenguaje sarcástico y despectivo al dirigirse a un denunciante que considera que está exagerando los hechos de su caso.", "questionText": "¿Qué directriz específica del Código de Ética sobre el trato a los usuarios del sistema judicial está vulnerando?", "options": [{ "text": "Le explico el procedimiento jurídico en términos entendibles.", "correct": false }, { "text": "Trato a los demás con reconocimiento de sus propios fines y metas. No humillo a las personas ni las hago sentir inferiores.", "correct": true }, { "text": "Soy imparcial en mis decisiones.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.3 Respeto, 'Lo que hago': 'Trato a los demás con reconocimiento de sus propios fines y metas... Trato a los demás de manera cuidadosa.' y 'Lo que no hago': 'No agredo a las personas. No humillo a las personas ni las hago sentir inferiores.' Esto aplica al trato con usuarios del sistema judicial."
-          },
-          {
-            "id": 39, "scenario": "Un analista de seguridad informática de la Fiscalía decide instalar en la red, sin autorización previa ni pruebas exhaustivas, un software de monitoreo 'freeware' descargado de internet, pensando que mejorará la detección de intrusos.", "questionText": "¿Qué riesgo principal introduce esta acción, según las Políticas de Seguridad de la Información?", "options": [{ "text": "Problemas de licenciamiento con el software 'freeware'.", "correct": false }, { "text": "La introducción de software no autorizado, no probado y potencialmente malicioso o con vulnerabilidades que podrían comprometer la seguridad de la red y los sistemas de la Fiscalía.", "correct": true }, { "text": "Un gasto innecesario de recursos de red si el software es muy pesado.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.2 Uso aceptable de los activos, Normatividad d): 'El usuario no debe modificar la configuración y características de un PC. Está prohibido instalar, desinstalar o bajar software de Internet, a menos que se tenga la debida autorización de la Oficina de Informática.'"
-          },
-          {
-            "id": 40, "scenario": "Una dependencia de la Fiscalía requiere contratar un servicio especializado. El jefe de la dependencia tiene un familiar que posee una empresa que ofrece dicho servicio. El jefe participa activamente en la definición de los requisitos y en la evaluación de las propuestas sin declarar este parentesco.", "questionText": "¿Qué obligación ética fundamental está incumpliendo el jefe de la dependencia?", "options": [{ "text": "La obligación de buscar la mejor calidad para la Fiscalía.", "correct": false }, { "text": "La obligación de declarar cualquier conflicto de intereses real o potencial que pueda afectar su objetividad e imparcialidad.", "correct": true }, { "text": "La obligación de mantener la confidencialidad del proceso de contratación.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.1 Servicio al bien general, 'Lo que no hago': 'No permito que algún interés personal propio, de uno de mis familiares o de terceros influya en mis decisiones.' La Sección 3.7.1 Imparcialidad (para proveedores) también es relevante, exigiendo selección objetiva y sin privilegios."
-          },
-          {
-            "id": 41, "scenario": "Un funcionario de la Fiscalía olvida su carné de identificación en casa y le pide a un compañero que le preste el suyo para ingresar a las instalaciones y registrar su asistencia.", "questionText": "¿Es esta una práctica aceptable según las políticas de seguridad física y de identificación?", "options": [{ "text": "Sí, si es solo por un día y el compañero confía en él.", "correct": false }, { "text": "No, el carné de identificación es personal e intransferible y su préstamo constituye una falla de seguridad y una posible suplantación.", "correct": true }, { "text": "Es aceptable si lo reporta al personal de seguridad al ingresar.", "correct": false }], "justification": "Aunque no se detalla explícitamente el uso del carné físico en los fragmentos, el principio de identificación única e intransferible es un pilar de la seguridad. Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.5 Control de Acceso y 5.6 Gestión de Acceso de Usuarios, refuerzan la idea de que los mecanismos de acceso son individuales y no deben compartirse."
-          },
-          {
-            "id": 42, "scenario": "Un sistema crítico de la Fiscalía no cuenta con un plan de recuperación ante desastres (DRP) probado y actualizado. Ocurre un incidente mayor que afecta la disponibilidad del sistema por varios días.", "questionText": "¿Qué aspecto de la gestión de la seguridad de la información se ha descuidado, impactando directamente la continuidad del servicio?", "options": [{ "text": "La gestión de incidentes de seguridad.", "correct": false }, { "text": "La planificación de la continuidad de los servicios informáticos de la Entidad.", "correct": true }, { "text": "El control de acceso físico a los centros de datos.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 3.k. (La Oficina de Informática debe apoyar) 'los planes de recuperación y continuidad de servicios informáticos de la Entidad.' La ausencia de un DRP probado es una falla en esta área."
-          },
-          {
-            "id": 43, "scenario": "Un funcionario debe enviar por correo electrónico un archivo que contiene datos personales sensibles de múltiples ciudadanos. Lo envía sin ningún tipo de cifrado o protección adicional.", "questionText": "¿Qué riesgo principal se materializa y qué principio de tratamiento de datos se vulnera?", "options": [{ "text": "Riesgo de suplantación de identidad del remitente; Principio de finalidad.", "correct": false }, { "text": "Riesgo de acceso no autorizado o divulgación de datos sensibles; Principio de seguridad y confidencialidad.", "correct": true }, { "text": "Riesgo de pérdida del correo electrónico; Principio de transparencia.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Cuarto, literal g) Seguridad del Dato, y literal h) Confidencialidad, exigen adoptar medidas para proteger los datos. Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.3.1 Correo Electrónico Institucional, Normatividad j) indica que la información confidencial debe emitirse con medios de seguridad."
-          },
-          {
-            "id": 44, "scenario": "Un directivo de la Fiscalía constantemente elogia en público solo a ciertos miembros de su equipo, ignorando las contribuciones significativas de otros, lo que genera desmotivación.", "questionText": "Desde la perspectiva del Código de Ética para directivos, ¿qué aspecto del 'Reconocimiento' se está aplicando de manera deficiente?", "options": [{ "text": "No proteger la dignidad de los servidores.", "correct": false }, { "text": "No reconocer de manera equitativa y justa los aportes y esfuerzos de todos los miembros del equipo, afectando el ambiente laboral.", "correct": true }, { "text": "No asignar tareas fuera del horario laboral.", "correct": false }], "justification": "El Código de Ética, Sección 3.2.2 Reconocimiento (para cargos directivos): 'Los valoro como compañeros de trabajo, con sus fortalezas, debilidades y diversidad de caracteres y temperamentos. Valoro sus conocimientos y aportes a la entidad.' Un reconocimiento selectivo o injusto no cumple con el espíritu de esta directriz."
-          },
-          {
-            "id": 45, "scenario": "Un funcionario de la Fiscalía recibe un correo electrónico con un enlace sospechoso que promete actualizar un software importante. Sin verificar la autenticidad del remitente o del enlace, hace clic en él.", "questionText": "¿Cuál es la principal amenaza de seguridad a la que se expone el funcionario y la entidad?", "options": [{ "text": "A recibir publicidad no deseada (spam).", "correct": false }, { "text": "A ser víctima de phishing, lo que podría llevar al robo de credenciales, instalación de malware (ransomware, spyware) y compromiso de la seguridad de la información.", "correct": true }, { "text": "A sobrecargar el servidor de correo de la Fiscalía.", "correct": false }], "justification": "Hacer clic en enlaces sospechosos es una vía común para ataques de phishing y malware. Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) buscan proteger contra estas amenazas, y la Sección 5.4.3.1 sobre Correo Electrónico implica un uso seguro. La capacitación en seguridad (Sección 3.i. de responsabilidades de la Oficina de Informática) usualmente cubre estos riesgos."
-          },
-          {
-            "id": 46, "scenario": "Una entidad externa solicita a la Fiscalía una gran cantidad de datos personales de ciudadanos para un estudio estadístico. La solicitud es genérica y no especifica claramente la finalidad ni las medidas de seguridad que aplicarán.", "questionText": "Antes de considerar la entrega de los datos, ¿qué debe evaluar rigurosamente la Fiscalía según la Política de Tratamiento de Datos Personales?", "options": [{ "text": "Si la entidad externa tiene buena reputación en los medios.", "correct": false }, { "text": "La legitimidad de la solicitud, la finalidad específica, la pertinencia de los datos solicitados, el consentimiento de los titulares (si aplica) y las garantías de seguridad y confidencialidad que ofrece el solicitante.", "correct": true }, { "text": "Únicamente si la solicitud proviene de una entidad pública o privada.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018) se basa en la Ley 1581 de 2012, que exige principios como finalidad (Art. Cuarto, Numeral 5), libertad (consentimiento, Art. Cuarto, Numeral 1), acceso restringido, seguridad y confidencialidad. Cualquier transmisión de datos debe cumplir con estos principios."
-          },
-          {
-            "id": 47, "scenario": "Un fiscal es presionado por un superior para que acelere una investigación y presente cargos rápidamente contra una persona, a pesar de que aún no se han recolectado todas las pruebas necesarias para sustentar sólidamente el caso.", "questionText": "¿Qué principio ético debe guiar la actuación del fiscal frente a esta presión?", "options": [{ "text": "La obediencia debida a su superior jerárquico.", "correct": false }, { "text": "El deber de actuar con diligencia, objetividad, legalidad e integridad, asegurando que sus decisiones estén basadas en pruebas suficientes y no en presiones indebidas.", "correct": true }, { "text": "La búsqueda de resultados rápidos para mejorar las estadísticas de la unidad.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.2 Legalidad: 'Mis acciones se guían por los principios de la legalidad y la integridad ética.' Sección 3.1.4 Conocimiento: 'Tomo decisiones de manera deliberada.' Actuar bajo presión sin el debido sustento probatorio compromete la justicia."
-          },
-          {
-            "id": 48, "scenario": "Un equipo de desarrollo de la Fiscalía está creando una nueva aplicación. Para agilizar las pruebas, deciden desactivar temporalmente los registros de auditoría (logs) del sistema.", "questionText": "¿Por qué es importante mantener activos los registros de auditoría, incluso en entornos de desarrollo o prueba, según las políticas de seguridad?", "options": [{ "text": "Porque los registros de auditoría ayudan a mejorar el rendimiento del sistema.", "correct": false }, { "text": "Porque los registros de auditoría son cruciales para el monitoreo, la detección de actividades anómalas o no autorizadas, y la investigación de incidentes.", "correct": true }, { "text": "Porque la ley exige que todos los sistemas informáticos generen logs, sin importar su criticidad.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 3.c. (responsabilidad de la Oficina de Informática) menciona 'Monitorear y evaluar los cambios significativos en los riesgos'. Los logs son esenciales para este monitoreo y para la auditoría (Sección 7.a. de la Oficina de Control Interno)."
-          },
-          {
-            "id": 49, "scenario": "Un funcionario de la Fiscalía, en una conversación informal fuera de la oficina, revela detalles confidenciales sobre una investigación en curso a un amigo, justificando que 'entre amigos no hay secretos'.", "questionText": "¿Qué aspecto fundamental del Código de Ética se está violando con esta acción?", "options": [{ "text": "El principio de transparencia en la gestión pública.", "correct": false }, { "text": "El deber de confidencialidad sobre la información a la que tiene acceso en razón de su cargo, independientemente del contexto o la relación personal.", "correct": true }, { "text": "El principio de celeridad en las actuaciones.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.3.1 Confidencialidad: 'Soy cuidadoso y responsable con la información... Reconozco el carácter confidencial de esta información... No convierto esta información en cuento entre colegas o familiares. No entrego esta información a los medios de comunicación sin que medie autorización expresa.'"
-          },
-          {
-            "id": 50, "scenario": "Un contratista de la Fiscalía termina su contrato. Sus cuentas de usuario y accesos a los sistemas de información de la entidad no son revocados o desactivados inmediatamente.", "questionText": "¿Qué riesgo de seguridad materializa esta omisión y qué procedimiento de control de acceso se está incumpliendo?", "options": [{ "text": "Un riesgo de incumplimiento de los términos del contrato por parte del contratista.", "correct": false }, { "text": "Un riesgo de acceso no autorizado a información y sistemas de la Fiscalía por parte de una persona que ya no tiene vínculo contractual, incumpliendo el procedimiento de desvinculación de usuarios.", "correct": true }, { "text": "Un riesgo de pérdida de la información histórica generada por el contratista.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.3 Activación, Inactivación, bloqueo y cancelación de cuentas de Usuario, Normatividad d) indica que son causales de cancelación las novedades administrativas de retiro. No desactivar accesos de personal desvinculado es un riesgo de seguridad grave."
-          },
-          {
-            "id": 51, "scenario": "Un ciudadano solicita que se eliminen sus datos personales de todos los sistemas de la Fiscalía, incluyendo aquellos relacionados con investigaciones penales en las que él fue indiciado y luego absuelto.", "questionText": "Según la Política de Tratamiento de Datos, ¿es siempre procedente la supresión de datos en estos casos?", "options": [{ "text": "Sí, el derecho al olvido es absoluto y la Fiscalía debe eliminar todos los registros si el ciudadano lo solicita.", "correct": false }, { "text": "No necesariamente. La supresión no procede cuando el titular tenga un deber legal o contractual de permanecer en la base de datos, o cuando los datos deban ser conservados por imperativo legal o para fines de la administración de justicia.", "correct": true }, { "text": "Solo procede si la absolución fue por inexistencia del hecho.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Sexto, Numeral 4, contempla la revocatoria o supresión, pero esto se pondera con otros deberes. El Artículo Segundo (Alcance) exceptúa la aplicación total de la política a datos de procesos misionales si no es armónico con la normatividad penal y la reserva. Los registros penales suelen tener un imperativo de conservación."
-          },
-          {
-            "id": 52, "scenario": "Un directivo de la Fiscalía se entera de que un miembro de su equipo ha cometido un error grave que podría tener consecuencias negativas para la imagen de la entidad. Decide ocultar el error y no tomar medidas correctivas para 'proteger' al funcionario y a la unidad.", "questionText": "¿Qué directriz ética sobre el liderazgo y la responsabilidad está siendo contravenida?", "options": [{ "text": "La directriz de reconocer los aportes de los servidores.", "correct": false }, { "text": "El deber de asumir la responsabilidad por los errores, actuar con transparencia y tomar medidas correctivas, en lugar de ocultarlos.", "correct": true }, { "text": "La directriz de no sobrecargar a los servidores con tareas.", "correct": false }], "justification": "El Código de Ética, Sección 3.2.1 Liderazgo: 'Lidero con responsabilidad.' Sección 2, Principios Éticos: 'Las acciones del servidor público son éticamente íntegras.' Ocultar errores va en contra de la integridad y la responsabilidad de un líder."
-          },
-          {
-            "id": 53, "scenario": "Un funcionario nota que la política de contraseñas de la Fiscalía exige cambiarlas cada 30 días y le parece excesivo. Decide reutilizar variaciones muy simples de su contraseña anterior para cumplir el requisito fácilmente.", "questionText": "¿Qué riesgo de seguridad implica esta práctica y qué principio de gestión de contraseñas se debilita?", "options": [{ "text": "Riesgo de olvido de la contraseña; Principio de memorabilidad.", "correct": false }, { "text": "Riesgo de que la cuenta sea comprometida fácilmente si una de sus contraseñas anteriores es conocida, debilitando el principio de robustez y unicidad de las contraseñas.", "correct": true }, { "text": "Ningún riesgo si solo él conoce el patrón de variación.", "correct": false }], "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.2 Gestión de contraseñas para usuarios, exige contraseñas robustas (Normatividad b) y que no se puedan utilizar contraseñas empleadas con anterioridad (Normatividad c). Reutilizar variaciones simples anula el propósito del cambio frecuente."
-          },
-          {
-            "id": 54, "scenario": "La Fiscalía publica en su página web un informe estadístico que, sin querer, incluye tablas con datos personales no anonimizados de víctimas de ciertos delitos, permitiendo su identificación.", "questionText": "¿Qué deber fundamental en el tratamiento de datos personales se ha incumplido flagrantemente?", "options": [{ "text": "El deber de garantizar el acceso de los titulares a sus datos.", "correct": false }, { "text": "El deber de garantizar la seguridad y confidencialidad de los datos personales, aplicando medidas para evitar su divulgación no autorizada, especialmente si son sensibles.", "correct": true }, { "text": "El deber de recolectar solo los datos estrictamente necesarios.", "correct": false }], "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Cuarto, Principios g) Seguridad del Dato y h) Confidencialidad, exigen adoptar medidas para proteger los datos. Publicar datos personales no anonimizados de víctimas es una grave violación a estos principios."
-          },
-          {
-            "id": 55, "scenario": "Un funcionario de la Fiscalía es conocido por ser muy eficiente en su trabajo técnico, pero constantemente trata de manera descortés y prepotente a sus compañeros de otras áreas cuando requiere su colaboración.", "questionText": "¿Qué valor ético esencial para el trabajo en equipo y el ambiente laboral, promovido por el Código de Ética, está fallando en aplicar este funcionario?", "options": [{ "text": "El conocimiento técnico y la experticia.", "correct": false }, { "text": "El respeto y la colaboración con los compañeros, independientemente de su área o función.", "correct": true }, { "text": "La legalidad en todas sus actuaciones.", "correct": false }], "justification": "El Código de Ética, Sección 3.1.3 Respeto: 'Trato a los demás con reconocimiento de sus propios fines y metas. Trato a los demás de manera cuidadosa.' El trato descortés afecta negativamente el ambiente laboral y la colaboración."
-          },
-          {
-            "id": 56, "scenario": "Un funcionario de la Fiscalía utiliza una red Wi-Fi pública no segura en una cafetería para acceder a documentos sensibles de la entidad a través de su computador portátil institucional.", "questionText": "¿Qué política de seguridad sobre trabajo remoto y uso de redes está incumpliendo principalmente?", "options": [
-                { "text": "La política de bloqueo automático de pantalla tras inactividad.", "correct": false },
-                { "text": "La política de utilizar conexiones seguras (como VPN) y evitar redes no confiables para el manejo de información institucional sensible, especialmente en trabajo remoto.", "correct": true },
-                { "text": "La política de mantener actualizado el software antivirus del portátil.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.7 Trabajo Remoto, Normatividad c) y d), exigen precauciones como software de protección y no conectarse a otras redes simultáneamente. Acceder a información sensible en redes públicas no seguras sin VPN es un alto riesgo. El espíritu de la política es asegurar la información dondequiera que se acceda."
-          },
-          {
-            "id": 57, "scenario": "La Fiscalía está considerando tercerizar el almacenamiento de ciertas bases de datos no misionales. La empresa proveedora ofrece un costo muy bajo pero no presenta certificaciones de seguridad reconocidas ni detalla sus políticas de protección de datos.", "questionText": "Según la Política de Tratamiento de Datos Personales y las de Seguridad de la Información, ¿qué debería priorizar la Fiscalía al tomar esta decisión?", "options": [
-                { "text": "El menor costo ofrecido para optimizar el presupuesto de la entidad.", "correct": false },
-                { "text": "Las garantías de seguridad, confidencialidad, integridad y disponibilidad de la información que ofrezca el proveedor, asegurando el cumplimiento de las políticas de la Fiscalía.", "correct": true },
-                { "text": "La rapidez con la que el proveedor pueda implementar el servicio.", "correct": false }
-            ],
-            "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018) exige la protección de los datos. Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.1.2 Seguridad en la Conexión con Terceros, establecen que los contratos deben incluir acuerdos para cumplir las políticas de seguridad de la FGN y que se deben establecer los controles de seguridad requeridos."
-          },
-          {
-            "id": 58, "scenario": "Un funcionario de la Fiscalía, encargado de atender al público, se niega a recibir una denuncia verbal de un ciudadano que no sabe leer ni escribir, exigiéndole que la presente por escrito.", "questionText": "¿Qué principio ético y qué enfoque de atención podría estar omitiendo el funcionario?", "options": [
-                { "text": "El principio de celeridad, ya que la denuncia escrita es más rápida.", "correct": false },
-                { "text": "El principio de igualdad y no discriminación, y el enfoque de atención diferencial que considera las barreras de acceso a la justicia de poblaciones vulnerables.", "correct": true },
-                { "text": "El principio de legalidad estricta, si la norma exige denuncia escrita.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.1.1 Servicio al bien general: 'Reconozco la igualdad de todos ante la ley. Trato a los demás con equidad e imparcialidad.' y 'Trato con especial consideración a las personas en situación de indefensión'. La Sección 3.3.1 Justicia (para usuarios) indica: 'Conozco y aplico el enfoque de atención diferencial.' Negar la recepción de una denuncia por no saber leer o escribir es discriminatorio y no considera las barreras del ciudadano."
-          },
-          {
-            "id": 59, "scenario": "Un equipo de la Fiscalía está desarrollando un nuevo software. Durante el proceso, se omiten las fases de pruebas de seguridad exhaustivas para cumplir con una fecha de entrega muy ajustada impuesta por la dirección.", "questionText": "¿Qué riesgo se incrementa significativamente al omitir pruebas de seguridad y qué objetivo de las políticas de seguridad se compromete?", "options": [
-                { "text": "Riesgo de incompatibilidad con otros sistemas; Objetivo de interoperabilidad.", "correct": false },
-                { "text": "Riesgo de que el software contenga vulnerabilidades que puedan ser explotadas, comprometiendo la confidencialidad, integridad y disponibilidad de la información.", "correct": true },
-                { "text": "Riesgo de que el software no cumpla con los requisitos funcionales; Objetivo de calidad del software.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Artículo Primero (Objetivo), buscan asegurar la confidencialidad, integridad y disponibilidad. La Sección 3.o. (responsabilidad de la Oficina de Informática) indica que el desarrollo y mantenimiento de sistemas debe contemplar medidas de seguridad en todas sus fases. Omitir pruebas de seguridad es una falla grave en este proceso."
-          },
-          {
-            "id": 60, "scenario": "Un funcionario de la Fiscalía recibe una llamada telefónica de alguien que dice ser del soporte técnico de la entidad y le solicita su contraseña para realizar una 'verificación de seguridad urgente'.", "questionText": "¿Cómo debe proceder el funcionario según las Políticas de Seguridad de la Información?", "options": [
-                { "text": "Proporcionar la contraseña, ya que el soporte técnico podría necesitarla.", "correct": false },
-                { "text": "Negarse a proporcionar la contraseña, ya que esta nunca debe ser compartida ni solicitada por teléfono, y reportar el incidente como un posible intento de ingeniería social.", "correct": true },
-                { "text": "Pedirle al supuesto técnico que le envíe un correo electrónico oficial para confirmar su identidad antes de dar la contraseña.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.2 Gestión de contraseñas para usuarios, Normatividad f): 'Se prohíbe el uso de contraseña compartida. Las contraseñas nunca deben ser compartidas o reveladas a otras personas diferentes al usuario autorizado.' y Normatividad g): 'Las contraseñas nunca serán modificadas vía línea telefónica.' El soporte técnico legítimo no solicita contraseñas de esta forma."
-          },
-          {
-            "id": 61, "scenario": "Una dependencia de la Fiscalía maneja un alto volumen de documentos físicos con información sensible. No existen procedimientos claros para la destrucción segura de estos documentos cuando ya no son necesarios.", "questionText": "¿Qué aspecto de la seguridad de la información, aplicable tanto a medios digitales como físicos, se está descuidando?", "options": [
-                { "text": "El control de versiones de los documentos.", "correct": false },
-                { "text": "La gestión del ciclo de vida de la información, que incluye la disposición y destrucción segura de la información (física o digital) para prevenir su divulgación no autorizada.", "correct": true },
-                { "text": "El respaldo periódico de los documentos físicos.", "correct": false }
-            ],
-            "justification": "Aunque las políticas se centran en lo digital, el principio de proteger la información sensible (confidencialidad, integridad) es universal. La Ley General de Archivo (Ley 594 de 2000), mencionada en las Políticas de Seguridad, implica una gestión documental adecuada. La destrucción segura es una parte crucial del ciclo de vida de la información para evitar fugas, aplicable por analogía a la protección de activos de información."
-          },
-          {
-            "id": 62, "scenario": "Un fiscal está a cargo de un caso donde el principal sospechoso es un político con el que tuvo una fuerte enemistad personal en el pasado. El fiscal decide no declararse impedido y continúa con el caso.", "questionText": "¿Qué principio ético fundamental está en riesgo de ser comprometido por la decisión del fiscal?", "options": [
-                { "text": "El principio de conocimiento y debida diligencia.", "correct": false },
-                { "text": "El principio de imparcialidad y objetividad en la toma de decisiones, debido a un posible conflicto de interés no gestionado.", "correct": true },
-                { "text": "El principio de celeridad procesal.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.1.1 Servicio al bien general: 'Soy imparcial en el momento de tomar decisiones. No permito que una relación de amistad o enemistad influya en mis decisiones.' Una enemistad previa constituye un factor que puede afectar la imparcialidad y debería llevar a considerar un impedimento."
-          },
-          {
-            "id": 63, "scenario": "Un funcionario de la Fiscalía utiliza su computador institucional para descargar y almacenar una gran cantidad de películas y series para su entretenimiento personal, ocupando una porción significativa del disco duro.", "questionText": "¿Qué política sobre el uso aceptable de los activos informáticos se está violando claramente?", "options": [
-                { "text": "La política de mantener el software actualizado.", "correct": false },
-                { "text": "La prohibición de utilizar los recursos informáticos para fines personales y la prohibición de almacenar material no laboral (videos, música, etc.) que no sea para la gestión de la entidad.", "correct": true },
-                { "text": "La política de realizar copias de seguridad de la información.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.2 Uso aceptable de los activos, Normatividad g) y h): 'El usuario empleará exclusivamente los recursos informáticos para desarrollar su trabajo... No para fines... de diversión personal.' y 'Se prohíbe la copia, reproducción o almacenamiento de videos, juegos, películas, fotos, música... a menos que sean materia de investigación...'"
-          },
-          {
-            "id": 64, "scenario": "Un área de la Fiscalía necesita compartir información confidencial con otra entidad gubernamental. Deciden enviarla a través de un servicio de almacenamiento en la nube gratuito y de uso personal, por ser más rápido que los canales institucionales.", "questionText": "¿Qué riesgo de seguridad se asume al utilizar canales no institucionales y no seguros para información confidencial?", "options": [
-                { "text": "Un posible incumplimiento de los acuerdos de nivel de servicio con la otra entidad.", "correct": false },
-                { "text": "Un alto riesgo de pérdida de confidencialidad, integridad y control sobre la información, al utilizar plataformas no aprobadas y sin las garantías de seguridad requeridas por la Fiscalía.", "correct": true },
-                { "text": "Un riesgo de que la información se demore más en llegar que por los canales oficiales.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) y la Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018) exigen el uso de mecanismos seguros y autorizados para el tratamiento y transmisión de información, especialmente si es confidencial o sensible. Usar servicios personales en la nube para esto viola múltiples principios de seguridad y control."
-          },
-          {
-            "id": 65, "scenario": "Un directivo de la Fiscalía promueve a un funcionario a un cargo de mayor responsabilidad basándose únicamente en su antigüedad y amistad personal, a pesar de que otros candidatos tenían mejores méritos y competencias para el puesto.", "questionText": "¿Qué directriz ética sobre la gestión de los servidores públicos está siendo vulnerada?", "options": [
-                { "text": "La directriz de fomentar un ambiente de diálogo franco.", "correct": false },
-                { "text": "La directriz de tratar a los servidores con atención a sus méritos y seleccionar con base en estos, evitando el favoritismo (implícito en Legalidad y Justicia con los servidores).", "correct": true },
-                { "text": "La directriz de proteger los derechos laborales de los servidores.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.6 'Si mi trabajo afecta a los servidores de la Fiscalía', Directriz 3.6.1 Legalidad: 'Trato a los servidores con atención a sus méritos, condiciones y circunstancias particulares... Ubico a los servidores en cargos... que reflejen sus méritos...' El favoritismo basado en amistad o antigüedad, en detrimento del mérito, es contrario a este principio."
-          },
-          {
-            "id": 66, "scenario": "Un funcionario de la Fiscalía es contactado por la Oficina de Control Interno para una auditoría sobre el manejo de información en su dependencia. El funcionario decide ocultar ciertos registros que podrían evidenciar algunas irregularidades menores.", "questionText": "¿Cómo se contrapone esta acción a la directriz ética sobre la relación con los organismos de control?", "options": [
-                { "text": "Es una forma de proteger la reputación de la dependencia.", "correct": false },
-                { "text": "Va en contra del principio de transparencia y el deber de no ocultar información requerida por los organismos de control.", "correct": true },
-                { "text": "Es aceptable si las irregularidades son menores y no constituyen delito.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.11 'Si mi trabajo me relaciona con los organismos de control', Directriz 3.11.1 Transparencia, 'Lo que hago': 'Presento la información requerida por los organismos de control de manera clara, precisa, entendible y completa.' y 'Lo que no hago': 'No oculto información.'"
-          },
-          {
-            "id": 67, "scenario": "Un técnico del CTI está analizando un dispositivo electrónico como parte de una investigación. Encuentra información personal del propietario del dispositivo que no es relevante para el caso (fotos familiares, correos personales). Decide copiar toda esta información 'por si acaso'.", "questionText": "¿Qué principio de la Política de Tratamiento de Datos Personales y del Código de Ética se estaría vulnerando al recolectar información no pertinente?", "options": [
-                { "text": "El principio de seguridad y la directriz de conocimiento.", "correct": false },
-                { "text": "El principio de necesidad y finalidad en la recolección de datos, y la directriz de respeto a la dignidad y privacidad de las personas.", "correct": true },
-                { "text": "El principio de veracidad y la directriz de calidad en el trabajo.", "correct": false }
-            ],
-            "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Cuarto, Numeral 2 (Principio de necesidad) y Numeral 5 (Principio de finalidad), indican que solo se tratarán los datos necesarios para los fines legítimos. El Código de Ética, Sección 3.1.3 Respeto, implica proteger la dignidad y los derechos, lo que incluye la privacidad sobre información no pertinente a una investigación."
-          },
-          {
-            "id": 68, "scenario": "Un funcionario de la Fiscalía, al finalizar su jornada laboral, deja su computador institucional encendido y con la sesión activa, en una oficina de acceso restringido pero compartida con otros colegas.", "questionText": "Aunque la oficina sea de acceso restringido, ¿por qué esta práctica sigue representando un riesgo según las Políticas de Seguridad?", "options": [
-                { "text": "Porque consume energía innecesariamente.", "correct": false },
-                { "text": "Porque aun en áreas restringidas, dejar una sesión activa facilita el acceso no autorizado por parte de cualquier persona que ingrese al espacio físico, violando la responsabilidad individual sobre la cuenta.", "correct": true },
-                { "text": "No representa un riesgo si todos los colegas son de confianza.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.1 Registro de Usuarios, Normatividad d) 'Los usuarios son responsables de todas las actividades que involucren el uso de su \"nombre de usuario\"'. Dejar la sesión activa, incluso en un entorno supuestamente seguro, transfiere implícitamente esa responsabilidad y abre una brecha de seguridad."
-          },
-          {
-            "id": 69, "scenario": "Un directivo de la Fiscalía es informado sobre una presunta situación de acoso laboral dentro de su equipo. Decide no investigar a fondo ni tomar medidas, considerando que son 'problemas personales' entre los involucrados.", "questionText": "¿Qué responsabilidad ética como líder está eludiendo el directivo?", "options": [
-                { "text": "La responsabilidad de asegurar la calidad técnica del trabajo del equipo.", "correct": false },
-                { "text": "La responsabilidad de proteger la dignidad de los servidores a su cargo, fomentar un ambiente de trabajo respetuoso y abordar situaciones que afecten el bienestar del equipo.", "correct": true },
-                { "text": "La responsabilidad de cumplir con las metas de productividad de la unidad.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.2 'Si tengo un cargo directivo', Directriz 3.2.2 Reconocimiento: 'Protejo la dignidad de los servidores a mi cargo... Fomento un ambiente de trabajo que permita un diálogo franco...' El acoso laboral atenta contra la dignidad y el ambiente de trabajo, y un líder tiene la responsabilidad de intervenir."
-          },
-          {
-            "id": 70, "scenario": "Un funcionario de la Fiscalía necesita transportar un expediente físico que contiene información altamente sensible. Lo lleva en una carpeta simple, sin ninguna medida de seguridad adicional, en el transporte público.", "questionText": "¿Qué directriz sobre la confidencialidad de la información está siendo negligente en aplicar?", "options": [
-                { "text": "La directriz de no comentar la información con colegas o familiares.", "correct": false },
-                { "text": "La directriz de ser cuidadoso con la documentación que lleva consigo, implícitamente aplicando medidas proporcionales a la sensibilidad de la información para evitar su pérdida o exposición.", "correct": true },
-                { "text": "La directriz de entregar la información solo a personas autorizadas.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.1.3.1 Confidencialidad: 'Soy cuidadoso con la documentación que dejo en mi escritorio y que llevo conmigo.' Para información altamente sensible, 'ser cuidadoso' implica tomar precauciones adecuadas para su transporte seguro y evitar su exposición o pérdida."
-          },
-          {
-            "id": 71, "scenario": "Un sistema de la Fiscalía permite a los usuarios crear contraseñas muy débiles (ej. '123456' o 'password') y no los obliga a cambiarlas periódicamente.", "questionText": "¿Qué política de gestión de contraseñas se está incumpliendo y qué riesgo genera?", "options": [
-                { "text": "Política de bloqueo de cuentas tras intentos fallidos; Riesgo de denegación de servicio.", "correct": false },
-                { "text": "Política de creación de contraseñas seguras (longitud, complejidad) y caducidad de las mismas; Riesgo de compromiso de cuentas por contraseñas fáciles de adivinar o crackear.", "correct": true },
-                { "text": "Política de no compartir contraseñas; Riesgo de suplantación interna.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.2 Gestión de contraseñas para usuarios, Normatividad b) y c), establecen requisitos de longitud y complejidad, y la caducidad de las contraseñas. Permitir contraseñas débiles y no forzar su cambio es una falla crítica."
-          },
-          {
-            "id": 72, "scenario": "Un ciudadano ejerce su derecho de petición ante la Fiscalía solicitando información pública. La entidad no responde la solicitud en los términos legales establecidos.", "questionText": "¿Qué normativa, además de la Ley de Transparencia, podría estar incumpliendo la Fiscalía en cuanto a los plazos de respuesta?", "options": [
-                { "text": "El Código de Procedimiento Penal.", "correct": false },
-                { "text": "La Ley Estatutaria 1755 de 2015 (que regula el Derecho de Petición) y, si la solicitud involucra datos personales, los plazos de la Ley 1581 de 2012.", "correct": true },
-                { "text": "El Código Sustantivo del Trabajo.", "correct": false }
-            ],
-            "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), en su Artículo Octavo, Numeral 4, literal c), hace referencia a los términos de la Ley 1437 de 2011 (sustituida por la Ley 1755 de 2015) para responder peticiones. La Ley 1755 de 2015 establece los plazos generales para el derecho de petición."
-          },
-          {
-            "id": 73, "scenario": "Un fiscal, al interactuar con un medio de comunicación sobre un caso de interés público, emite opiniones personales y juicios de valor sobre la culpabilidad de un implicado que aún no ha sido juzgado.", "questionText": "¿Qué directriz ética sobre la relación con los medios de comunicación está vulnerando?", "options": [
-                { "text": "Ser veraz y entendible en las comunicaciones.", "correct": false },
-                { "text": "Ser imparcial en las comunicaciones, no herir la integridad moral de las personas mencionadas y no adelantar juicios que corresponden a instancias judiciales.", "correct": true },
-                { "text": "Priorizar el bien general sobre intereses específicos.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.8 'Si mi trabajo me relaciona con los medios de comunicación', Directriz 3.8.1 Servicio al bien general: 'Soy imparcial en las comunicaciones... Elaboro las comunicaciones de tal manera que no hieran la integridad moral de las personas mencionadas.' Adelantar juicios de culpabilidad viola la presunción de inocencia y la imparcialidad."
-          },
-          {
-            "id": 74, "scenario": "Un funcionario de la Fiscalía utiliza su acceso VPN institucional desde su casa para realizar descargas masivas de archivos no relacionados con su trabajo (torrents de películas), consumiendo un ancho de banda considerable.", "questionText": "¿Qué política sobre el uso de la red y el trabajo remoto se está infringiendo?", "options": [
-                { "text": "La política de mantener actualizado el sistema operativo del equipo remoto.", "correct": false },
-                { "text": "La política de utilizar los recursos de red y el acceso remoto exclusivamente para fines laborales y autorizados, evitando actividades que degraden el servicio o sean ilícitas.", "correct": true },
-                { "text": "La política de finalizar cada sesión de VPN correctamente.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.7 Trabajo Remoto, Normatividad g) 'El usuario podrá ingresar única y exclusivamente a los servicios autorizados'. La Sección 5.6.5 Controles sobre el uso de la red, prohíbe actividades no laborales o que afecten el rendimiento de la red (implícito en el uso adecuado)."
-          },
-          {
-            "id": 75, "scenario": "Una comunidad local se queja ante la Fiscalía por la inseguridad en su barrio. El funcionario que los atiende muestra desinterés, no registra formalmente sus inquietudes y no les ofrece ninguna orientación sobre cómo la Fiscalía podría abordar el problema.", "questionText": "¿Qué directriz ética sobre la relación con la comunidad local está siendo incumplida?", "options": [
-                { "text": "Actuar de acuerdo con los más altos estándares de su profesión.", "correct": false },
-                { "text": "Buscar el diálogo con la comunidad local, reconocer sus necesidades e inquietudes (especialmente de seguridad) y tomar decisiones con atención a estas.", "correct": true },
-                { "text": "Conocer los derechos de la comunidad local.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.9 'Si mi trabajo afecta la comunidad local', Directriz 3.9.1 Confiabilidad: 'Busco el diálogo con la comunidad local en temas que la afecten. Reconozco las necesidades e inquietudes de la comunidad local, especialmente las relacionadas con su seguridad. Tomo decisiones con atención a estas necesidades e inquietudes.' El desinterés y la falta de orientación son contrarios a esta directriz."
-          },
-           {
-            "id": 76, "scenario": "Un funcionario de la Fiscalía, responsable de un sistema de información, otorga permisos de administrador a un usuario que solo necesita realizar consultas básicas, argumentando que es 'más fácil' que configurar roles específicos.", "questionText": "¿Qué principio de seguridad de la información se está violando al otorgar privilegios excesivos?", "options": [
-                { "text": "El principio de disponibilidad.", "correct": false },
-                { "text": "El principio de menor privilegio, que establece que a los usuarios solo se les deben otorgar los permisos estrictamente necesarios para realizar sus funciones.", "correct": true },
-                { "text": "El principio de segregación de funciones.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.1 Registro de Usuarios, Normatividad b) 'Todo \"nombre de usuario\" debe estar asociado a un perfil asignado, que determine los permisos y restricciones de acuerdo con sus funciones.' Otorgar permisos de administrador innecesariamente viola el principio de menor privilegio, aumentando el riesgo en caso de compromiso de la cuenta."
-          },
-          {
-            "id": 77, "scenario": "La Fiscalía implementa un nuevo procedimiento interno. Sin embargo, no se realiza una divulgación adecuada ni capacitación a todos los funcionarios afectados, lo que genera confusión y errores en su aplicación.", "questionText": "¿Qué responsabilidad de la Escuela de Estudios e Investigaciones Criminalísticas y Ciencias Forenses, según las Políticas de Seguridad (aplicable por analogía a otros procedimientos), podría no estarse cumpliendo eficazmente?", "options": [
-                { "text": "Asesorar en materia legal sobre los cambios.", "correct": false },
-                { "text": "Realizar tareas de capacitación continua y divulgar e informar a los servidores sobre cambios o actualizaciones en políticas y procedimientos.", "correct": true },
-                { "text": "Realizar auditorías periódicas sobre la operación.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Artículo Sexto, Numeral 5, literales a) y b), asignan a la Escuela de Estudios la tarea de 'capacitación continua' y 'Divulgar e informar... los cambios o actualizaciones'. Este principio es extensible a la implementación de cualquier nuevo procedimiento crítico para la entidad."
-          },
-          {
-            "id": 78, "scenario": "Un funcionario de la Fiscalía es el único que conoce un procedimiento crítico para el funcionamiento de un sistema. Se va de vacaciones sin documentar el procedimiento ni capacitar a un reemplazo.", "questionText": "¿Qué riesgo operativo y qué falta de compromiso con la continuidad del servicio se evidencia?", "options": [
-                { "text": "Un riesgo de incumplimiento de la política de vacaciones.", "correct": false },
-                { "text": "Un riesgo de punto único de falla, que afecta la disponibilidad y continuidad del servicio si el funcionario no está, y una falta de compromiso con la transferencia de conocimiento.", "correct": true },
-                { "text": "Un riesgo de obsolescencia tecnológica del sistema.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.1.5 Compromiso: 'Me preocupo por los objetivos institucionales y el logro de las tareas de mis compañeros...' La Sección 3.1.6 Calidad: 'Soy productivo en mi equipo de trabajo.' No compartir conocimiento crítico va en contra de estos principios y afecta la continuidad operativa, un aspecto fundamental de la seguridad y gestión de la información."
-          },
-          {
-            "id": 79, "scenario": "Un ciudadano, víctima de un delito informático, acude a la Fiscalía. El funcionario que lo atiende le dice que 'esos casos son muy difíciles de investigar y casi nunca se resuelven', desmotivándolo a interponer la denuncia.", "questionText": "¿Qué directriz ética sobre la atención al usuario y el compromiso con la justicia se está incumpliendo?", "options": [
-                { "text": "Ser veraz sobre las dificultades de la investigación.", "correct": false },
-                { "text": "El deber de atender con diligencia, respeto, y promover la confianza en la administración de justicia, sin desmotivar al ciudadano ni prejuzgar el resultado de una posible investigación.", "correct": true },
-                { "text": "Aplicar el enfoque de atención diferencial.", "correct": false }
-            ],
-            "justification": "El Código de Ética, Sección 3.1.1 Servicio al bien general: 'Actúo con y promuevo la justicia.' Sección 3.1.5 Compromiso: 'No ignoro a un ciudadano y sus inquietudes.' Desmotivar a un denunciante va en contra del acceso a la justicia y la misión de la Fiscalía. Se debe recibir la denuncia y explicar el proceso, no desanimar."
-          },
-          {
-            "id": 80, "scenario": "La Oficina de Informática de la Fiscalía detecta que varios equipos de cómputo de una sede no tienen las últimas actualizaciones de seguridad del sistema operativo ni del antivirus, a pesar de las directrices enviadas.", "questionText": "¿Qué responsabilidad de los usuarios de los activos informáticos y de las jefaturas locales se está incumpliendo, afectando la seguridad general?", "options": [
-                { "text": "La responsabilidad de reportar equipos fuera de servicio.", "correct": false },
-                { "text": "La responsabilidad de asegurar que los equipos cuenten con software de protección activado y actualizado, y de seguir las directrices de la Oficina de Informática para mantener la seguridad.", "correct": true },
-                { "text": "La responsabilidad de sincronizar la fecha y hora del computador.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.2 Uso aceptable de los activos, Normatividad e): 'El computador que la Entidad asigna... debe contar con un sistema operativo y ofimática respectivamente licenciados, y un aplicativo para eliminar y prevenir la instalación de software malicioso (antimalware), activado y con actualizaciones diarias.' El incumplimiento de esto es una falla de seguridad."
-          },
-          {
-            "id": 81, "scenario": "Un funcionario observa que un compañero anota su contraseña de red en un papel adhesivo pegado a su monitor.", "questionText": "¿Qué política de seguridad se está incumpliendo y cuál es el riesgo principal?", "options": [
-                { "text": "Política de uso de software licenciado; Riesgo de sanciones económicas.", "correct": false },
-                { "text": "Política de gestión de contraseñas (no revelarlas ni escribirlas); Riesgo de acceso no autorizado a la cuenta y a la información.", "correct": true },
-                { "text": "Política de bloqueo de pantalla; Riesgo de que el equipo quede accesible si se ausenta.", "correct": false }
-            ],
-            "justification": "Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.6.2 Gestión de contraseñas para usuarios, Normatividad f): 'Se prohíbe el uso de contraseña compartida. Las contraseñas nunca deben ser compartidas o reveladas a otras personas diferentes al usuario autorizado.' Escribir la contraseña y dejarla visible es una forma de revelarla."
-          },
-          {
-            "id": 82, "scenario": "Un fiscal recibe presiones de un superior para no investigar a una persona influyente allegada al superior, a pesar de existir indicios de un delito.", "questionText": "¿Qué principio ético debe primar en la actuación del fiscal?", "options": [
-                { "text": "La lealtad al superior y el mantenimiento de una buena relación laboral.", "correct": false },
-                { "text": "El principio de legalidad, imparcialidad y el interés general, investigando los hechos sin consideraciones personales o presiones indebidas.", "correct": true },
-                { "text": "La conveniencia de evitar conflictos internos dentro de la institución.", "correct": false }
-            ],
-            "justification": "Código de Ética, Sección 2 'Los principios éticos': 'El interés general prevalece sobre el interés particular', 'Todas las personas son iguales ante la ley', 'El servicio público cumple con la Constitución Política, las leyes...'. Sección 3.1.1: 'Soy imparcial en el momento de tomar decisiones.'"
-          },
-          {
-            "id": 83, "scenario": "Una dependencia de la Fiscalía desea utilizar una base de datos de ciudadanos (recolectada para un trámite específico A) para enviarles comunicaciones masivas sobre un nuevo programa B, sin haber informado de esta nueva finalidad ni obtenido consentimiento.", "questionText": "¿Qué principio del tratamiento de datos personales se estaría vulnerando?", "options": [
-                { "text": "Principio de veracidad o calidad del dato.", "correct": false },
-                { "text": "Principio de finalidad, ya que los datos deben ser usados para el propósito informado y autorizado por el titular.", "correct": true },
-                { "text": "Principio de acceso y circulación restringida.", "correct": false }
-            ],
-            "justification": "Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Cuarto, Numeral 5 (Principio de finalidad): 'la Fiscalía General de la Nación sujetará a tratamiento los Datos Personales en su poder, únicamente para el cumplimiento de las funciones de la Entidad. En caso de tratarse de datos de procesos de apoyo a la gestión y estratégicos, éstos solamente pueden ser tratados para la finalidad autorizada por el titular.'"
-          },
-          {
-            "id": 84, "scenario": "Un funcionario encuentra una memoria USB desconocida en el pasillo de la Fiscalía y, por curiosidad, la conecta a su computador de trabajo para ver qué contiene.", "questionText": "¿Cuál es el principal riesgo de seguridad asociado a esta acción?", "options": [
-                { "text": "Que la memoria USB no sea compatible con el equipo.", "correct": false },
-                { "text": "La posible infección del equipo y de la red de la Fiscalía con malware (virus, ransomware, spyware) contenido en la USB.", "correct": true },
-                { "text": "La pérdida de tiempo del funcionario al revisar contenido no laboral.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) buscan proteger contra malware (Sección 5.8.a). Conectar dispositivos USB desconocidos es una de las principales vías de infección. La Sección 5.4.1.d prohíbe conectar elementos sin autorización."
-          },
-          {
-            "id": 85, "scenario": "Un directivo de la Fiscalía utiliza información privilegiada obtenida en razón de su cargo para realizar inversiones personales en la bolsa de valores.", "questionText": "¿Qué directriz ética está violando gravemente el directivo?", "options": [
-                { "text": "La directriz de liderazgo y organización del trabajo.", "correct": false },
-                { "text": "La directriz de confidencialidad y la prohibición de utilizar información privilegiada para obtener beneficio personal o de terceros.", "correct": true },
-                { "text": "La directriz de calidad y uso adecuado de los recursos.", "correct": false }
-            ],
-            "justification": "Código de Ética, Sección 3.1.3.1 Confidencialidad, 'Lo que no hago': 'No utilizo esta información para obtener algún beneficio personal.' El uso de información privilegiada es una falta grave."
-          },
-          {
-            "id": 86, "scenario": "Un ciudadano solicita a la Fiscalía que le informen qué datos personales suyos tienen, para qué los usan y con quién los han compartido. La Fiscalía se niega a dar esta información sin justificación legal.", "questionText": "¿Qué derecho del titular se está vulnerando?", "options": [
-                { "text": "El derecho a la portabilidad de los datos.", "correct": false },
-                { "text": "El derecho a conocer sus datos personales, el uso que se les da y, en ciertos casos, a ser informado sobre las transferencias (derecho de acceso).", "correct": true },
-                { "text": "El derecho a la supresión total e incondicional de sus datos.", "correct": false }
-            ],
-            "justification": "Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Sexto, Numeral 1 ('Conocer, actualizar y rectificar') y Numeral 3 ('Ser informado... respecto al uso que se le ha dado a sus Datos Personales')."
-          },
-          {
-            "id": 87, "scenario": "Un funcionario de la Fiscalía configura el desvío automático de todos sus correos electrónicos institucionales a su cuenta de correo personal (Gmail, Hotmail) para 'mayor comodidad'.", "questionText": "¿Por qué esta práctica es un riesgo para la seguridad de la información?", "options": [
-                { "text": "Porque los correos personales tienen menor capacidad de almacenamiento.", "correct": false },
-                { "text": "Porque saca la información institucional de los controles de seguridad de la Fiscalía, exponiéndola a los riesgos de plataformas externas y dificultando la auditoría y el cumplimiento de políticas de retención.", "correct": true },
-                { "text": "Porque podría infringir las normas de uso de internet de la entidad.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.3.1 Correo Electrónico Institucional, Normatividad d) 'El usuario debe enviar y recibir la información de la Entidad inherente al desarrollo de su labor a través de la cuenta de correo electrónico institucional...'. Desviar correos a cuentas personales saca la información del entorno controlado."
-          },
-          {
-            "id": 88, "scenario": "Un servidor público de la Fiscalía es asignado para atender a un ciudadano que pertenece a una minoría étnica. El servidor muestra prejuicios y trata al ciudadano con displicencia y falta de atención.", "questionText": "¿Qué principio ético fundamental se está violando?", "options": [
-                { "text": "El principio de conocimiento y competencia profesional.", "correct": false },
-                { "text": "El principio de igualdad, no discriminación y respeto a la dignidad de todas las personas.", "correct": true },
-                { "text": "El principio de compromiso con los objetivos institucionales.", "correct": false }
-            ],
-            "justification": "Código de Ética, Sección 2 'Los principios éticos': 'Todas las personas son iguales ante la ley.' Sección 3.1.1 Servicio al bien general: 'No discrimino de manera negativa a nadie...' Sección 3.1.3 Respeto: 'En la interacción con los demás protejo su dignidad y sus derechos.'"
-          },
-          {
-            "id": 89, "scenario": "La Fiscalía realiza una encuesta a sus funcionarios para medir el clima laboral. Se les asegura que las respuestas serán anónimas. Sin embargo, el sistema utilizado registra la identidad de quien responde junto con sus respuestas.", "questionText": "¿Qué principio del tratamiento de datos se incumple si no se garantiza el anonimato prometido?", "options": [
-                { "text": "Principio de necesidad del dato.", "correct": false },
-                { "text": "Principio de libertad (consentimiento informado) y transparencia, ya que no se está siendo veraz sobre las condiciones del tratamiento (anonimato).", "correct": true },
-                { "text": "Principio de circulación restringida.", "correct": false }
-            ],
-            "justification": "Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Cuarto, Numeral 1 (Principio de libertad): 'La Fiscalía General de la Nación solo registrará, sujetará a tratamiento y divulgará Datos Personales cuando se cuente con la autorización del titular...' El consentimiento debe ser informado, y si se promete anonimato y no se cumple, el consentimiento no es plenamente informado."
-          },
-          {
-            "id": 90, "scenario": "Un funcionario de la Fiscalía recibe un correo electrónico solicitando la confirmación urgente de sus credenciales de acceso (usuario y contraseña) a través de un enlace, bajo amenaza de bloqueo de cuenta. El correo parece provenir de la Oficina de Informática, pero el remitente es ligeramente diferente al oficial.", "questionText": "¿Qué tipo de ataque de ingeniería social es este y cómo debería reaccionar el funcionario?", "options": [
-                { "text": "Es un ataque de ransomware; debe pagar para evitar el bloqueo.", "correct": false },
-                { "text": "Es un ataque de phishing; debe ignorar el correo, no hacer clic en el enlace, no proporcionar sus credenciales y reportarlo a la Oficina de Informática.", "correct": true },
-                { "text": "Es una verificación de seguridad legítima; debe hacer clic y confirmar sus datos.", "correct": false }
-            ],
-            "justification": "Este es un claro ejemplo de phishing. Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) buscan proteger contra estas amenazas. La Sección 5.6.2.g indica que las contraseñas no se modifican por teléfono, y por extensión, no se solicitan por correo de forma insegura."
-          },
-          {
-            "id": 91, "scenario": "Un directivo de la Fiscalía tiene conocimiento de que un proyecto bajo su responsabilidad está fracasando debido a una mala planificación inicial. En lugar de asumir la responsabilidad, culpa públicamente a los miembros de su equipo por la falta de resultados.", "questionText": "¿Qué aspecto del liderazgo ético está fallando en demostrar el directivo?", "options": [
-                { "text": "La capacidad de delegar tareas eficazmente.", "correct": false },
-                { "text": "La responsabilidad, la honestidad y la protección de la dignidad de su equipo, al no asumir los errores de planificación y culpar a otros.", "correct": true },
-                { "text": "La habilidad para motivar al personal.", "correct": false }
-            ],
-            "justification": "Código de Ética, Sección 3.2.1 Liderazgo: 'Lidero con responsabilidad.' Sección 3.2.2 Reconocimiento: 'Protejo la dignidad de los servidores a mi cargo.' Asumir la responsabilidad por errores, especialmente de planificación que le competen, es crucial."
-          },
-          {
-            "id": 92, "scenario": "La Fiscalía decide implementar un sistema de reconocimiento facial en sus sedes para control de ingreso, sin realizar una evaluación de impacto en la protección de datos personales ni informar claramente a los funcionarios y visitantes sobre el tratamiento de estos datos biométricos.", "questionText": "¿Qué obligación importante se está omitiendo antes de implementar una tecnología que trata datos sensibles como los biométricos?", "options": [
-                { "text": "Realizar una encuesta de satisfacción sobre el nuevo sistema.", "correct": false },
-                { "text": "Realizar una evaluación de impacto en la protección de datos (EIPD), asegurar la finalidad legítima, la proporcionalidad, y obtener el consentimiento informado de los titulares.", "correct": true },
-                { "text": "Contratar al proveedor más económico para el sistema de reconocimiento facial.", "correct": false }
-            ],
-            "justification": "La Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Tercero, Numeral 4, define los datos sensibles (incluyendo biométricos). El tratamiento de datos sensibles requiere un nivel de protección más alto, consentimiento explícito (Artículo Sexto, Numeral 2) y una justificación robusta de su necesidad y proporcionalidad. Una EIPD es una buena práctica esencial."
-          },
-          {
-            "id": 93, "scenario": "Un funcionario de la Fiscalía necesita acceder a un archivo urgentemente, pero este se encuentra en un servidor al que no tiene permisos. Un compañero con los permisos necesarios le ofrece descargar el archivo y enviárselo por un chat personal no institucional.", "questionText": "¿Cuál es la forma correcta de proceder para el funcionario que necesita el archivo, según las políticas de seguridad?", "options": [
-                { "text": "Aceptar la oferta del compañero para agilizar el proceso.", "correct": false },
-                { "text": "Solicitar formalmente los permisos de acceso necesarios a través de los canales institucionales o pedir al responsable de la información que se lo comparta por un medio seguro y autorizado.", "correct": true },
-                { "text": "Intentar adivinar la contraseña del compañero para acceder directamente.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013) establecen que el acceso a la información debe ser autorizado y a través de perfiles (Sección 5.6.1.b). Compartir información por canales no seguros o eludir los controles de acceso va en contra de la política."
-          },
-          {
-            "id": 94, "scenario": "Un servidor público de la Fiscalía es muy amigo de un contratista que presta servicios a la entidad. Constantemente intercede ante sus superiores para que se le asignen más contratos a su amigo, incluso si hay otras ofertas más convenientes para la Fiscalía.", "questionText": "¿Qué principio ético está vulnerando el servidor público?", "options": [
-                { "text": "El principio de lealtad a sus amigos.", "correct": false },
-                { "text": "El principio de imparcialidad y el deber de anteponer el interés general y de la entidad sobre los intereses particulares o de amistad.", "correct": true },
-                { "text": "El principio de calidad en la selección de contratistas.", "correct": false }
-            ],
-            "justification": "Código de Ética, Sección 3.1.1 Servicio al bien general: 'No permito que algún interés personal propio, de uno de mis familiares o de terceros influya en mis decisiones.' Sección 3.7.1 Imparcialidad (para proveedores): 'Selecciono a proveedores y contratistas con base en mérito, de manera objetiva y sin privilegios.'"
-          },
-          {
-            "id": 95, "scenario": "Una aplicación de la Fiscalía recolecta datos personales de niños, niñas y adolescentes para un programa de prevención. No se cuenta con la autorización explícita de sus padres o representantes legales.", "questionText": "¿Qué establece la Política de Tratamiento de Datos Personales sobre el tratamiento de datos de menores de edad?", "options": [
-                { "text": "Se pueden tratar libremente si es para programas de prevención.", "correct": false },
-                { "text": "Queda proscrito el tratamiento de datos personales de niños, niñas y adolescentes, salvo aquellos datos que sean de naturaleza pública, y siempre asegurando el respeto a sus derechos prevalentes (lo que implica obtener autorización de representantes).", "correct": true },
-                { "text": "Solo se requiere el consentimiento del menor si tiene más de 14 años.", "correct": false }
-            ],
-            "justification": "Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Sexto, Numeral 7: 'En el tratamiento de Datos Personales se asegurará el respeto a los derechos prevalentes de los niños, niñas y adolescentes... Queda proscrito el tratamiento de Datos Personales de niños, niñas y adolescentes, salvo aquellos datos que sean de naturaleza pública.' La Ley 1581 de 2012 (Art. 7) y el Decreto 1377 de 2013 (Art. 12) refuerzan la necesidad de autorización del representante legal y el respeto del interés superior del menor."
-          },
-          {
-            "id": 96, "scenario": "Un funcionario de la Fiscalía instala un software de optimización de sistema descargado de un sitio web no oficial en su computador de trabajo, creyendo que mejorará el rendimiento.", "questionText": "¿Qué riesgo de seguridad se corre al instalar software de fuentes no confiables sin la debida autorización?", "options": [
-                { "text": "Que el software no sea compatible con el sistema operativo.", "correct": false },
-                { "text": "La instalación de malware oculto (spyware, troyanos) que puede comprometer la seguridad de la información, robar credenciales o dañar el sistema.", "correct": true },
-                { "text": "La pérdida de la garantía del equipo de cómputo.", "correct": false }
-            ],
-            "justification": "Las Políticas de Seguridad de la Información (Resolución 0-4004 de 2013), Sección 5.4.2 Uso aceptable de los activos, Normatividad d), prohíbe instalar software sin autorización de la Oficina de Informática. Esto es para prevenir la introducción de malware."
-          },
-          {
-            "id": 97, "scenario": "Un fiscal, al tomar una decisión en un caso, se basa en sus convicciones religiosas personales en lugar de aplicar estrictamente la ley y la jurisprudencia vigente.", "questionText": "¿Qué principio ético fundamental está siendo comprometido?", "options": [
-                { "text": "El principio de compromiso con la institución.", "correct": false },
-                { "text": "El principio de legalidad y la imparcialidad, ya que las decisiones judiciales deben basarse en el ordenamiento jurídico y no en creencias personales.", "correct": true },
-                { "text": "El principio de conocimiento y actualización profesional.", "correct": false }
-            ],
-            "justification": "Código de Ética, Sección 2 'Los principios éticos': 'El servicio público cumple con la Constitución Política, las leyes y las demás normas y reglamentaciones.' Sección 3.1.2 Legalidad: 'Mis acciones se guían por los principios de la legalidad...' Las convicciones personales no deben sobreponerse a la aplicación de la ley."
-          },
-          {
-            "id": 98, "scenario": "La Fiscalía publica un listado de personas requeridas por la justicia. En el listado, además del nombre y el delito, se incluye información sensible como la dirección exacta de residencia y el número de teléfono personal, sin que esto sea estrictamente necesario para la finalidad de la publicación.", "questionText": "¿Qué principio del tratamiento de datos se está vulnerando al publicar información sensible no necesaria?", "options": [
-                { "text": "Principio de transparencia.", "correct": false },
-                { "text": "Principio de necesidad y proporcionalidad, ya que se está divulgando más información personal de la estrictamente necesaria para la finalidad perseguida.", "correct": true },
-                { "text": "Principio de veracidad.", "correct": false }
-            ],
-            "justification": "Política de Tratamiento de Datos Personales (Resolución 0-0152 de 2018), Artículo Cuarto, Numeral 2 (Principio de necesidad): 'Solamente se sujetarán a tratamiento los datos necesarios para el cumplimiento de las funciones...' Publicar datos excesivos y sensibles sin una justificación clara de necesidad y proporcionalidad es una vulneración."
-          },
-          {
-            "id": 99, "scenario": "Un funcionario de la Fiscalía recibe un correo que parece ser de su banco, solicitando actualizar sus datos financieros a través de un enlace. El funcionario está ocupado y, sin verificar la autenticidad, procede a ingresar su información.", "questionText": "¿Qué error de seguridad está cometiendo el funcionario y qué consecuencia podría tener?", "options": [
-                { "text": "Usar el correo institucional para asuntos personales; Consecuencia: llamado de atención.", "correct": false },
-                { "text": "Caer en un ataque de phishing (suplantación de identidad); Consecuencia: posible robo de identidad, fraude financiero y compromiso de información personal.", "correct": true },
-                { "text": "No tener un buen antivirus; Consecuencia: infección del equipo.", "correct": false }
-            ],
-            "justification": "Este es otro caso de phishing. Las Políticas de Seguridad de la Información buscan prevenir estos incidentes. La capacitación y la cautela son esenciales para no caer en estos engaños que buscan robar información sensible."
-          },
-          {
-            "id": 100, "scenario": "Un directivo de la Fiscalía tiene la costumbre de gritar y humillar a los miembros de su equipo cuando cometen errores, en lugar de ofrecer retroalimentación constructiva.", "questionText": "¿Qué directriz ética fundamental para los cargos directivos está incumpliendo sistemáticamente?", "options": [
-                { "text": "La directriz de liderazgo en la formulación de metas.", "correct": false },
-                { "text": "La directriz de reconocimiento y protección de la dignidad de los servidores a su cargo, evitando humillarlos o herirlos.", "correct": true },
-                { "text": "La directriz de asegurar la calidad del trabajo.", "correct": false }
-            ],
-            "justification": "Código de Ética, Sección 3.2.2 Reconocimiento (para cargos directivos): 'Protejo la dignidad de los servidores a mi cargo... No los humillo ni hiero verbal o físicamente. No reprimo a servidores por sus errores involuntarios o de buena fe, sino que dialogo con ellos sobre maneras de evitar estos errores en el futuro.'"
-          }
-        ];
+    <!-- Script principal de la aplicación -->
+    <script type="module">
+        // --- VARIABLES GLOBALES Y DATOS ---
 
-        // --- DOM Elements ---
-        const scenarioTextEl = document.getElementById('scenario-text');
-        const questionTextEl = document.getElementById('question-text');
-        const optionsContainerEl = document.getElementById('options-container');
-        const justificationContainerEl = document.getElementById('justification-container');
-        const justificationTextEl = document.getElementById('justification-text'); 
-        const nextButtonEl = document.getElementById('next-button');
-        const terminateButtonEl = document.getElementById('terminate-button'); 
-        const progressTextEl = document.getElementById('progress-text');
-        const quizMainContentEl = document.getElementById('quiz-main-content');
-        const resultsSectionEl = document.getElementById('results-section');
-        const resultsTableBodyEl = document.getElementById('results-table').getElementsByTagName('tbody')[0];
-        const restartButtonEl = document.getElementById('restart-button');
-        const questionSectionEl = document.getElementById('question-section');
+        const csvData = `english,spanish,pronunciation,imageUrl
+"Sound good, fire away","Suena bien, adelante","[saʊnd ɡʊd faɪr əˈweɪ]","https://i.postimg.cc/MMt7JyfX/image.png"
+"What's the deal?","¿Qué pasa?","[wʌts ðə dil]","https://i.postimg.cc/wy9XrWvS/what-s-the-deal.jpg"
+"Hang in there","Aguanta ahí","[hæŋ ɪn ðɛr]","https://i.postimg.cc/v1FLr8d8/hang-in-there.jpg"
+"Hit the books","Ponerse a estudiar","[hɪt ðə bʊks]","https://i.postimg.cc/WDGmXR2G/hit-the-books.jpg"
+"I'm beat","Estoy agotado","[aɪm bit]","https://i.postimg.cc/sMZ4GQq0/i-m-beat.jpg"
+"Catch you later","Nos vemos luego","[kætʃ yu leɪtər]","https://i.postimg.cc/nCW1LYRD/catch-you-later.jpg"
+"You rock!","¡Eres genial!","[yu rɑk]","https://i.postimg.cc/rz8jZpRK/you-rock.jpg"
+"Chill out","Relájate","[tʃɪl aʊt]","https://i.postimg.cc/JG0qmdq8/chill-out.jpg"
+"No sweat","No hay problema","[no swɛt]","https://i.postimg.cc/0rcfTq7Z/no-sweat.jpg"
+"Piece of cake","Pan comido","[pis əv keɪk]","https://i.postimg.cc/8jMHXrPQ/sound-good-fire-away.jpg"`;
 
-        // --- Quiz State ---
-        let currentQuestionIndex = 0;
-        let shuffledQuestions = [];
-        let questionAttempts = {}; 
-        let currentQuestionAnsweredCorrectly = false;
+        const accessKeys = {
+            "123": "2025-07-20",
+            "456": "2025-07-30"
+        };
 
-        // --- Functions ---
+        // Referencias a elementos del DOM
+        const startGameBtn = document.getElementById('start-game-btn');
+        const reviewBtn = document.getElementById('review-btn');
+        const startContainer = document.getElementById('start-container');
+        const gameContainer = document.getElementById('game-container');
+        const boxSelectorsContainer = document.getElementById('box-selectors');
+        const cardContainer = document.getElementById('card-container');
+        const finalReviewContainer = document.getElementById('final-review-container');
+        const accessGate = document.getElementById('access-gate');
+        const accessKeyInput = document.getElementById('access-key-input');
+        const validateKeyBtn = document.getElementById('validate-key-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        // Estado de la aplicación
+        let loginAttempts = 0;
+        const MAX_ATTEMPTS = 3;
+        let boxes = [];
+        let currentBoxIndex = 0;
+        let phrases = [];
+
+        // --- SISTEMA DE ACCESO ---
+
+        function validateAccessKey() {
+            const key = accessKeyInput.value.trim();
+            errorMessage.classList.add('hidden');
+
+            if (!accessKeys[key]) {
+                loginAttempts++;
+                errorMessage.textContent = `Clave inválida. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
+                errorMessage.classList.remove('hidden');
+            } else {
+                const expirationDateString = accessKeys[key];
+                const expirationDate = new Date(expirationDateString + "T23:59:59");
+                const today = new Date();
+
+                if (today > expirationDate) {
+                    loginAttempts++;
+                    const formattedDate = new Date(expirationDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                    errorMessage.textContent = `La clave caducó el ${formattedDate}. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
+                    errorMessage.classList.remove('hidden');
+                } else {
+                    // Clave válida y no expirada
+                    accessGate.classList.add('hidden');
+                    startContainer.classList.remove('hidden');
+                    loginAttempts = 0; // Reiniciar intentos en éxito
+                    return; // Salir de la función para no ejecutar el chequeo de bloqueo
+                }
+            }
+
+            // Bloquear si se exceden los intentos
+            if (loginAttempts >= MAX_ATTEMPTS) {
+                errorMessage.textContent = "Has excedido el número de intentos. La aplicación se ha bloqueado.";
+                accessKeyInput.disabled = true;
+                validateKeyBtn.disabled = true;
+                validateKeyBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                validateKeyBtn.classList.remove('hover:bg-gray-900');
+            }
+        }
+        
+        // --- FUNCIONES DE INICIO Y ESTADO DEL JUEGO ---
+
         function shuffleArray(array) {
-            let currentIndex = array.length, randomIndex;
-            while (currentIndex !== 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
-            return array;
         }
 
-        function startQuiz() {
-            shuffledQuestions = shuffleArray([...quizData]); 
-            currentQuestionIndex = 0;
-            questionAttempts = {}; 
-            shuffledQuestions.forEach(q => {
-                questionAttempts[q.id] = { attempts: 0, text: q.questionText, scenario: q.scenario };
+        function initializeGameState() {
+            phrases = parseCSV(csvData);
+            shuffleArray(phrases);
+            boxes = Array.from({ length: 7 }, () => []);
+            boxes[0] = [...phrases];
+            currentBoxIndex = 0;
+        }
+
+        function parseCSV(data) {
+            const lines = data.trim().split('\n').slice(1);
+            return lines.map(line => {
+                const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.trim().replace(/^"|"$/g, ''));
+                return {
+                    english: values[0], spanish: values[1], pronunciation: values[2], imageUrl: values[3]
+                };
             });
-            resultsSectionEl.classList.add('hidden');
-            quizMainContentEl.classList.remove('hidden');
-            questionSectionEl.classList.remove('hidden'); 
-            terminateButtonEl.classList.remove('hidden'); 
-            displayQuestion();
         }
 
-        function displayQuestion() {
-            currentQuestionAnsweredCorrectly = false;
-            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+        function stopAllAudio() {
+            speechSynthesis.cancel();
+        }
 
-            scenarioTextEl.textContent = currentQuestion.scenario;
-            questionTextEl.textContent = currentQuestion.questionText;
+        function startGame() {
+            stopAllAudio();
+            startContainer.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+            finalReviewContainer.classList.add('hidden');
+            initializeGameState();
+            renderUI();
+        }
+
+        function startReview() {
+            stopAllAudio();
+            if (phrases.length === 0) {
+                 phrases = parseCSV(csvData);
+            }
+            startContainer.classList.add('hidden');
+            gameContainer.classList.add('hidden');
+            displayFinalReview(false);
+        }
+
+        function resetGame() {
+            stopAllAudio();
+            finalReviewContainer.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+            initializeGameState();
+            renderUI();
+        }
+        
+        function finishGame() {
+            stopAllAudio();
+            finalReviewContainer.classList.add('hidden');
+            accessGate.classList.remove('hidden');
+            accessKeyInput.value = '';
             
-            optionsContainerEl.innerHTML = ''; 
-            justificationContainerEl.classList.add('hidden');
-            nextButtonEl.classList.add('hidden'); 
+            // Reiniciar el estado del formulario de acceso
+            loginAttempts = 0;
+            accessKeyInput.disabled = false;
+            validateKeyBtn.disabled = false;
+            validateKeyBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            validateKeyBtn.classList.add('hover:bg-gray-900');
+            errorMessage.classList.add('hidden');
+        }
 
-            currentQuestion.options.forEach((option) => {
+        // --- FUNCIONES DE RENDERIZADO ---
+
+        function renderUI() {
+            renderBoxSelectors();
+            displayCard();
+        }
+
+        function renderBoxSelectors() {
+            boxSelectorsContainer.innerHTML = '';
+            boxes.forEach((box, index) => {
                 const button = document.createElement('button');
-                button.textContent = option.text;
-                button.classList.add('option-button', 'w-full', 'text-left', 'hover:bg-gray-500', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-400');
-                button.dataset.correct = option.correct;
-                button.addEventListener('click', handleOptionSelect);
-                optionsContainerEl.appendChild(button);
-            });
-
-            updateProgress();
-            const contentArea = questionSectionEl.querySelector('.question-content-area');
-            if (contentArea) contentArea.scrollTop = 0;
-        }
-
-        function handleOptionSelect(event) {
-            if (currentQuestionAnsweredCorrectly) return; 
-
-            const selectedButton = event.target;
-            const isCorrect = selectedButton.dataset.correct === 'true';
-            const questionId = shuffledQuestions[currentQuestionIndex].id;
-
-            if (!selectedButton.classList.contains('correct') && !selectedButton.classList.contains('incorrect')) {
-                 questionAttempts[questionId].attempts++;
-            }
-
-            const allOptionButtons = optionsContainerEl.querySelectorAll('.option-button');
-            allOptionButtons.forEach(btn => btn.disabled = true);
-
-            if (isCorrect) {
-                selectedButton.classList.remove('incorrect'); 
-                selectedButton.classList.add('correct');
-                justificationTextEl.innerHTML = shuffledQuestions[currentQuestionIndex].justification; 
-                justificationContainerEl.classList.remove('hidden'); 
-                nextButtonEl.classList.remove('hidden'); 
-                currentQuestionAnsweredCorrectly = true;
-            } else {
-                selectedButton.classList.add('incorrect');
-                selectedButton.disabled = true; 
-                allOptionButtons.forEach(btn => {
-                    if (btn !== selectedButton && !btn.classList.contains('correct')) {
-                        btn.disabled = false;
-                    }
-                });
-            }
-        }
-
-        function nextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < shuffledQuestions.length) {
-                displayQuestion();
-            } else {
-                displayResults();
-            }
-        }
-
-        function terminateQuiz() {
-            displayResults();
-        }
-
-        function updateProgress() {
-            progressTextEl.textContent = `Pregunta ${currentQuestionIndex + 1} de ${shuffledQuestions.length}`;
-        }
-
-        function displayResults() {
-            quizMainContentEl.classList.add('hidden');
-            questionSectionEl.classList.add('hidden');
-            resultsSectionEl.classList.remove('hidden');
-            terminateButtonEl.classList.add('hidden'); 
-            nextButtonEl.classList.add('hidden'); 
-            resultsTableBodyEl.innerHTML = ''; 
-
-            const resultsArray = Object.values(questionAttempts).map(item => ({
-                scenario: item.scenario,
-                questionText: item.text,
-                attempts: item.attempts
-            }));
-
-            resultsArray.sort((a, b) => a.attempts - b.attempts);
-
-            resultsArray.forEach((result, displayIndex) => {
-                const row = resultsTableBodyEl.insertRow();
-                row.insertCell().textContent = displayIndex + 1;
-                row.insertCell().innerHTML = `<span class="font-semibold">${result.scenario}</span><br>${result.questionText}`;
-                const attemptsCell = row.insertCell();
-                attemptsCell.textContent = result.attempts;
-                attemptsCell.classList.add('text-center');
+                button.dataset.boxIndex = index;
+                button.textContent = `Caja ${index + 1} (${box.length})`;
+                button.className = `px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}`;
+                boxSelectorsContainer.appendChild(button);
             });
         }
 
-        nextButtonEl.addEventListener('click', nextQuestion);
-        terminateButtonEl.addEventListener('click', terminateQuiz); 
-        restartButtonEl.addEventListener('click', startQuiz);
+        function displayCard() {
+            cardContainer.innerHTML = '';
+            const currentBox = boxes[currentBoxIndex];
 
-        startQuiz();
+            if (currentBox.length === 0) {
+                cardContainer.innerHTML = `<div class="text-center text-gray-500"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7m-4 12h.01M12 3h.01M4 12h.01M20 12h.01M4 7h.01M4 17h.01M20 7h.01M20 17h.01" /></svg><h2 class="mt-2 text-xl font-semibold">Caja Vacía</h2><p class="mt-1 text-sm">No hay frases en esta caja.</p></div>`;
+                return;
+            }
+
+            const cardData = currentBox[0];
+            const cardElement = document.createElement('div');
+            cardElement.className = 'w-full animate-fade-in';
+            cardElement.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="w-full max-w-md h-64 mb-4 rounded-lg overflow-hidden shadow-lg bg-gray-200">
+                         <img src="${cardData.imageUrl}" alt="Pista visual" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/500x500/e0e0e0/757575?text=Imagen+no+disponible';">
+                    </div>
+                    <div id="reveal-area" class="w-full max-w-md min-h-[60px] bg-gray-100 flex items-center justify-center text-center p-3 rounded-lg mb-4 text-lg font-semibold text-gray-800"></div>
+                    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full max-w-md mb-4">
+                        <button data-action="reveal-en" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Inglés</button>
+                        <button data-action="reveal-es" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Español</button>
+                        <button data-action="reveal-pr" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Pron.</button>
+                        <button data-action="speak-en" title="Pronunciar en Inglés" class="col-span-1 sm:col-span-1 bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
+                        <button data-action="speak-es" title="Pronunciar en Español" class="col-span-1 sm:col-span-1 bg-gray-800 text-white p-2 rounded-md hover:bg-gray-900 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
+                    </div>
+                    <div class="flex gap-4 w-full max-w-md">
+                        <button data-action="box-1" class="w-1/2 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition shadow">A la Caja 1</button>
+                        <button data-action="next-box" class="w-1/2 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow">Siguiente Caja</button>
+                    </div>
+                </div>`;
+            cardContainer.appendChild(cardElement);
+        }
+
+        function displayFinalReview(isCompleted = false) {
+            gameContainer.classList.add('hidden');
+            finalReviewContainer.classList.remove('hidden');
+            
+            const title = isCompleted ? "¡Felicidades!" : "Repaso General";
+
+            finalReviewContainer.innerHTML = `
+                <h2 class="text-3xl font-bold text-green-600 mb-8">${title}</h2>
+                <div id="review-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"></div>
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 max-w-2xl mx-auto">
+                    <!-- Columna Izquierda (Audio) -->
+                    <div class="flex flex-col gap-4">
+                        <button id="play-all-en-normal-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-700 transition">Inglés (Normal)</button>
+                        <button id="play-all-en-slow-btn" class="w-full bg-purple-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-900 transition">Inglés (Lento)</button>
+                        <button id="play-all-es-normal-btn" class="w-full bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-gray-800 transition">Español (Normal)</button>
+                        <button id="play-all-es-slow-btn" class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-black transition">Español (Lento)</button>
+                    </div>
+                    <!-- Columna Derecha (Navegación) -->
+                    <div class="flex flex-col gap-4 justify-center">
+                        <button id="reset-game-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition">Juego Nuevo</button>
+                        <button id="finish-game-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-red-700 transition">Terminar</button>
+                    </div>
+                </div>`;
+            
+            const reviewGrid = document.getElementById('review-grid');
+            phrases.forEach(phrase => {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105';
+                imgContainer.innerHTML = `<img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover">`;
+                reviewGrid.appendChild(imgContainer);
+            });
+
+            document.getElementById('reset-game-btn').addEventListener('click', resetGame);
+            document.getElementById('finish-game-btn').addEventListener('click', finishGame);
+            
+            document.getElementById('play-all-en-normal-btn').addEventListener('click', () => playAll('en-US', 0.8));
+            document.getElementById('play-all-en-slow-btn').addEventListener('click', () => playAll('en-US', 0.5));
+            document.getElementById('play-all-es-normal-btn').addEventListener('click', () => playAll('es-ES', 0.8));
+            document.getElementById('play-all-es-slow-btn').addEventListener('click', () => playAll('es-ES', 0.5));
+        }
+
+        // --- FUNCIONES DE LÓGICA Y MANEJO DE EVENTOS ---
+
+        function moveCard(advance) {
+            const cardToMove = boxes[currentBoxIndex].shift();
+            if (!cardToMove) return;
+
+            if (advance) {
+                const nextBoxIndex = currentBoxIndex + 1;
+                if (nextBoxIndex < boxes.length) {
+                    boxes[nextBoxIndex].push(cardToMove);
+                } else {
+                    boxes[boxes.length - 1].push(cardToMove);
+                }
+            } else {
+                if (currentBoxIndex > 0) {
+                    boxes[0].push(cardToMove);
+                } else {
+                    boxes[0].push(cardToMove);
+                }
+            }
+            
+            if (boxes[6].length === phrases.length) {
+                displayFinalReview(true);
+            } else {
+                renderUI();
+            }
+        }
+
+        function handleAction(e) {
+            const button = e.target.closest('button');
+            if (!button || !button.dataset.action) return;
+
+            const action = button.dataset.action;
+            const card = boxes[currentBoxIndex]?.[0];
+
+            switch (action) {
+                case 'reveal-en': if(card) document.getElementById('reveal-area').textContent = card.english; break;
+                case 'reveal-es': if(card) document.getElementById('reveal-area').textContent = card.spanish; break;
+                case 'reveal-pr': if(card) document.getElementById('reveal-area').textContent = card.pronunciation; break;
+                case 'speak-en': if(card) speak(card.english, 'en-US'); break;
+                case 'speak-es': if(card) speak(card.spanish, 'es-ES'); break;
+                case 'next-box': if(card) moveCard(true); break;
+                case 'box-1': if(card) moveCard(false); break;
+            }
+        }
+        
+        function speak(text, lang) {
+            stopAllAudio();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.7; 
+            speechSynthesis.speak(utterance);
+        }
+        
+        function playAll(lang, rate) {
+            stopAllAudio();
+            
+            const separator = '; ';
+            const textToPlay = (lang === 'en-US' 
+                ? phrases.map(p => p.english) 
+                : phrases.map(p => p.spanish)
+            ).join(separator);
+
+            const utterance = new SpeechSynthesisUtterance(textToPlay);
+            utterance.lang = lang;
+            utterance.rate = rate;
+            speechSynthesis.speak(utterance);
+        }
+        
+        function handleBoxSelection(e) {
+            const button = e.target.closest('button');
+            if (button && button.dataset.boxIndex !== undefined) {
+                currentBoxIndex = parseInt(button.dataset.boxIndex);
+                renderUI();
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        validateKeyBtn.addEventListener('click', validateAccessKey);
+        accessKeyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                validateAccessKey();
+            }
+        });
+        accessKeyInput.addEventListener('input', () => errorMessage.classList.add('hidden'));
+
+        startGameBtn.addEventListener('click', startGame);
+        reviewBtn.addEventListener('click', startReview); 
+        boxSelectorsContainer.addEventListener('click', handleBoxSelection);
+        cardContainer.addEventListener('click', handleAction);
+
     </script>
 </body>
 </html>
