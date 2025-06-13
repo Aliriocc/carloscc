@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memorización de Frases</title>
+    
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Aplicamos la fuente Inter a todo el cuerpo */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <!-- Encabezado de la aplicación -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Memorizar Frases</h1>
+        </header>
+
+        <!-- Contenedor de Acceso -->
+        <div id="access-gate" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Control de Acceso</h2>
+            <p class="text-gray-500 mb-6">Por favor, introduce tu clave para continuar.</p>
+            <div class="relative">
+                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                    </svg>
+                 </div>
+                <input type="password" id="access-key-input" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Clave de acceso">
+            </div>
+            <button id="validate-key-btn" class="w-full mt-4 bg-gray-800 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-gray-900 transition">Validar</button>
+            <p id="error-message" class="text-red-500 font-medium mt-4 hidden"></p>
+        </div>
+
+
+        <!-- Contenedor de inicio (oculto por defecto) -->
+        <div id="start-container" class="text-center mb-6 hidden">
+            <p class="text-gray-600 mb-6">¡Acceso concedido! Elige una opción para comenzar.</p>
+            <div class="flex flex-col sm:flex-row sm:justify-center gap-4">
+                <button id="start-game-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Iniciar Juego
+                </button>
+                <button id="review-btn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">
+                    Repaso General
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenedor principal del juego (inicialmente oculto) -->
+        <main id="game-container" class="hidden">
+            <!-- Selectores de Cajas -->
+            <section id="box-selectors" class="flex flex-wrap justify-center gap-2 mb-6">
+                <!-- Los botones de las cajas se generarán aquí con JavaScript -->
+            </section>
+
+            <!-- Contenedor de la tarjeta -->
+            <section id="card-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-xl min-h-[450px] flex items-center justify-center flex-col">
+                <!-- El contenido de la tarjeta o mensajes se mostrarán aquí -->
+            </section>
+        </main>
+        
+        <!-- Contenedor de la pantalla final de repaso (inicialmente oculto) -->
+        <section id="final-review-container" class="hidden text-center">
+            <!-- El contenido del repaso final se generará aquí -->
+        </section>
+
+    </div>
+
+    <!-- Script principal de la aplicación -->
+    <script type="module">
+        // --- VARIABLES GLOBALES Y DATOS ---
+
+        const csvData = `english,spanish,pronunciation,imageUrl
+"Sound good, fire away","Suena bien, adelante","[saʊnd ɡʊd faɪr əˈweɪ]","https://i.postimg.cc/MMt7JyfX/image.png"
+"What's the deal?","¿Qué pasa?","[wʌts ðə dil]","https://i.postimg.cc/wy9XrWvS/what-s-the-deal.jpg"
+"Hang in there","Aguanta ahí","[hæŋ ɪn ðɛr]","https://i.postimg.cc/v1FLr8d8/hang-in-there.jpg"
+"Hit the books","Ponerse a estudiar","[hɪt ðə bʊks]","https://i.postimg.cc/WDGmXR2G/hit-the-books.jpg"
+"I'm beat","Estoy agotado","[aɪm bit]","https://i.postimg.cc/sMZ4GQq0/i-m-beat.jpg"
+"Catch you later","Nos vemos luego","[kætʃ yu leɪtər]","https://i.postimg.cc/nCW1LYRD/catch-you-later.jpg"
+"You rock!","¡Eres genial!","[yu rɑk]","https://i.postimg.cc/rz8jZpRK/you-rock.jpg"
+"Chill out","Relájate","[tʃɪl aʊt]","https://i.postimg.cc/JG0qmdq8/chill-out.jpg"
+"No sweat","No hay problema","[no swɛt]","https://i.postimg.cc/0rcfTq7Z/no-sweat.jpg"
+"Piece of cake","Pan comido","[pis əv keɪk]","https://i.postimg.cc/8jMHXrPQ/sound-good-fire-away.jpg"`;
+
+        const accessKeys = {
+            "123": "2025-07-20",
+            "456": "2025-07-30"
+        };
+
+        // Referencias a elementos del DOM
+        const startGameBtn = document.getElementById('start-game-btn');
+        const reviewBtn = document.getElementById('review-btn');
+        const startContainer = document.getElementById('start-container');
+        const gameContainer = document.getElementById('game-container');
+        const boxSelectorsContainer = document.getElementById('box-selectors');
+        const cardContainer = document.getElementById('card-container');
+        const finalReviewContainer = document.getElementById('final-review-container');
+        const accessGate = document.getElementById('access-gate');
+        const accessKeyInput = document.getElementById('access-key-input');
+        const validateKeyBtn = document.getElementById('validate-key-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        // Estado de la aplicación
+        let loginAttempts = 0;
+        const MAX_ATTEMPTS = 3;
+        let boxes = [];
+        let currentBoxIndex = 0;
+        let phrases = [];
+
+        // --- SISTEMA DE ACCESO ---
+
+        function validateAccessKey() {
+            const key = accessKeyInput.value.trim();
+            errorMessage.classList.add('hidden');
+
+            if (!accessKeys[key]) {
+                loginAttempts++;
+                errorMessage.textContent = `Clave inválida. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
+                errorMessage.classList.remove('hidden');
+            } else {
+                const expirationDateString = accessKeys[key];
+                const expirationDate = new Date(expirationDateString + "T23:59:59");
+                const today = new Date();
+
+                if (today > expirationDate) {
+                    loginAttempts++;
+                    const formattedDate = new Date(expirationDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                    errorMessage.textContent = `La clave caducó el ${formattedDate}. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
+                    errorMessage.classList.remove('hidden');
+                } else {
+                    // Clave válida y no expirada
+                    accessGate.classList.add('hidden');
+                    startContainer.classList.remove('hidden');
+                    loginAttempts = 0; // Reiniciar intentos en éxito
+                    return; // Salir de la función para no ejecutar el chequeo de bloqueo
+                }
+            }
+
+            // Bloquear si se exceden los intentos
+            if (loginAttempts >= MAX_ATTEMPTS) {
+                errorMessage.textContent = "Has excedido el número de intentos. La aplicación se ha bloqueado.";
+                accessKeyInput.disabled = true;
+                validateKeyBtn.disabled = true;
+                validateKeyBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                validateKeyBtn.classList.remove('hover:bg-gray-900');
+            }
+        }
+        
+        // --- FUNCIONES DE INICIO Y ESTADO DEL JUEGO ---
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function initializeGameState() {
+            phrases = parseCSV(csvData);
+            shuffleArray(phrases);
+            boxes = Array.from({ length: 7 }, () => []);
+            boxes[0] = [...phrases];
+            currentBoxIndex = 0;
+        }
+
+        function parseCSV(data) {
+            const lines = data.trim().split('\n').slice(1);
+            return lines.map(line => {
+                const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.trim().replace(/^"|"$/g, ''));
+                return {
+                    english: values[0], spanish: values[1], pronunciation: values[2], imageUrl: values[3]
+                };
+            });
+        }
+
+        function stopAllAudio() {
+            speechSynthesis.cancel();
+        }
+
+        function startGame() {
+            stopAllAudio();
+            startContainer.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+            finalReviewContainer.classList.add('hidden');
+            initializeGameState();
+            renderUI();
+        }
+
+        function startReview() {
+            stopAllAudio();
+            if (phrases.length === 0) {
+                 phrases = parseCSV(csvData);
+            }
+            startContainer.classList.add('hidden');
+            gameContainer.classList.add('hidden');
+            displayFinalReview(false);
+        }
+
+        function resetGame() {
+            stopAllAudio();
+            finalReviewContainer.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+            initializeGameState();
+            renderUI();
+        }
+        
+        function finishGame() {
+            stopAllAudio();
+            finalReviewContainer.classList.add('hidden');
+            accessGate.classList.remove('hidden');
+            accessKeyInput.value = '';
+            
+            // Reiniciar el estado del formulario de acceso
+            loginAttempts = 0;
+            accessKeyInput.disabled = false;
+            validateKeyBtn.disabled = false;
+            validateKeyBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            validateKeyBtn.classList.add('hover:bg-gray-900');
+            errorMessage.classList.add('hidden');
+        }
+
+        // --- FUNCIONES DE RENDERIZADO ---
+
+        function renderUI() {
+            renderBoxSelectors();
+            displayCard();
+        }
+
+        function renderBoxSelectors() {
+            boxSelectorsContainer.innerHTML = '';
+            boxes.forEach((box, index) => {
+                const button = document.createElement('button');
+                button.dataset.boxIndex = index;
+                button.textContent = `Caja ${index + 1} (${box.length})`;
+                button.className = `px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}`;
+                boxSelectorsContainer.appendChild(button);
+            });
+        }
+
+        function displayCard() {
+            cardContainer.innerHTML = '';
+            const currentBox = boxes[currentBoxIndex];
+
+            if (currentBox.length === 0) {
+                cardContainer.innerHTML = `<div class="text-center text-gray-500"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7m-4 12h.01M12 3h.01M4 12h.01M20 12h.01M4 7h.01M4 17h.01M20 7h.01M20 17h.01" /></svg><h2 class="mt-2 text-xl font-semibold">Caja Vacía</h2><p class="mt-1 text-sm">No hay frases en esta caja.</p></div>`;
+                return;
+            }
+
+            const cardData = currentBox[0];
+            const cardElement = document.createElement('div');
+            cardElement.className = 'w-full animate-fade-in';
+            cardElement.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <div class="w-full max-w-md h-64 mb-4 rounded-lg overflow-hidden shadow-lg bg-gray-200">
+                         <img src="${cardData.imageUrl}" alt="Pista visual" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/500x500/e0e0e0/757575?text=Imagen+no+disponible';">
+                    </div>
+                    <div id="reveal-area" class="w-full max-w-md min-h-[60px] bg-gray-100 flex items-center justify-center text-center p-3 rounded-lg mb-4 text-lg font-semibold text-gray-800"></div>
+                    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full max-w-md mb-4">
+                        <button data-action="reveal-en" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Inglés</button>
+                        <button data-action="reveal-es" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Español</button>
+                        <button data-action="reveal-pr" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Pron.</button>
+                        <button data-action="speak-en" title="Pronunciar en Inglés" class="col-span-1 sm:col-span-1 bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
+                        <button data-action="speak-es" title="Pronunciar en Español" class="col-span-1 sm:col-span-1 bg-gray-800 text-white p-2 rounded-md hover:bg-gray-900 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
+                    </div>
+                    <div class="flex gap-4 w-full max-w-md">
+                        <button data-action="box-1" class="w-1/2 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition shadow">A la Caja 1</button>
+                        <button data-action="next-box" class="w-1/2 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow">Siguiente Caja</button>
+                    </div>
+                </div>`;
+            cardContainer.appendChild(cardElement);
+        }
+
+        function displayFinalReview(isCompleted = false) {
+            gameContainer.classList.add('hidden');
+            finalReviewContainer.classList.remove('hidden');
+            
+            const title = isCompleted ? "¡Felicidades!" : "Repaso General";
+
+            finalReviewContainer.innerHTML = `
+                <h2 class="text-3xl font-bold text-green-600 mb-8">${title}</h2>
+                <div id="review-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"></div>
+                <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 max-w-2xl mx-auto">
+                    <!-- Columna Izquierda (Audio) -->
+                    <div class="flex flex-col gap-4">
+                        <button id="play-all-en-normal-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-700 transition">Inglés (Normal)</button>
+                        <button id="play-all-en-slow-btn" class="w-full bg-purple-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-900 transition">Inglés (Lento)</button>
+                        <button id="play-all-es-normal-btn" class="w-full bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-gray-800 transition">Español (Normal)</button>
+                        <button id="play-all-es-slow-btn" class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-black transition">Español (Lento)</button>
+                    </div>
+                    <!-- Columna Derecha (Navegación) -->
+                    <div class="flex flex-col gap-4 justify-center">
+                        <button id="reset-game-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition">Juego Nuevo</button>
+                        <button id="finish-game-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-red-700 transition">Terminar</button>
+                    </div>
+                </div>`;
+            
+            const reviewGrid = document.getElementById('review-grid');
+            phrases.forEach(phrase => {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105';
+                imgContainer.innerHTML = `<img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover">`;
+                reviewGrid.appendChild(imgContainer);
+            });
+
+            document.getElementById('reset-game-btn').addEventListener('click', resetGame);
+            document.getElementById('finish-game-btn').addEventListener('click', finishGame);
+            
+            document.getElementById('play-all-en-normal-btn').addEventListener('click', () => playAll('en-US', 0.8));
+            document.getElementById('play-all-en-slow-btn').addEventListener('click', () => playAll('en-US', 0.5));
+            document.getElementById('play-all-es-normal-btn').addEventListener('click', () => playAll('es-ES', 0.8));
+            document.getElementById('play-all-es-slow-btn').addEventListener('click', () => playAll('es-ES', 0.5));
+        }
+
+        // --- FUNCIONES DE LÓGICA Y MANEJO DE EVENTOS ---
+
+        function moveCard(advance) {
+            const cardToMove = boxes[currentBoxIndex].shift();
+            if (!cardToMove) return;
+
+            if (advance) {
+                const nextBoxIndex = currentBoxIndex + 1;
+                if (nextBoxIndex < boxes.length) {
+                    boxes[nextBoxIndex].push(cardToMove);
+                } else {
+                    boxes[boxes.length - 1].push(cardToMove);
+                }
+            } else {
+                if (currentBoxIndex > 0) {
+                    boxes[0].push(cardToMove);
+                } else {
+                    boxes[0].push(cardToMove);
+                }
+            }
+            
+            if (boxes[6].length === phrases.length) {
+                displayFinalReview(true);
+            } else {
+                renderUI();
+            }
+        }
+
+        function handleAction(e) {
+            const button = e.target.closest('button');
+            if (!button || !button.dataset.action) return;
+
+            const action = button.dataset.action;
+            const card = boxes[currentBoxIndex]?.[0];
+
+            switch (action) {
+                case 'reveal-en': if(card) document.getElementById('reveal-area').textContent = card.english; break;
+                case 'reveal-es': if(card) document.getElementById('reveal-area').textContent = card.spanish; break;
+                case 'reveal-pr': if(card) document.getElementById('reveal-area').textContent = card.pronunciation; break;
+                case 'speak-en': if(card) speak(card.english, 'en-US'); break;
+                case 'speak-es': if(card) speak(card.spanish, 'es-ES'); break;
+                case 'next-box': if(card) moveCard(true); break;
+                case 'box-1': if(card) moveCard(false); break;
+            }
+        }
+        
+        function speak(text, lang) {
+            stopAllAudio();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.7; 
+            speechSynthesis.speak(utterance);
+        }
+        
+        function playAll(lang, rate) {
+            stopAllAudio();
+            
+            const separator = '; ';
+            const textToPlay = (lang === 'en-US' 
+                ? phrases.map(p => p.english) 
+                : phrases.map(p => p.spanish)
+            ).join(separator);
+
+            const utterance = new SpeechSynthesisUtterance(textToPlay);
+            utterance.lang = lang;
+            utterance.rate = rate;
+            speechSynthesis.speak(utterance);
+        }
+        
+        function handleBoxSelection(e) {
+            const button = e.target.closest('button');
+            if (button && button.dataset.boxIndex !== undefined) {
+                currentBoxIndex = parseInt(button.dataset.boxIndex);
+                renderUI();
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        validateKeyBtn.addEventListener('click', validateAccessKey);
+        accessKeyInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                validateAccessKey();
+            }
+        });
+        accessKeyInput.addEventListener('input', () => errorMessage.classList.add('hidden'));
+
+        startGameBtn.addEventListener('click', startGame);
+        reviewBtn.addEventListener('click', startReview); 
+        boxSelectorsContainer.addEventListener('click', handleBoxSelection);
+        cardContainer.addEventListener('click', handleAction);
+
+    </script>
+</body>
+</html>
