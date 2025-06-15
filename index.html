@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -23,7 +22,7 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <div id="app-container" class="container mx-auto p-4 md:p-8 max-w-4xl">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <!-- Encabezado de la aplicación -->
         <header class="text-center mb-6">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Memorizar Frases</h1>
@@ -99,7 +98,6 @@
                 "456": "2025-07-30"
             };
 
-            const appContainer = document.getElementById('app-container');
             const accessGate = document.getElementById('access-gate');
             const accessKeyInput = document.getElementById('access-key-input');
             const errorMessage = document.getElementById('error-message');
@@ -136,6 +134,7 @@
                         accessGate.classList.add('hidden');
                         startContainer.classList.remove('hidden');
                         loginAttempts = 0;
+                        setupEventListeners();
                         return;
                     }
                 }
@@ -211,18 +210,24 @@
                 document.getElementById('validate-key-btn').disabled = false;
                 document.getElementById('validate-key-btn').classList.remove('bg-gray-400', 'cursor-not-allowed');
                 errorMessage.classList.add('hidden');
+                setupEventListeners();
             }
 
             // --- FUNCIONES DE RENDERIZADO ---
             function renderUI() {
-                document.getElementById('box-selectors').innerHTML = boxes.map((box, index) =>
-                    `<button data-action="select-box" data-box-index="${index}" class="px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}">Caja ${index + 1} (${box.length})</button>`
-                ).join('');
+                const boxContainer = document.getElementById('box-selectors');
+                if (boxContainer) {
+                    boxContainer.innerHTML = boxes.map((box, index) =>
+                        `<button data-action="select-box" data-box-index="${index}" class="px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}">Caja ${index + 1} (${box.length})</button>`
+                    ).join('');
+                }
                 displayCard();
             }
 
             function displayCard() {
                 const cardContainer = document.getElementById('card-container');
+                if (!cardContainer) return;
+                
                 cardContainer.innerHTML = '';
                 const currentBox = boxes[currentBoxIndex];
                 if (currentBox.length === 0) {
@@ -272,6 +277,7 @@
                 document.getElementById('review-grid').innerHTML = phrases.map(phrase => 
                     `<div class="aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105"><img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover"></div>`
                 ).join('');
+                setupEventListeners();
             }
 
             // --- FUNCIONES DE LÓGICA Y MANEJO DE EVENTOS ---
@@ -304,27 +310,52 @@
                 speak(textToPlay, lang, rate);
             }
 
-            // *** CAMBIO CLAVE: MANEJADOR DE EVENTOS UNIVERSAL (DELEGACIÓN) ***
-            appContainer.addEventListener('click', (e) => {
-                const target = e.target.closest('button');
-                if (!target) return;
+            // *** CAMBIO CLAVE: FUNCIÓN CENTRALIZADA PARA ASIGNAR EVENTOS ***
+            function setupEventListeners() {
+                const validateBtn = document.getElementById('validate-key-btn');
+                if (validateBtn) validateBtn.onclick = validateAccessKey;
 
-                const action = target.dataset.action;
-                const id = target.id;
+                const startGameBtn = document.getElementById('start-game-btn');
+                if (startGameBtn) startGameBtn.onclick = startGame;
+                
+                const reviewBtn = document.getElementById('review-btn');
+                if (reviewBtn) reviewBtn.onclick = startReview;
+                
+                const resetGameBtn = document.getElementById('reset-game-btn');
+                if (resetGameBtn) resetGameBtn.onclick = resetGame;
 
-                // Acciones de botones por ID
-                if (id === 'validate-key-btn') validateAccessKey();
-                else if (id === 'start-game-btn') startGame();
-                else if (id === 'review-btn') startReview();
-                else if (id === 'reset-game-btn') resetGame();
-                else if (id === 'finish-game-btn') finishGame();
-                else if (id === 'play-all-en-normal-btn') playAll('en-US', 0.8);
-                else if (id === 'play-all-en-slow-btn') playAll('en-US', 0.5);
-                else if (id === 'play-all-es-normal-btn') playAll('es-ES', 0.8);
-                else if (id === 'play-all-es-slow-btn') playAll('es-ES', 0.5);
+                const finishGameBtn = document.getElementById('finish-game-btn');
+                if (finishGameBtn) finishGameBtn.onclick = finishGame;
 
-                // Acciones de botones por data-action
-                if (action) {
+                const playEnNormalBtn = document.getElementById('play-all-en-normal-btn');
+                if (playEnNormalBtn) playEnNormalBtn.onclick = () => playAll('en-US', 0.8);
+
+                const playEnSlowBtn = document.getElementById('play-all-en-slow-btn');
+                if (playEnSlowBtn) playEnSlowBtn.onclick = () => playAll('en-US', 0.5);
+                
+                const playEsNormalBtn = document.getElementById('play-all-es-normal-btn');
+                if (playEsNormalBtn) playEsNormalBtn.onclick = () => playAll('es-ES', 0.8);
+
+                const playEsSlowBtn = document.getElementById('play-all-es-slow-btn');
+                if (playEsSlowBtn) playEsSlowBtn.onclick = () => playAll('es-ES', 0.5);
+                
+                const boxContainer = document.getElementById('box-selectors');
+                if(boxContainer) boxContainer.onclick = (e) => {
+                    const target = e.target.closest('button[data-action="select-box"]');
+                    if (target) {
+                        const newIndex = parseInt(target.dataset.boxIndex, 10);
+                        if (newIndex !== currentBoxIndex) {
+                            currentBoxIndex = newIndex;
+                            renderUI();
+                        }
+                    }
+                };
+
+                const cardContainer = document.getElementById('card-container');
+                if(cardContainer) cardContainer.onclick = (e) => {
+                    const target = e.target.closest('button');
+                    if (!target || !target.dataset.action) return;
+                    const action = target.dataset.action;
                     const card = boxes[currentBoxIndex]?.[0];
                     if (!card) return;
 
@@ -336,21 +367,18 @@
                         case 'speak-es': speak(card.spanish, 'es-ES'); break;
                         case 'next-box': moveCard(true); break;
                         case 'box-1': moveCard(false); break;
-                        case 'select-box':
-                            const newIndex = parseInt(target.dataset.boxIndex, 10);
-                            if (newIndex !== currentBoxIndex) {
-                                currentBoxIndex = newIndex;
-                                renderUI();
-                            }
-                            break;
                     }
-                }
-            });
+                };
 
-            accessKeyInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') validateAccessKey();
-            });
-            accessKeyInput.addEventListener('input', () => errorMessage.classList.add('hidden'));
+                const keyInput = document.getElementById('access-key-input');
+                if (keyInput) {
+                    keyInput.onkeydown = (e) => { if (e.key === 'Enter') validateAccessKey(); };
+                    keyInput.oninput = () => errorMessage.classList.add('hidden');
+                }
+            }
+            
+            // Iniciar la configuración de eventos por primera vez
+            setupEventListeners();
         });
     </script>
 </body>
