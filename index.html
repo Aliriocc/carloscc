@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -22,7 +23,7 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+    <div id="app-container" class="container mx-auto p-4 md:p-8 max-w-4xl">
         <!-- Encabezado de la aplicación -->
         <header class="text-center mb-6">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Memorizar Frases</h1>
@@ -81,7 +82,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- VARIABLES GLOBALES Y DATOS ---
-
             const csvData = `english,spanish,pronunciation,imageUrl
 "Sound good, fire away","Suena bien, adelante","[saʊnd ɡʊd faɪr əˈweɪ]","https://i.postimg.cc/MMt7JyfX/image.png"
 "What's the deal?","¿Qué pasa?","[wʌts ðə dil]","https://i.postimg.cc/wy9XrWvS/what-s-the-deal.jpg"
@@ -99,20 +99,14 @@
                 "456": "2025-07-30"
             };
 
-            // Referencias a elementos del DOM
-            const startGameBtn = document.getElementById('start-game-btn');
-            const reviewBtn = document.getElementById('review-btn');
-            const startContainer = document.getElementById('start-container');
-            const gameContainer = document.getElementById('game-container');
-            const boxSelectorsContainer = document.getElementById('box-selectors');
-            const cardContainer = document.getElementById('card-container');
-            const finalReviewContainer = document.getElementById('final-review-container');
+            const appContainer = document.getElementById('app-container');
             const accessGate = document.getElementById('access-gate');
             const accessKeyInput = document.getElementById('access-key-input');
-            const validateKeyBtn = document.getElementById('validate-key-btn');
             const errorMessage = document.getElementById('error-message');
-
-            // Estado de la aplicación
+            const startContainer = document.getElementById('start-container');
+            const gameContainer = document.getElementById('game-container');
+            const finalReviewContainer = document.getElementById('final-review-container');
+            
             let loginAttempts = 0;
             const MAX_ATTEMPTS = 3;
             let boxes = [];
@@ -120,7 +114,6 @@
             let phrases = [];
 
             // --- SISTEMA DE ACCESO ---
-
             function validateAccessKey() {
                 const key = accessKeyInput.value.trim();
                 errorMessage.classList.add('hidden');
@@ -150,14 +143,12 @@
                 if (loginAttempts >= MAX_ATTEMPTS) {
                     errorMessage.textContent = "Has excedido el número de intentos. La aplicación se ha bloqueado.";
                     accessKeyInput.disabled = true;
-                    validateKeyBtn.disabled = true;
-                    validateKeyBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                    validateKeyBtn.classList.remove('hover:bg-gray-900');
+                    document.getElementById('validate-key-btn').disabled = true;
+                    document.getElementById('validate-key-btn').classList.add('bg-gray-400', 'cursor-not-allowed');
                 }
             }
             
             // --- FUNCIONES DE INICIO Y ESTADO DEL JUEGO ---
-
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -177,9 +168,7 @@
                 const lines = data.trim().split('\n').slice(1);
                 return lines.map(line => {
                     const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.trim().replace(/^"|"$/g, ''));
-                    return {
-                        english: values[0], spanish: values[1], pronunciation: values[2], imageUrl: values[3]
-                    };
+                    return { english: values[0], spanish: values[1], pronunciation: values[2], imageUrl: values[3] };
                 });
             }
 
@@ -198,9 +187,7 @@
 
             function startReview() {
                 stopAllAudio();
-                if (phrases.length === 0) {
-                     phrases = parseCSV(csvData);
-                }
+                if (phrases.length === 0) phrases = parseCSV(csvData);
                 startContainer.classList.add('hidden');
                 gameContainer.classList.add('hidden');
                 displayFinalReview(false);
@@ -219,49 +206,34 @@
                 finalReviewContainer.classList.add('hidden');
                 accessGate.classList.remove('hidden');
                 accessKeyInput.value = '';
-                
                 loginAttempts = 0;
                 accessKeyInput.disabled = false;
-                validateKeyBtn.disabled = false;
-                validateKeyBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                validateKeyBtn.classList.add('hover:bg-gray-900');
+                document.getElementById('validate-key-btn').disabled = false;
+                document.getElementById('validate-key-btn').classList.remove('bg-gray-400', 'cursor-not-allowed');
                 errorMessage.classList.add('hidden');
             }
 
             // --- FUNCIONES DE RENDERIZADO ---
-
             function renderUI() {
-                renderBoxSelectors();
+                document.getElementById('box-selectors').innerHTML = boxes.map((box, index) =>
+                    `<button data-action="select-box" data-box-index="${index}" class="px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}">Caja ${index + 1} (${box.length})</button>`
+                ).join('');
                 displayCard();
             }
 
-            function renderBoxSelectors() {
-                boxSelectorsContainer.innerHTML = '';
-                boxes.forEach((box, index) => {
-                    const button = document.createElement('button');
-                    button.dataset.boxIndex = index;
-                    button.textContent = `Caja ${index + 1} (${box.length})`;
-                    button.className = `px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}`;
-                    boxSelectorsContainer.appendChild(button);
-                });
-            }
-
             function displayCard() {
+                const cardContainer = document.getElementById('card-container');
                 cardContainer.innerHTML = '';
                 const currentBox = boxes[currentBoxIndex];
-
                 if (currentBox.length === 0) {
                     cardContainer.innerHTML = `<div class="text-center text-gray-500"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7m-4 12h.01M12 3h.01M4 12h.01M20 12h.01M4 7h.01M4 17h.01M20 7h.01M20 17h.01" /></svg><h2 class="mt-2 text-xl font-semibold">Caja Vacía</h2><p class="mt-1 text-sm">No hay frases en esta caja.</p></div>`;
                     return;
                 }
-
                 const cardData = currentBox[0];
-                const cardElement = document.createElement('div');
-                cardElement.className = 'w-full animate-fade-in';
-                cardElement.innerHTML = `
-                    <div class="flex flex-col items-center">
+                cardContainer.innerHTML = `
+                    <div class="w-full animate-fade-in flex flex-col items-center">
                         <div class="w-full max-w-md h-64 mb-4 rounded-lg overflow-hidden shadow-lg bg-gray-200">
-                             <img src="${cardData.imageUrl}" alt="Pista visual" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/500x500/e0e0e0/757575?text=Imagen+no+disponible';">
+                            <img src="${cardData.imageUrl}" alt="Pista visual" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/500x500/e0e0e0/757575?text=Imagen+no+disponible';">
                         </div>
                         <div id="reveal-area" class="w-full max-w-md min-h-[60px] bg-gray-100 flex items-center justify-center text-center p-3 rounded-lg mb-4 text-lg font-semibold text-gray-800"></div>
                         <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full max-w-md mb-4">
@@ -276,15 +248,12 @@
                             <button data-action="next-box" class="w-1/2 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow">Siguiente Caja</button>
                         </div>
                     </div>`;
-                cardContainer.appendChild(cardElement);
             }
 
             function displayFinalReview(isCompleted = false) {
                 gameContainer.classList.add('hidden');
                 finalReviewContainer.classList.remove('hidden');
-                
                 const title = isCompleted ? "¡Felicidades!" : "Repaso General";
-
                 finalReviewContainer.innerHTML = `
                     <h2 class="text-3xl font-bold text-green-600 mb-8">${title}</h2>
                     <div id="review-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"></div>
@@ -300,114 +269,88 @@
                             <button id="finish-game-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-red-700 transition">Terminar</button>
                         </div>
                     </div>`;
-                
-                const reviewGrid = document.getElementById('review-grid');
-                phrases.forEach(phrase => {
-                    const imgContainer = document.createElement('div');
-                    imgContainer.className = 'aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105';
-                    imgContainer.innerHTML = `<img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover">`;
-                    reviewGrid.appendChild(imgContainer);
-                });
-
-                document.getElementById('reset-game-btn').addEventListener('click', resetGame);
-                document.getElementById('finish-game-btn').addEventListener('click', finishGame);
-                
-                document.getElementById('play-all-en-normal-btn').addEventListener('click', () => playAll('en-US', 0.8));
-                document.getElementById('play-all-en-slow-btn').addEventListener('click', () => playAll('en-US', 0.5));
-                document.getElementById('play-all-es-normal-btn').addEventListener('click', () => playAll('es-ES', 0.8));
-                document.getElementById('play-all-es-slow-btn').addEventListener('click', () => playAll('es-ES', 0.5));
+                document.getElementById('review-grid').innerHTML = phrases.map(phrase => 
+                    `<div class="aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105"><img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover"></div>`
+                ).join('');
             }
 
             // --- FUNCIONES DE LÓGICA Y MANEJO DE EVENTOS ---
-
             function moveCard(advance) {
                 const cardToMove = boxes[currentBoxIndex].shift();
                 if (!cardToMove) return;
-
-                if (advance) {
-                    const nextBoxIndex = currentBoxIndex + 1;
-                    if (nextBoxIndex < boxes.length) {
-                        boxes[nextBoxIndex].push(cardToMove);
-                    } else {
-                        boxes[boxes.length - 1].push(cardToMove);
-                    }
+                const nextBoxIndex = advance ? currentBoxIndex + 1 : 0;
+                if (advance && nextBoxIndex < boxes.length) {
+                    boxes[nextBoxIndex].push(cardToMove);
+                } else if(advance) {
+                    boxes[boxes.length - 1].push(cardToMove);
                 } else {
-                    if (currentBoxIndex > 0) {
-                        boxes[0].push(cardToMove);
-                    } else {
-                        boxes[0].push(cardToMove);
-                    }
+                     if (currentBoxIndex > 0) boxes[0].push(cardToMove); else boxes[0].push(cardToMove);
                 }
-                
-                if (boxes[6].length === phrases.length) {
-                    displayFinalReview(true);
-                } else {
-                    renderUI();
-                }
+                if (boxes[6].length === phrases.length) displayFinalReview(true); else renderUI();
             }
 
-            function handleAction(e) {
-                const button = e.target.closest('button');
-                if (!button || !button.dataset.action) return;
-
-                const action = button.dataset.action;
-                const card = boxes[currentBoxIndex]?.[0];
-
-                switch (action) {
-                    case 'reveal-en': if(card) document.getElementById('reveal-area').textContent = card.english; break;
-                    case 'reveal-es': if(card) document.getElementById('reveal-area').textContent = card.spanish; break;
-                    case 'reveal-pr': if(card) document.getElementById('reveal-area').textContent = card.pronunciation; break;
-                    case 'speak-en': if(card) speak(card.english, 'en-US'); break;
-                    case 'speak-es': if(card) speak(card.spanish, 'es-ES'); break;
-                    case 'next-box': if(card) moveCard(true); break;
-                    case 'box-1': if(card) moveCard(false); break;
-                }
-            }
-            
-            function speak(text, lang) {
+            function speak(text, lang, rate = 0.7) {
                 stopAllAudio();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = lang;
-                utterance.rate = 0.7; 
+                utterance.rate = rate; 
                 speechSynthesis.speak(utterance);
             }
             
             function playAll(lang, rate) {
                 stopAllAudio();
-                
                 const separator = '; ';
-                const textToPlay = (lang === 'en-US' 
-                    ? phrases.map(p => p.english) 
-                    : phrases.map(p => p.spanish)
-                ).join(separator);
-
-                const utterance = new SpeechSynthesisUtterance(textToPlay);
-                utterance.lang = lang;
-                utterance.rate = rate;
-                speechSynthesis.speak(utterance);
-            }
-            
-            function handleBoxSelection(e) {
-                const button = e.target.closest('button');
-                if (button && button.dataset.boxIndex !== undefined) {
-                    currentBoxIndex = parseInt(button.dataset.boxIndex);
-                    renderUI();
-                }
+                const textToPlay = (lang === 'en-US' ? phrases.map(p => p.english) : phrases.map(p => p.spanish)).join(separator);
+                speak(textToPlay, lang, rate);
             }
 
-            // --- EVENT LISTENERS ---
-            validateKeyBtn.addEventListener('click', validateAccessKey);
-            accessKeyInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    validateAccessKey();
+            // *** CAMBIO CLAVE: MANEJADOR DE EVENTOS UNIVERSAL (DELEGACIÓN) ***
+            appContainer.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                const action = target.dataset.action;
+                const id = target.id;
+
+                // Acciones de botones por ID
+                if (id === 'validate-key-btn') validateAccessKey();
+                else if (id === 'start-game-btn') startGame();
+                else if (id === 'review-btn') startReview();
+                else if (id === 'reset-game-btn') resetGame();
+                else if (id === 'finish-game-btn') finishGame();
+                else if (id === 'play-all-en-normal-btn') playAll('en-US', 0.8);
+                else if (id === 'play-all-en-slow-btn') playAll('en-US', 0.5);
+                else if (id === 'play-all-es-normal-btn') playAll('es-ES', 0.8);
+                else if (id === 'play-all-es-slow-btn') playAll('es-ES', 0.5);
+
+                // Acciones de botones por data-action
+                if (action) {
+                    const card = boxes[currentBoxIndex]?.[0];
+                    if (!card) return;
+
+                    switch (action) {
+                        case 'reveal-en': document.getElementById('reveal-area').textContent = card.english; break;
+                        case 'reveal-es': document.getElementById('reveal-area').textContent = card.spanish; break;
+                        case 'reveal-pr': document.getElementById('reveal-area').textContent = card.pronunciation; break;
+                        case 'speak-en': speak(card.english, 'en-US'); break;
+                        case 'speak-es': speak(card.spanish, 'es-ES'); break;
+                        case 'next-box': moveCard(true); break;
+                        case 'box-1': moveCard(false); break;
+                        case 'select-box':
+                            const newIndex = parseInt(target.dataset.boxIndex, 10);
+                            if (newIndex !== currentBoxIndex) {
+                                currentBoxIndex = newIndex;
+                                renderUI();
+                            }
+                            break;
+                    }
                 }
             });
-            accessKeyInput.addEventListener('input', () => errorMessage.classList.add('hidden'));
 
-            startGameBtn.addEventListener('click', startGame);
-            reviewBtn.addEventListener('click', startReview); 
-            boxSelectorsContainer.addEventListener('click', handleBoxSelection);
-            cardContainer.addEventListener('click', handleAction);
+            accessKeyInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') validateAccessKey();
+            });
+            accessKeyInput.addEventListener('input', () => errorMessage.classList.add('hidden'));
         });
     </script>
 </body>
