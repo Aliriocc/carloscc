@@ -139,6 +139,9 @@
             }
 
             function stopAllAudio() {
+                if (typeof speechSynthesis !== 'undefined') {
+                    speechSynthesis.cancel();
+                }
                 if (typeof responsiveVoice !== 'undefined') {
                     responsiveVoice.cancel();
                 }
@@ -147,6 +150,24 @@
             function speak(text, lang, rate = 0.7) {
                 stopAllAudio();
 
+                if (typeof speechSynthesis !== 'undefined') {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = lang;
+                    utterance.rate = rate;
+
+                    utterance.onend = () => console.log('Reproducción completada');
+                    utterance.onerror = (error) => {
+                        console.error('Error al reproducir audio con speechSynthesis:', error);
+                        useResponsiveVoiceFallback(text, lang, rate);
+                    };
+
+                    speechSynthesis.speak(utterance);
+                } else {
+                    useResponsiveVoiceFallback(text, lang, rate);
+                }
+            }
+
+            function useResponsiveVoiceFallback(text, lang, rate) {
                 const voiceMap = {
                     'en-US': 'US English Female',
                     'es-ES': 'Spanish Female'
@@ -156,8 +177,8 @@
 
                 responsiveVoice.speak(text, voice, {
                     rate: rate,
-                    onend: () => console.log('Reproducción completada'),
-                    onerror: (error) => console.error('Error al reproducir audio:', error)
+                    onend: () => console.log('Reproducción completada con ResponsiveVoice'),
+                    onerror: (error) => console.error('Error al reproducir audio con ResponsiveVoice:', error)
                 });
             }
 
@@ -314,34 +335,38 @@
                 if (playEsSlowBtn) playEsSlowBtn.onclick = () => playAll('es-ES', 0.5);
 
                 const boxContainer = document.getElementById('box-selectors');
-                if (boxContainer) boxContainer.onclick = (e) => {
-                    const target = e.target.closest('button[data-action="select-box"]');
-                    if (target) {
-                        const newIndex = parseInt(target.dataset.boxIndex, 10);
-                        if (newIndex !== currentBoxIndex) {
-                            currentBoxIndex = newIndex;
-                            renderUI();
+                if (boxContainer) {
+                    boxContainer.onclick = (e) => {
+                        const target = e.target.closest('button[data-action="select-box"]');
+                        if (target) {
+                            const newIndex = parseInt(target.dataset.boxIndex, 10);
+                            if (newIndex !== currentBoxIndex) {
+                                currentBoxIndex = newIndex;
+                                renderUI();
+                            }
                         }
-                    }
-                };
+                    };
+                }
 
                 const cardContainer = document.getElementById('card-container');
-                if (cardContainer) cardContainer.onclick = (e) => {
-                    const target = e.target.closest('button');
-                    if (!target || !target.dataset.action) return;
-                    const action = target.dataset.action;
-                    const card = boxes[currentBoxIndex]?.[0];
-                    if (!card) return;
-                    switch (action) {
-                        case 'reveal-en': document.getElementById('reveal-area').textContent = card.english; break;
-                        case 'reveal-es': document.getElementById('reveal-area').textContent = card.spanish; break;
-                        case 'reveal-pr': document.getElementById('reveal-area').textContent = card.pronunciation; break;
-                        case 'speak-en': speak(card.english, 'en-US'); break;
-                        case 'speak-es': speak(card.spanish, 'es-ES'); break;
-                        case 'next-box': moveCard(true); break;
-                        case 'box-1': moveCard(false); break;
-                    }
-                };
+                if (cardContainer) {
+                    cardContainer.onclick = (e) => {
+                        const target = e.target.closest('button');
+                        if (!target || !target.dataset.action) return;
+                        const action = target.dataset.action;
+                        const card = boxes[currentBoxIndex]?.[0];
+                        if (!card) return;
+                        switch (action) {
+                            case 'reveal-en': document.getElementById('reveal-area').textContent = card.english; break;
+                            case 'reveal-es': document.getElementById('reveal-area').textContent = card.spanish; break;
+                            case 'reveal-pr': document.getElementById('reveal-area').textContent = card.pronunciation; break;
+                            case 'speak-en': speak(card.english, 'en-US'); break;
+                            case 'speak-es': speak(card.spanish, 'es-ES'); break;
+                            case 'next-box': moveCard(true); break;
+                            case 'box-1': moveCard(false); break;
+                        }
+                    };
+                }
 
                 const keyInput = document.getElementById('access-key-input');
                 if (keyInput) {
