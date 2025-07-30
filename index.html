@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juego de Memorización de Frases</title>
-    <!-- Tailwind CSS desde CDN -->
-    <script src="https://cdn.tailwindcss.com"></script> 
-    <!-- ResponsiveVoice.js con Clave API -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.responsivevoice.org/responsivevoice.js?key=QqHIq0Z0"></script>
-    <!-- Google Font: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -17,15 +14,28 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        /* Estilo para el texto seleccionado en el storytelling */
+        .story-text.selected {
+            background-color: #dbeafe; /* Un azul claro de Tailwind (blue-100) */
+            transition: background-color 0.3s;
+        }
+        .story-text strong {
+            color: #4f46e5; /* Color índigo para resaltar (indigo-600) */
+        }
+        /* Estilos para la ventana modal */
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
-        <!-- Encabezado de la aplicación -->
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
         <header class="text-center mb-6">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Memorizar Frases</h1>
         </header>
-        <!-- Contenedor de Acceso -->
         <div id="access-gate" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl text-center">
             <h2 class="text-2xl font-bold text-gray-800 mb-2">Control de Acceso</h2>
             <p class="text-gray-500 mb-6">Por favor, introduce tu clave para continuar.</p>
@@ -40,65 +50,159 @@
             <button id="validate-key-btn" class="w-full mt-4 bg-gray-800 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-gray-900 transition">Validar</button>
             <p id="error-message" class="text-red-500 font-medium mt-4 hidden"></p>
         </div>
-        <!-- Contenedor de inicio (oculto por defecto) -->
         <div id="start-container" class="text-center mb-6 hidden">
-            <p class="text-gray-600 mb-6">¡Acceso concedido! Elige una opción para comenzar.</p>
-            <div class="flex flex-col sm:flex-row sm:justify-center gap-4">
-                <button id="start-game-btn" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
-                    Iniciar Juego
-                </button>
-                <button id="review-btn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">
-                    Repaso General
-                </button>
+            </div>
+        <main id="game-container" class="hidden">
+            <section id="box-selectors" class="flex flex-wrap justify-center gap-2 mb-6">
+                </section>
+            <section id="card-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-xl min-h-[450px] flex items-center justify-center flex-col">
+                </section>
+        </main>
+        <section id="final-review-container" class="hidden text-center">
+            </section>
+
+        <section id="storytelling-container" class="hidden text-center bg-white p-6 rounded-2xl shadow-xl">
+             </section>
+
+        <div id="review-modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0">
+            <div class="modal-content bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Frase</h3>
+                <div id="modal-image-container" class="w-full h-48 mb-4 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center text-6xl">
+                    </div>
+                <div class="space-y-2">
+                    <p class="text-lg text-purple-700 font-semibold" id="modal-english-phrase"></p>
+                    <p class="text-md text-blue-600 italic" id="modal-pronunciation"></p>
+                    <p class="text-lg text-gray-600 mt-1" id="modal-spanish-phrase"></p>
+                </div>
+                <button id="modal-close-btn" class="mt-6 w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-red-700 transition">Cerrar</button>
             </div>
         </div>
-        <!-- Contenedor principal del juego (inicialmente oculto) -->
-        <main id="game-container" class="hidden">
-            <!-- Selectores de Cajas -->
-            <section id="box-selectors" class="flex flex-wrap justify-center gap-2 mb-6">
-                <!-- Los botones de las cajas se generarán aquí con JavaScript -->
-            </section>
-            <!-- Contenedor de la tarjeta -->
-            <section id="card-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-xl min-h-[450px] flex items-center justify-center flex-col">
-                <!-- El contenido de la tarjeta o mensajes se mostrarán aquí -->
-            </section>
-        </main>
-        <!-- Contenedor de la pantalla final de repaso (inicialmente oculto) -->
-        <section id="final-review-container" class="hidden text-center">
-            <!-- El contenido del repaso final se generará aquí -->
-        </section>
-    </div>
+        </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- VARIABLES GLOBALES Y DATOS ---
-            const csvData = `english,spanish,pronunciation,imageUrl
-"Sound good, fire away","Suena bien, adelante","[saʊnd ɡʊd faɪr əˈweɪ]","https://i.postimg.cc/MMt7JyfX/image.png"
-"What's the deal?","¿Qué pasa?","[wʌts ðə dil]","https://i.postimg.cc/wy9XrWvS/what-s-the-deal.jpg"
-"Hang in there","Aguanta ahí","[hæŋ ɪn ðɛr]","https://i.postimg.cc/v1FLr8d8/hang-in-there.jpg"
-"Hit the books","Ponerse a estudiar","[hɪt ðə bʊks]","https://i.postimg.cc/WDGmXR2G/hit-the-books.jpg"
-"I'm beat","Estoy agotado","[aɪm bit]","https://i.postimg.cc/sMZ4GQq0/i-m-beat.jpg"
-"Catch you later","Nos vemos luego","[kætʃ yu leɪtər]","https://i.postimg.cc/nCW1LYRD/catch-you-later.jpg"
-"You rock!","¡Eres genial!","[yu rɑk]","https://i.postimg.cc/rz8jZpRK/you-rock.jpg"
-"Chill out","Relájate","[tʃɪl aʊt]","https://i.postimg.cc/JG0qmdq8/chill-out.jpg"
-"No sweat","No hay problema","[no swɛt]","https://i.postimg.cc/0rcfTq7Z/no-sweat.jpg"
-"Piece of cake","Pan comido","[pis əv keɪk]","https://i.postimg.cc/8jMHXrPQ/sound-good-fire-away.jpg"`;
-            const accessKeys = {
-                "123": "2025-07-20",
-                "456": "2025-07-30"
-            };
+            const csvData = `"english","spanish","pronunciation","emojis"
+"What's up?","¿Qué tal? / ¿Qué onda?","Guats-ap?","❓⬆️📞"
+"How's it going?","¿Cómo va todo?","Jaus-it-gó-in?","❓🚶‍♀️➡️🔄"
+"You alright? ","¿Todo bien?","Yu-ol-ráit?","👍❓😊✅"
+"What have you been up to?","¿En qué has andado?","Guát-jav-iú-bin-ap-tu?","❓🚶‍♂️➡️💡🤔"
+"Long time no see!","¡Tanto tiempo sin verte!","Long-táim-no-sí!","⏳👀❌👋😭"
+"Sup? (Short for What's up?)","¿Qué tal? (muy corto)","Sap?","⬆️❓⚡"
+"Hi, I don't think we've met. I'm .","Hola, creo que no nos conocemos. Soy .","Jái, ái-dont-zink-wiv-met. Áim .","👋🤔🤝👤➡️"
+"How's your day going so far?","¿Cómo va tu día hasta ahora?","Jaus-yor-déi-gó-in-so-far?","☀️🗓️➡️❓"
+"Is this seat taken?","¿Está ocupado este asiento?","Is-dis-sít-téi-ken?","🪑 occupied❓"
+"This is some crazy weather, huh?","Vaya clima, ¿no?","Dis-is-som-créi-si-wéder, ja?","🌧️☀️🌬️🤯❓"
+"What do you do for a living?","¿A qué te dedicas?","Guát-du-iú-du-for-a-lí-ving?","❓💼💰🏢"
+"So, what brings you here?","Y bien, ¿qué te trae por aquí?","So, guát-brings-iú-jir?","❓📍➡️ причина"
+"I love your. Where did you get it?","Me encanta tu. ¿Dónde lo conseguiste?","Ai-lov-yor [shirt/bag]. Wér-did-iú-guet-it?","💖👕❓🛍️✨"
+"Are you from around here?","¿Eres de por aquí?","Ar-iú-from-a-ráund-jir?","❓📍🏠🗺️"
+"Enjoying the event?","¿Disfrutando el evento?","En-yó-ing-di-i-vént?","🎉🥳🎶❓"
+"Has it been a busy week for you?","¿Has tenido una semana ocupada?","Jas-it-bin-a-bí-si-wik-for-iú?","🗓️🐝❓😅⏰"
+"How was your weekend?","¿Qué tal tu fin de semana?","Jau-was-yor-wík-end?","❓📅➡️😌"
+"Hi , do you have a quick second?","Hola [Nombre], ¿tienes un segundo?","Jái [Nombre], du-iú-jav-a-cuík-sé-cond?","👋⏱️❓🏃‍♀️💨"
+"What are your thoughts on ?","¿Qué opinas sobre  ?","Guát-ar-yor-zots-on  ?","🤔💬❓💡"
+"I was hoping I could pick your brain about...","Quería ver si podía consultarte sobre...","Ai-was-jó-ping-ai-cud-pik-yor-bréin-a-báut...","🧠💡❓🧐📚"
+"Can I get you anything?","¿Te traigo algo?","Can-ai-guet-iú-é-ni-zing?","🙋‍♀️❓☕🛍️🎁"
+"How about we grab a bite?","¿Qué tal si comemos algo?","Jau-a-báut-wi-grab-a-báit?","🍔🍕❓🤝😋"
+"I'm starving!","¡Me muero de hambre!","Áim-stár-ving!","😵‍💫🍽️🤤😩"
+"I'm stuffed.","Estoy lleno/a.","Áim-stáft."," belly 🤰🍝💨"
+"Can I try this on?","¿Me puedo probar esto?","Can-ai-trái-dis-on?","👗👕❓🚶‍♀️ mirrors"
+"How much is it?","¿Cuánto cuesta?","Jau-mach-is-it?","💲❓💰💸"
+"I'm just Browse, thanks.","Solo estoy mirando, gracias.","Áim-yost-bráu-sing, zanks.","👀🛍️🚶‍♀️❌🛒✋"
+"Where's the restroom?","¿Dónde está el baño?","Wérs-de-rest-rum?","🚽❓🗺️➡️"
+"Excuse me, is this the way to...?","Disculpe, ¿es este el camino a...?","Ex-kiús-mi, is-dis-de-wéi-tu...?","🗺️❓🚶‍♀️➡️📍"
+"Could you repeat that, please?","¿Podrías repetir eso, por favor?","Cud-iú-ri-pít-dat, pliis?","🗣️🔄❓👂🙏"
+"I'm running late.","Voy tarde.","Áim-rá-ning-léit.","🏃‍♀️⏰💨😬❌⏳"
+"I'm just kidding!","¡Solo estoy bromeando!","Áim-yost-kí-ding!","🤣🤪😝🤡"
+"No worries.","No te preocupes.","No-wó-rris.","😌👍 calm down🧘‍♀️"
+"It's up to you.","Depende de ti.","Its-ap-tu-iú.","🤷‍♀️ elección 🎲⚖️"
+"I'm on my way.","Estoy en camino.","Áim-on-mái-wéi.","📍🚗💨 camino🚶‍♂️"
+"Take care!","¡Cuídate!","Téik-keir!","👋💖 seguridad🛡️"
+"Bless you!","¡Salud! (al estornudar)","Bles-iú!","🤧🙏 salúd✨"
+"Never mind.","No importa / Olvídalo.","Né-ver-máind.","💭➡️🗑️ forget✋"
+"That's a good one!","¡Esa es buena!","Dats-a-gud-uan!","👍😂 genial🌟"
+"I'll be right back.","Ya vuelvo.","Áil-bi-ráit-bak.","↩️🏃‍♀️ pronto⏱️"
+"I appreciate that.","Aprecio eso.","Ai-a-pri-shi-éit-dat.","🙏💖✨🙌"
+"You got this!","¡Tú puedes!","Yu-got-dis!","💪✨ जीत🏆🌟"
+"Let me know.","Avísame.","Let-mi-nou.","📞📩 info📧"
+"Sounds good.","Suena bien.","Sáunds-gud.","👂👍 perfecto✅"
+"I'm not feeling well.","No me siento bien.","Áim-not-fí-ling-wel.","🤒🤢 malaise😷😔"
+"What a small world!","¡Qué mundo tan pequeño!","Guát-a-smól-world!","🌎🤏 surprised🤯"
+"Keep me posted.","Mantenme informado/a.","Kiip-mi-póus-ted.","📬➡️📰 update🔄"
+"It's not a big deal.","No es para tanto.","Its-not-a-big-díil.","🤏🤷‍♀️ insignificante❌⛰️"
+"I can't complain.","No me puedo quejar.","Ai-cant-kom-pléin.","😊👍 queja❌🚫"
+"Figure it out.","Resuélvelo / Averígualo.","Fi-gur-it-áut.","💡🔍 solucionar🧩"`;
+
+            const storytellingData = [
+                {
+                    story_en: "It was a rainy afternoon when Jake walked into the local coffee shop. He looked around and spotted an old friend by the window.\n\"<strong>What's up?</strong>\" he called out, waving.\nHis friend grinned, \"<strong>How's it going?</strong>\"\nJake laughed, \"<strong>You alright?</strong> You look like you haven't slept in days!\"\n\"Yeah, I'm good,\" his friend replied. \"<strong>What have you been up to?</strong>\"\nJake shrugged. \"<strong>Long time no see!</strong> I've been traveling a lot for work. <strong>Sup?</strong>\"\nThey both sat down and Jake noticed a stranger nearby. \"<strong>Hi, I don't think we've met.</strong> I'm Jake,\" he said, extending a hand.\nThe stranger smiled. \"Nice to meet you! <strong>How's your day going so far?</strong>\"\n\"Pretty good,\" Jake replied. He glanced at the empty seat next to the stranger. \"<strong>Is this seat taken?</strong>\"\n\"No, go ahead,\" the stranger answered.\nJust then, thunder rumbled outside. Jake laughed, \"<strong>This is some crazy weather, huh?</strong>\"\nEveryone nodded, glad to be inside, sharing stories and escaping the storm together.",
+                    story_es: "Era una tarde lluviosa cuando Jake entró a la cafetería del barrio. Miró a su alrededor y vio a un viejo amigo junto a la ventana.\n-<strong>¿Qué tal?</strong> -saludó con la mano.\nSu amigo sonrió-<strong>¿Cómo va todo?</strong>\nJake se rió-<strong>¿Todo bien?</strong> ¡Pareces no haber dormido en días!\n-Sí, todo bien -respondió su amigo. <strong>¿En qué has andado?</strong>\nJake se encogió de hombros-<strong>¡Tanto tiempo sin verte!</strong> He estado viajando mucho por trabajo. <strong>¿Qué onda?</strong>\nAmbos se sentaron y Jake notó a un desconocido cerca de ellos-<strong>Hola, creo que no nos conocemos.</strong> Soy Jake-dijo, extendiendo la mano.\nEl desconocido sonrió-¡Mucho gusto! <strong>¿Cómo va tu día hasta ahora?</strong>\n-Bastante bien -respondió Jake. Miró el asiento vacío junto al desconocido-<strong>¿Está ocupado este asiento?</strong>\n-No, adelante -respondió el desconocido.\nEn ese momento, un trueno retumbó afuera. Jake se rió-<strong>Vaya clima, ¿no?</strong>\nTodos asintieron, contentos de estar adentro, compartiendo historias y escapando de la tormenta."
+                },
+                {
+                    story_en: "Later that evening, the coffee shop buzzed with new faces. Jake struck up a conversation with another guest.\n\"<strong>What do you do for a living?</strong>\" he asked.\n\"I'm a graphic designer,\" she replied. \"And you?\"\n\"I'm a teacher,\" Jake said. \"<strong>So, what brings you here?</strong>\"\nShe smiled, \"Just needed a break. By the way, <strong>I love your jacket. Where did you get it?</strong>\"\nJake beamed. \"Thanks! <strong>Are you from around here?</strong>\"\n\"Yeah, born and raised. <strong>Are you enjoying the event?</strong>\"\n\"Definitely,\" Jake replied. \"<strong>Has it been a busy week for you?</strong>\"\nShe nodded, \"Super busy. <strong>How was your weekend?</strong>\"\n\"Pretty relaxing, actually,\" Jake said. He spotted another friend across the room. \"<strong>Hi, Sarah, do you have a quick second?</strong>\"\nSarah joined them, and Jake turned to the group. \"<strong>What are your thoughts on the new art exhibit?</strong>\"\nThey all shared opinions, and Jake added, \"<strong>I was hoping I could pick your brain about</strong> creative ideas for my class.\"\nThe conversation flowed, and new friendships blossomed over coffee and curiosity.",
+                    story_es: "Más tarde esa noche, la cafetería estaba llena de caras nuevas. Jake entabló conversación con otra invitada.\n-<strong>¿A qué te dedicas?</strong> -preguntó.\n-Soy diseñadora gráfica -respondió ella. ¿Y tú?\n-Soy maestro -dijo Jake-. Y bien, <strong>¿qué te trae por aquí?</strong>\nElla sonrió-Solo necesitaba un descanso. Por cierto, <strong>me encanta tu chaqueta. ¿Dónde la conseguiste?</strong>\nJake se iluminó-¡Gracias! <strong>¿Eres de por aquí?</strong>\n-Sí, nací y crecí aquí. <strong>¿Disfrutando el evento?</strong>\n-Sin duda -respondió Jake-. <strong>¿Has tenido una semana ocupada?</strong>\nElla asintió-Súper ocupada. <strong>¿Qué tal tu fin de semana?</strong>\n-Bastante relajado, la verdad -dijo Jake. Vio a otra amiga al fondo-<strong>Hola, ¿tienes un segundo?</strong>\nElla se acercó y Jake preguntó al grupo-<strong>¿Qué opinan sobre la nueva exposición de arte?</strong>\nTodos compartieron sus opiniones, y Jake añadió-<strong>Quería ver si podía consultarte sobre</strong> ideas creativas para mi clase.\nLa conversación fluyó y nuevas amistades nacieron entre café y curiosidad."
+                },
+                {
+                    story_en: "The next morning, Jake was at the grocery store, still thinking about the art exhibit. He saw a friend looking confused in the produce aisle.\n\"Hey Mike, <strong>Can I get you anything?</strong> You look lost.\" Jake chuckled.\nMike sighed. \"Just trying to figure out dinner. <strong>How about we grab a bite?</strong> I'm <strong>starving!</strong>\"\nThey decided on pizza. After a few slices, Mike leaned back. \"Wow, <strong>I'm stuffed.</strong>\"\nLater, at a clothing store, Jake picked up a jacket. \"<strong>Can I try this on?</strong>\" he asked the assistant. \"And <strong>how much is it?</strong>\"\nThe assistant gave him the details. \"I'm just Browse, thanks,\" Jake said, putting it back. As they left, Mike asked, \"<strong>Where's the restroom?</strong>\"\nJake pointed him in the right direction. A tourist then approached Jake. \"<strong>Excuse me, is this the way to the museum?</strong>\" she asked.\nJake gave her directions. \"Oh, and <strong>could you repeat that, please?</strong>\" she added, pulling out her phone to type it down. Jake patiently repeated the directions, glad to help.",
+                    story_es: "A la mañana siguiente, Jake estaba en el supermercado, todavía pensando en la exposición de arte. Vio a un amigo con cara de confusión en la sección de frutas y verduras.\n-Hola Mike, <strong>¿Te traigo algo?</strong> Te ves perdido-Jake se rió entre dientes.\nMike suspiró. -Solo estoy tratando de decidir la cena. <strong>¿Qué tal si comemos algo?</strong> ¡Me <strong>muero de hambre!</strong>\nDecidieron ir por pizza. Después de unas cuantas rebanadas, Mike se recostó. -Vaya, <strong>estoy lleno.</strong>\nMás tarde, en una tienda de ropa, Jake tomó una chaqueta. -<strong>¿Me puedo probar esto?</strong> -le preguntó al dependiente-. Y <strong>¿cuánto cuesta?</strong>\nEl dependiente le dio los detalles. -Solo estoy mirando, gracias-dijo Jake, volviendo a dejarla. Al salir, Mike preguntó, -<strong>¿Dónde está el baño?</strong>\nJake lo señaló en la dirección correcta. Luego, una turista se acercó a Jake. -<strong>Disculpe, ¿es este el camino al museo?</strong> -preguntó.\nJake le dio las indicaciones. -Ah, y <strong>¿podrías repetir eso, por favor?</strong> -añadió ella, sacando su teléfono para anotarlo. Jake repitió pacientemente las indicaciones, contento de ayudar."
+                },
+                {
+                    story_en: "Later that day, Jake got a call. \"Hey, <strong>I'm running late!</strong>\" his friend Sarah exclaimed. \"<strong>I'm just kidding!</strong> Gotcha!\"\nJake laughed. \"Almost believed you! <strong>No worries.</strong> I was just about to head out. What do you want to do tonight? <strong>It's up to you.</strong>\"\nSarah suggested a movie. \"Great! <strong>I'm on my way,</strong>\" Jake said. As he hung up, he realized he forgot his keys. \"Oh, <strong>take care!</strong>\" he muttered to himself as he rushed back.\nOn the way, someone sneezed loudly. \"<strong>Bless you!</strong>\" Jake said automatically. He bumped into another friend. \"Oh, <strong>never mind,</strong>\" he said, realizing it wasn't who he thought.\nHis friend told him a funny story. \"<strong>That's a good one!</strong>\" Jake chuckled. \"Anyway, <strong>I'll be right back.</strong> I need to grab something from my car.\"",
+                    story_es: "Más tarde ese día, Jake recibió una llamada. -¡Oye, <strong>voy tarde!</strong> -exclamó su amiga Sarah-. ¡Solo estoy bromeando! ¡Te pillé!\nJake se rió. -¡Casi te creo! <strong>No te preocupes.</strong> Estaba a punto de salir. ¿Qué quieres hacer esta noche? <strong>Depende de ti.</strong>\nSarah sugirió una película. -¡Genial! <strong>Estoy en camino,</strong> -dijo Jake. Al colgar, se dio cuenta de que había olvidado sus llaves. -Ay, ¡cuídate! -murmuró para sí mismo mientras regresaba corriendo.\nEn el camino, alguien estornudó ruidosamente. -¡Salud! -dijo Jake automáticamente. Chocó con otro amigo. -Ah, <strong>no importa,</strong> -dijo, dándose cuenta de que no era quien pensaba.\nSu amigo le contó una historia divertida. -¡Esa es buena! -Jake se rió entre dientes. -De todos modos, <strong>ya vuelvo.</strong> Necesito coger algo de mi coche."
+                },
+                {
+                    story_en: "The next morning, Jake was reflecting on his busy week. He received an email from a colleague, praising his recent project. \"<strong>I appreciate that,</strong>\" he thought, feeling proud. His mentor had always told him, \"<strong>You got this!</strong>\" whenever he felt overwhelmed.\nHe decided to plan a new workshop. \"Let me know if you have any ideas,\" he emailed his team. A response came quickly: \"<strong>Sounds good.</strong>\"\nLater, Jake felt a bit under the weather. \"<strong>I'm not feeling well,</strong>\" he told his wife. Despite this, he ran into an old university friend at the park. \"<strong>What a small world!</strong>\" he exclaimed. They chatted briefly, promising to catch up properly. \"<strong>Keep me posted</strong> on your new venture!\" Jake called out.\nHe thought about some minor issues with his computer. \"<strong>It's not a big deal,</strong>\" he decided, he'd fix it later. Overall, he considered his week. \"<strong>I can't complain,</strong>\" he smiled. He just needed to \"<strong>figure it out</strong>\" one step at a time.",
+                    story_es: "A la mañana siguiente, Jake reflexionaba sobre su ajetreada semana. Recibió un correo electrónico de un colega, elogiando su proyecto reciente. -<strong>Aprecio eso,</strong> -pensó, sintiéndose orgulloso. Su mentor siempre le había dicho, -¡Tú puedes! -cada vez que se sentía abrumado.\nDecidió planear un nuevo taller. -Avísame si tienes alguna idea-envió un correo electrónico a su equipo. Una respuesta llegó rápidamente: -<strong>Suena bien.</strong>\nMás tarde, Jake se sintió un poco indispuesto. -<strong>No me siento bien,</strong> -le dijo a su esposa. A pesar de esto, se encontró con un viejo amigo de la universidad en el parque. -¡Qué mundo tan pequeño! -exclamó. Charlaron brevemente, prometiendo ponerse al día correctamente. -¡Mantenme informado sobre tu nueva empresa! -gritó Jake.\nPensó en algunos problemas menores con su computadora. -<strong>No es para tanto,</strong> -decidió, lo arreglaría más tarde. En general, consideró su semana. -<strong>No me puedo quejar,</strong> -sonrió. Solo necesitaba -<strong>resolverlo</strong>- un paso a la vez."
+                }
+            ];
+
+            const accessKeys = { "123": "2025-07-20", "456": "2025-07-30" };
             const accessGate = document.getElementById('access-gate');
             const accessKeyInput = document.getElementById('access-key-input');
             const errorMessage = document.getElementById('error-message');
             const startContainer = document.getElementById('start-container');
             const gameContainer = document.getElementById('game-container');
             const finalReviewContainer = document.getElementById('final-review-container');
+            const storytellingContainer = document.getElementById('storytelling-container');
+            const reviewModal = document.getElementById('review-modal');
+            
             let loginAttempts = 0;
             const MAX_ATTEMPTS = 3;
+            let allPhrases = [];
+            let phrases = [];
             let boxes = [];
             let currentBoxIndex = 0;
-            let phrases = [];
+            let currentBatchIndex = 0;
+            let gameHasBeenPlayed = false;
 
-            // --- SISTEMA DE ACCESO ---
+            let utterance = null;
+            if ('speechSynthesis' in window) {
+                utterance = new SpeechSynthesisUtterance();
+                utterance.onend = () => console.log('Reproducción completada.');
+                utterance.onerror = (error) => {
+                    console.error('Error con speechSynthesis, usando fallback:', error);
+                };
+            }
+
+            stopAllAudio();
+
+            function parseCSV(data) {
+                const lines = data.trim().split('\n').slice(1);
+                return lines.map(line => {
+                    const parts = line.match(/^"(.*?)","(.*?)"(?:,"(.*?)"|),"(.*)"$/);
+                    if (parts && parts.length === 5) {
+                        const english = parts[1];
+                        const spanish = parts[2];
+                        const pronunciation = parts[3];
+                        const emojis = parts[4]; 
+
+                        return { english, spanish, pronunciation, emojis }; // Eliminamos imageUrl
+                    }
+                    return null;
+                }).filter(p => p !== null && p.english && p.spanish && p.pronunciation && p.emojis);
+            }
+            allPhrases = parseCSV(csvData);
+
             function validateAccessKey() {
                 const key = accessKeyInput.value.trim();
                 errorMessage.classList.add('hidden');
@@ -116,10 +220,8 @@
                         errorMessage.textContent = `La clave caducó el ${formattedDate}. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
                         errorMessage.classList.remove('hidden');
                     } else {
-                        accessGate.classList.add('hidden');
-                        startContainer.classList.remove('hidden');
                         loginAttempts = 0;
-                        setupEventListeners();
+                        showBatchSelectionScreen();
                         return;
                     }
                 }
@@ -130,8 +232,48 @@
                     document.getElementById('validate-key-btn').classList.add('bg-gray-400', 'cursor-not-allowed');
                 }
             }
+            
+            function showBatchSelectionScreen() {
+                stopAllAudio();
+                accessGate.classList.add('hidden');
+                gameContainer.classList.add('hidden');
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                startContainer.innerHTML = '';
+                const infoText = document.createElement('p');
+                infoText.className = 'text-gray-600 mb-6';
+                infoText.textContent = '¡Acceso concedido! Elige un grupo de frases para comenzar.';
+                startContainer.appendChild(infoText);
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'flex flex-col sm:flex-row sm:justify-center gap-4';
+                const batchSize = 10;
+                const numBatches = Math.ceil(allPhrases.length / batchSize);
+                for (let i = 0; i < numBatches; i++) {
+                    const start = i * batchSize + 1;
+                    const end = Math.min((i + 1) * batchSize, allPhrases.length);
+                    const batchBtn = document.createElement('button');
+                    batchBtn.textContent = `Frases ${start} - ${end}`;
+                    batchBtn.className = 'bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300';
+                    batchBtn.onclick = () => startGameWithBatch(i);
+                    buttonContainer.appendChild(batchBtn);
+                }
+                
+                const reviewBtn = document.createElement('button');
+                reviewBtn.textContent = 'Repaso General';
+                if (gameHasBeenPlayed) {
+                    reviewBtn.className = 'bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300';
+                    reviewBtn.onclick = startReview;
+                } else {
+                    reviewBtn.className = 'bg-green-300 text-white font-bold py-3 px-8 rounded-lg shadow-inner cursor-not-allowed';
+                    reviewBtn.disabled = true;
+                    reviewBtn.title = "Completa un bloque de frases para activar esta opción";
+                }
+                buttonContainer.appendChild(reviewBtn);
 
-            // --- FUNCIONES DE INICIO Y ESTADO DEL JUEGO ---
+                startContainer.appendChild(buttonContainer);
+                startContainer.classList.remove('hidden');
+            }
+
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -140,64 +282,44 @@
             }
 
             function initializeGameState() {
-                phrases = parseCSV(csvData);
                 shuffleArray(phrases);
                 boxes = Array.from({ length: 7 }, () => []);
                 boxes[0] = [...phrases];
                 currentBoxIndex = 0;
             }
 
-            function parseCSV(data) {
-                const lines = data.trim().split('\n').slice(1);
-                return lines.map(line => {
-                    const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.trim().replace(/^"|"$/g, ''));
-                    return { english: values[0], spanish: values[1], pronunciation: values[2], imageUrl: values[3] };
-                });
-            }
-
             function stopAllAudio() {
-                if (typeof speechSynthesis !== 'undefined') {
-                    speechSynthesis.cancel();
-                }
                 if (typeof responsiveVoice !== 'undefined') {
                     responsiveVoice.cancel();
                 }
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
             }
-
-            function speak(text, lang, rate = 0.7) {
+            
+            function speak(text, lang, rate = 0.8) {
                 stopAllAudio();
-
-                // Intentar usar speechSynthesis primero
-                if (typeof speechSynthesis !== 'undefined') {
-                    const utterance = new SpeechSynthesisUtterance(text);
+                const cleanText = text.replace(/<strong>|<\/strong>/g, '');
+                if (speechSynthesis && utterance) {
+                    utterance.text = cleanText;
                     utterance.lang = lang;
                     utterance.rate = rate;
-
-                    // Manejar errores de reproducción
-                    utterance.onend = () => console.log('Reproducción completada');
-                    utterance.onerror = (error) => {
-                        console.error('Error al reproducir audio con speechSynthesis:', error);
-                        useResponsiveVoiceFallback(text, lang, rate);
+                    utterance.onerror = (event) => {
+                        console.error('Error con speechSynthesis, usando fallback:', event);
+                        useResponsiveVoiceFallback(cleanText, lang, rate);
                     };
-
                     speechSynthesis.speak(utterance);
                 } else {
-                    // Fallback a responsiveVoice si speechSynthesis no está disponible
-                    useResponsiveVoiceFallback(text, lang, rate);
+                    useResponsiveVoiceFallback(cleanText, lang, rate);
                 }
             }
 
             function useResponsiveVoiceFallback(text, lang, rate) {
-                const voiceMap = {
-                    'en-US': 'US English Female',
-                    'es-ES': 'Spanish Female'
-                };
-
+                const voiceMap = { 'en-US': 'US English Female', 'es-ES': 'Spanish Female' };
                 const voice = voiceMap[lang] || 'US English Female';
-
                 responsiveVoice.speak(text, voice, {
                     rate: rate,
-                    onend: () => console.log('Reproducción completada con ResponsiveVoice'),
+                    onend: () => console.log('Reproducción completada con ResponsiveVoice.'),
                     onerror: (error) => console.error('Error al reproducir audio con ResponsiveVoice:', error)
                 });
             }
@@ -209,45 +331,47 @@
                 speak(textToPlay, lang, rate);
             }
 
-            function startGame() {
+            function startGameWithBatch(batchIndex) {
                 stopAllAudio();
+                gameHasBeenPlayed = true;
+                currentBatchIndex = batchIndex;
+                const batchSize = 10;
+                const startIndex = batchIndex * batchSize;
+                phrases = allPhrases.slice(startIndex, startIndex + batchSize);
                 startContainer.classList.add('hidden');
                 gameContainer.classList.remove('hidden');
                 finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
                 initializeGameState();
                 renderUI();
             }
 
             function startReview() {
                 stopAllAudio();
-                if (phrases.length === 0) phrases = parseCSV(csvData);
+                phrases = [...allPhrases];
+                currentBatchIndex = 0; // Se puede revisar el storytelling de cualquier bloque
                 startContainer.classList.add('hidden');
                 gameContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
                 displayFinalReview(false);
-            }
-
-            function resetGame() {
-                stopAllAudio();
-                finalReviewContainer.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
-                initializeGameState();
-                renderUI();
             }
 
             function finishGame() {
                 stopAllAudio();
+                startContainer.classList.add('hidden');
+                gameContainer.classList.add('hidden');
                 finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
                 accessGate.classList.remove('hidden');
                 accessKeyInput.value = '';
                 loginAttempts = 0;
                 accessKeyInput.disabled = false;
                 document.getElementById('validate-key-btn').disabled = false;
                 document.getElementById('validate-key-btn').classList.remove('bg-gray-400', 'cursor-not-allowed');
-                errorMessage.classList.add('hidden');
+                gameHasBeenPlayed = false;
                 setupEventListeners();
             }
-
-            // --- FUNCIONES DE RENDERIZADO ---
+            
             function renderUI() {
                 const boxContainer = document.getElementById('box-selectors');
                 if (boxContainer) {
@@ -264,14 +388,17 @@
                 cardContainer.innerHTML = '';
                 const currentBox = boxes[currentBoxIndex];
                 if (currentBox.length === 0) {
-                    cardContainer.innerHTML = `<div class="text-center text-gray-500"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7m-4 12h.01M12 3h.01M4 12h.01M20 12h.01M4 7h.01M4 17h.01M20 7h.01M20 17h.01" /></svg><h2 class="mt-2 text-xl font-semibold">Caja Vacía</h2><p class="mt-1 text-sm">No hay frases en esta caja.</p></div>`;
+                    cardContainer.innerHTML = `<div class="text-center text-gray-500"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7m-4 12h.01M12 3h.01M4 12h.01M20 12h.01M4 7h.01M4 17h.01M20 7h.01M20 17h.01" /></svg><h2 class="mt-2 text-xl font-semibold">Caja Vacía</h2><p class="mt-1 text-sm">No hay frases en esta caja. Si todas las frases están en la caja 7, ve a "Repaso Final".</p></div>`;
+                     if (boxes.length > 6 && boxes[6].length === phrases.length) {
+                        cardContainer.innerHTML += `<button id="go-to-review-btn" class="mt-4 bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition">Ir a Repaso Final</button>`;
+                    }
                     return;
                 }
                 const cardData = currentBox[0];
                 cardContainer.innerHTML = `
                     <div class="w-full animate-fade-in flex flex-col items-center">
-                        <div class="w-full max-w-md h-64 mb-4 rounded-lg overflow-hidden shadow-lg bg-gray-200">
-                            <img src="${cardData.imageUrl}" alt="Pista visual" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/500x500/e0e0e0/757575?text=Imagen+no+disponible';">
+                        <div class="w-full max-w-md h-64 mb-4 rounded-lg overflow-hidden shadow-lg bg-gray-200 flex items-center justify-center text-6xl">
+                            ${cardData.emojis}
                         </div>
                         <div id="reveal-area" class="w-full max-w-md min-h-[60px] bg-gray-100 flex items-center justify-center text-center p-3 rounded-lg mb-4 text-lg font-semibold text-gray-800"></div>
                         <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full max-w-md mb-4">
@@ -288,74 +415,166 @@
                     </div>`;
             }
 
+            // --- MODIFICADO: Función displayFinalReview ---
             function displayFinalReview(isCompleted = false) {
+                stopAllAudio();
                 gameContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
                 finalReviewContainer.classList.remove('hidden');
-                const title = isCompleted ? "¡Felicidades!" : "Repaso General";
+
+                const title = isCompleted ? "¡Felicidades! Has completado el set." : "Repaso General";
                 finalReviewContainer.innerHTML = `
-                    <h2 class="text-3xl font-bold text-green-600 mb-8">${title}</h2>
+                    <h2 class="text-3xl font-bold text-green-600 mb-2">${title}</h2>
+                     <p class="text-gray-600 mb-8">Aquí están todas las frases que has estudiado. <strong>Haz clic en el icono para ver los detalles.</strong></p>
                     <div id="review-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"></div>
-                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 max-w-2xl mx-auto">
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 max-w-4xl mx-auto">
                         <div class="flex flex-col gap-4">
+                             <button id="storytelling-btn" class="w-full bg-yellow-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition">Ver Storytelling</button>
+                            <button id="reset-game-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition">Elegir otro bloque</button>
+                        </div>
+                         <div class="flex flex-col gap-4">
                             <button id="play-all-en-normal-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-700 transition">Inglés (Normal)</button>
                             <button id="play-all-en-slow-btn" class="w-full bg-purple-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-900 transition">Inglés (Lento)</button>
+                        </div>
+                         <div class="flex flex-col gap-4">
                             <button id="play-all-es-normal-btn" class="w-full bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-gray-800 transition">Español (Normal)</button>
                             <button id="play-all-es-slow-btn" class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-black transition">Español (Lento)</button>
                         </div>
-                        <div class="flex flex-col gap-4 justify-center">
-                            <button id="reset-game-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition">Juego Nuevo</button>
-                            <button id="finish-game-btn" class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-red-700 transition">Terminar</button>
-                        </div>
-                    </div>`;
-                document.getElementById('review-grid').innerHTML = phrases.map(phrase => 
-                    `<div class="aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105"><img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover"></div>`
+                    </div>
+                     <button id="finish-game-btn" class="mt-6 bg-red-600 text-white font-bold py-2 px-8 rounded-lg shadow-lg hover:bg-red-700 transition">Terminar Sesión</button>
+                `;
+
+                // --- MODIFICADO: Generar grid con data attributes para el modal, incluyendo pronunciación ---
+                document.getElementById('review-grid').innerHTML = phrases.map(phrase =>
+                    `<div class="relative aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105 cursor-pointer bg-gray-200 flex items-center justify-center text-5xl" 
+                         data-english="${phrase.english}" 
+                         data-spanish="${phrase.spanish}"
+                         data-pronunciation="${phrase.pronunciation}"
+                         data-emojis="${phrase.emojis}">
+                        ${phrase.emojis}
+                    </div>`
                 ).join('');
                 setupEventListeners();
             }
+            
+            // --- MODIFICADO: Función para mostrar el modal con pronunciación y emojis ---
+            function showReviewModal(english, spanish, pronunciation, emojis) {
+                document.getElementById('modal-english-phrase').textContent = english;
+                document.getElementById('modal-spanish-phrase').textContent = spanish;
+                document.getElementById('modal-pronunciation').textContent = pronunciation;
+                
+                const modalImageContainer = document.getElementById('modal-image-container');
+                modalImageContainer.innerHTML = `<span class="text-6xl">${emojis}</span>`; // Solo emojis
 
-            // --- FUNCIONES DE LÓGICA Y MANEJO DE EVENTOS ---
+                reviewModal.classList.remove('hidden');
+                setTimeout(() => { 
+                    reviewModal.classList.remove('opacity-0');
+                    reviewModal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
+            }
+
+            function hideReviewModal() {
+                reviewModal.classList.add('opacity-0');
+                reviewModal.querySelector('.modal-content').classList.add('scale-95');
+                setTimeout(() => {
+                    reviewModal.classList.add('hidden');
+                }, 300); 
+            }
+
+            function displayStorytelling() {
+                stopAllAudio();
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.remove('hidden');
+
+                const story = storytellingData[currentBatchIndex];
+                const storyEnArray = story.story_en.split('\n');
+                const storyEsArray = story.story_es.split('\n');
+
+                storytellingContainer.innerHTML = `
+                    <h2 class="text-3xl font-bold text-yellow-600 mb-6">Storytelling</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3 text-purple-700">English Story</h3>
+                            <div id="story-en-container" class="space-y-2 leading-relaxed">
+                                ${storyEnArray.map((p, i) => `<p class="story-text p-2 rounded-md cursor-pointer" data-lang="en" data-index="${i}">${p}</p>`).join('')}
+                            </div>
+                            <button id="play-story-en" class="mt-4 w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-purple-700 transition">Reproducir en Inglés</button>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">Historia en Español</h3>
+                            <div id="story-es-container" class="space-y-2 leading-relaxed">
+                                 ${storyEsArray.map((p, i) => `<p class="story-text p-2 rounded-md cursor-pointer" data-lang="es" data-index="${i}">${p}</p>`).join('')}
+                            </div>
+                            <button id="play-story-es" class="mt-4 w-full bg-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-900 transition">Reproducir en Español</button>
+                        </div>
+                    </div>
+                    <button id="back-to-review-btn" class="mt-8 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition">Volver al Repaso</button>
+                `;
+                setupEventListeners();
+            }
+
+            function highlightText(lang, index) {
+                document.querySelectorAll('.story-text.selected').forEach(el => el.classList.remove('selected'));
+                const enEl = document.querySelector(`.story-text[data-lang="en"][data-index="${index}"]`);
+                const esEl = document.querySelector(`.story-text[data-lang="es"][data-index="${index}"]`);
+                if (enEl) enEl.classList.add('selected');
+                if (esEl) esEl.classList.add('selected');
+            }
+            
             function moveCard(advance) {
                 const cardToMove = boxes[currentBoxIndex].shift();
                 if (!cardToMove) return;
-                const nextBoxIndex = advance ? currentBoxIndex + 1 : 0;
-                if (advance && nextBoxIndex < boxes.length) {
+                const nextBoxIndex = currentBoxIndex === 0 ? Math.min(1, boxes.length - 1) : Math.min(currentBoxIndex + 1, boxes.length - 1);
+                
+                // Si la caja actual se vacía y no es la última, avanza a la siguiente caja automáticamente.
+                if (boxes[currentBoxIndex].length === 0 && currentBoxIndex < boxes.length -1) {
+                    currentBoxIndex = nextBoxIndex;
+                }
+                
+                if (advance) {
                     boxes[nextBoxIndex].push(cardToMove);
-                } else if (advance) {
-                    boxes[boxes.length - 1].push(cardToMove);
                 } else {
                     boxes[0].push(cardToMove);
                 }
-                if (boxes[6].length === phrases.length) displayFinalReview(true); else renderUI();
+                
+                // Si todas las frases están en la última caja, muestra la revisión final.
+                if (boxes.length > 6 && boxes[6].length === phrases.length) {
+                    displayFinalReview(true);
+                } else {
+                    renderUI();
+                }
             }
-
-            // *** CAMBIO CLAVE: FUNCIÓN CENTRALIZADA PARA ASIGNAR EVENTOS ***
+            
             function setupEventListeners() {
-                const validateBtn = document.getElementById('validate-key-btn');
-                if (validateBtn) validateBtn.onclick = validateAccessKey;
+                document.getElementById('validate-key-btn')?.addEventListener('click', validateAccessKey);
+                document.getElementById('reset-game-btn')?.addEventListener('click', showBatchSelectionScreen);
+                document.getElementById('finish-game-btn')?.addEventListener('click', finishGame);
+                document.getElementById('go-to-review-btn')?.addEventListener('click', () => displayFinalReview(true));
 
-                const startGameBtn = document.getElementById('start-game-btn');
-                if (startGameBtn) startGameBtn.onclick = startGame;
+                document.getElementById('play-all-en-normal-btn')?.addEventListener('click', () => playAll('en-US', 0.8));
+                document.getElementById('play-all-en-slow-btn')?.addEventListener('click', () => playAll('en-US', 0.5));
+                document.getElementById('play-all-es-normal-btn')?.addEventListener('click', () => playAll('es-ES', 0.8));
+                document.getElementById('play-all-es-slow-btn')?.addEventListener('click', () => playAll('es-ES', 0.5));
+                document.getElementById('storytelling-btn')?.addEventListener('click', displayStorytelling);
 
-                const reviewBtn = document.getElementById('review-btn');
-                if (reviewBtn) reviewBtn.onclick = startReview;
+                document.getElementById('back-to-review-btn')?.addEventListener('click', () => displayFinalReview(boxes.length > 6 && boxes[6].length === phrases.length));
+                document.getElementById('play-story-en')?.addEventListener('click', () => {
+                    const storyText = storytellingData[currentBatchIndex].story_en;
+                    speak(storyText, 'en-US', 0.6);
+                });
+                document.getElementById('play-story-es')?.addEventListener('click', () => {
+                    const storyText = storytellingData[currentBatchIndex].story_es;
+                    speak(storyText, 'es-ES', 0.6);
+                });
 
-                const resetGameBtn = document.getElementById('reset-game-btn');
-                if (resetGameBtn) resetGameBtn.onclick = resetGame;
-
-                const finishGameBtn = document.getElementById('finish-game-btn');
-                if (finishGameBtn) finishGameBtn.onclick = finishGame;
-
-                const playEnNormalBtn = document.getElementById('play-all-en-normal-btn');
-                if (playEnNormalBtn) playEnNormalBtn.onclick = () => playAll('en-US', 0.8);
-
-                const playEnSlowBtn = document.getElementById('play-all-en-slow-btn');
-                if (playEnSlowBtn) playEnSlowBtn.onclick = () => playAll('en-US', 0.5);
-
-                const playEsNormalBtn = document.getElementById('play-all-es-normal-btn');
-                if (playEsNormalBtn) playEsNormalBtn.onclick = () => playAll('es-ES', 0.8);
-
-                const playEsSlowBtn = document.getElementById('play-all-es-slow-btn');
-                if (playEsSlowBtn) playEsSlowBtn.onclick = () => playAll('es-ES', 0.5);
+                document.getElementById('story-en-container')?.addEventListener('click', (e) => {
+                     const target = e.target.closest('.story-text');
+                    if (target) highlightText(target.dataset.lang, target.dataset.index);
+                });
+                 document.getElementById('story-es-container')?.addEventListener('click', (e) => {
+                     const target = e.target.closest('.story-text');
+                    if (target) highlightText(target.dataset.lang, target.dataset.index);
+                });
 
                 const boxContainer = document.getElementById('box-selectors');
                 if (boxContainer) boxContainer.onclick = (e) => {
@@ -386,6 +605,26 @@
                         case 'box-1': moveCard(false); break;
                     }
                 };
+                
+                // --- MODIFICADO: Event listener para la grid, ahora pasa la pronunciación ---
+                document.getElementById('review-grid')?.addEventListener('click', (e) => {
+                    const target = e.target.closest('div[data-english]');
+                    if (target) {
+                        showReviewModal(
+                            target.dataset.english, 
+                            target.dataset.spanish, 
+                            target.dataset.pronunciation, 
+                            target.dataset.emojis // Pasar los emojis al modal
+                        );
+                    }
+                });
+                
+                document.getElementById('modal-close-btn')?.addEventListener('click', hideReviewModal);
+                reviewModal?.addEventListener('click', (e) => {
+                    if (e.target === reviewModal) {
+                        hideReviewModal();
+                    }
+                });
 
                 const keyInput = document.getElementById('access-key-input');
                 if (keyInput) {
@@ -394,7 +633,7 @@
                 }
             }
 
-            // Iniciar la configuración de eventos por primera vez
+            // Inicialización
             setupEventListeners();
         });
     </script>
