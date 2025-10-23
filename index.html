@@ -86,7 +86,7 @@
                 "options": [
                     { "text": "presencia de daño estructural", "correct": false },
                     { "text": "Presencia de daño funcional", "correct": false },
-                    { "text": "a y b", "correct": true },
+                    { "text": "a y b", "correct": true }, // Respuesta correcta (a y b en minúscula)
                     { "text": "Ninguna de las anteriores", "correct": false }
                 ],
                 "justification": "La nefropatía obstructiva implica tanto la presencia de daño estructural (hidronefrosis o cambios parenquimales) como la alteración funcional (disminución de la TFG o alteración de la concentración).",
@@ -95,10 +95,8 @@
                 "id": 2,
                 "questionText": "La uropatía obstructiva es causal de la nefropatía obstructiva?",
                 "options": [
-                    { "text": "Verdadero", "correct": true },
+                    { "text": "Verdadero", "correct": true }, // Respuesta correcta
                     { "text": "Falso", "correct": false },
-                    { "text": "a o b", "correct": false },
-                    { "text": "Ninguna de las anteriores", "correct": false }
                 ],
                 "justification": "Verdadero. La uropatía obstructiva (bloqueo del flujo urinario) es la causa subyacente que conduce al daño renal, o nefropatía obstructiva.",
             },
@@ -109,7 +107,7 @@
                     { "text": "Ecografia renal", "correct": false },
                     { "text": "Tomografia", "correct": false },
                     { "text": "Radiografia", "correct": false },
-                    { "text": "A y b", "correct": true }
+                    { "text": "a y b", "correct": true } // Respuesta correcta (Modificado: a y b en minúscula)
                 ],
                 "justification": "La ecografía renal es el estudio de primera línea para detectar hidronefrosis (daño estructural), y la Tomografía (especialmente la uro-TC) es excelente para determinar la ubicación y causa de la obstrucción.",
             }
@@ -136,6 +134,8 @@
 
         /**
          * Función Fisher-Yates para barajar un array.
+         * NOTA: Esta función se sigue usando para barajar el ORDEN de las preguntas
+         * pero ya NO se usa para barajar las opciones dentro de cada pregunta.
          * @param {Array} array El array a barajar.
          * @returns {Array} El array barajado.
          */
@@ -299,7 +299,6 @@
             updateHeader();
 
             // 1. Contenido base
-            // **Se ha eliminado el área de justificación de esta estructura**
             mainContent.innerHTML = `
                 <!-- Sección de la Pregunta -->
                 <div id="question-section" class="custom-scrollbar max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
@@ -322,11 +321,12 @@
                 </div>
             `;
 
-            // 2. Inyectar Opciones Barajadas
+            // 2. Inyectar Opciones en el Orden Original (NO BARJADAS)
             const optionsContainer = document.getElementById('options-container');
-            const shuffledOptions = shuffleArray([...questionData.options]);
+            // Usamos directamente las opciones de la pregunta sin barajar, para mantener el orden literal
+            const orderedOptions = questionData.options;
             
-            shuffledOptions.forEach((option, index) => {
+            orderedOptions.forEach((option, index) => {
                 // Crear el botón de opción
                 const btn = document.createElement('button');
                 btn.className = `option-btn w-full text-left py-3 px-4 rounded-xl shadow-md transition-all duration-200 
@@ -409,7 +409,6 @@
             }
 
             // 3. Activar botones de avance
-            // La justificación ya no se muestra
             
             nextBtn.disabled = false;
             nextBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-600');
