@@ -3,499 +3,583 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seguridad-Tratamiento-Etica</title>
-    <!-- Carga de Tailwind CSS desde CDN -->
+    <title>Juego de Memorización de Frases</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configuración de la fuente Inter -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=QqHIq0Z0"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        /* Aplicamos la fuente Inter a todo el cuerpo */
         body {
             font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            background-color: #1a202c; /* bg-gray-900 */
         }
-        /* Estilos personalizados para la barra de desplazamiento (Webkit) */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
+        /* Estilo para el texto seleccionado en el storytelling */
+        .story-text.selected {
+            background-color: #dbeafe; /* Un azul claro de Tailwind (blue-100) */
+            transition: background-color 0.3s;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background-color: #4a5568; /* bg-gray-600 */
-            border-radius: 4px;
+        .story-text strong {
+            color: #4f46e5; /* Color índigo para resaltar (indigo-600) */
         }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background-color: #2d3748; /* bg-gray-800 */
+        /* Estilos para la ventana modal */
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
-<body class="text-gray-300 min-h-screen p-2 sm:p-4">
-
-    <!-- Contenedor Principal del Quiz -->
-    <div id="quiz-container" class="max-w-5xl mx-auto space-y-4">
-
-        <!-- Cabecera Consolidada (Título, Contadores y Temporizador) -->
-        <header id="quiz-header" class="bg-gray-800 p-3 rounded-2xl shadow-lg flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0 text-sm">
-            <!-- Título Principal -->
-            <h1 class="text-xl font-bold text-blue-400">Seguridad-Tratamiento-Ética</h1>
-            
-            <!-- Contadores e Indicadores -->
-            <div class="flex flex-wrap justify-center sm:justify-end items-center space-x-4">
-                <div class="flex items-center space-x-1">
-                    <span class="text-green-400 font-semibold">Correctas:</span>
-                    <span id="correct-count" class="font-bold">0</span>
-                </div>
-                <div class="flex items-center space-x-1">
-                    <span class="text-red-400 font-semibold">Incorrectas:</span>
-                    <span id="incorrect-count" class="font-bold">0</span>
-                </div>
-                <div class="flex items-center space-x-1">
-                    <span class="text-yellow-400 font-semibold">Racha:</span>
-                    <span id="streak-count" class="font-bold">0</span>
-                </div>
-                <!-- Temporizador -->
-                <div class="flex items-center space-x-1 bg-gray-700 py-1 px-3 rounded-full">
-                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span id="timer-display" class="font-bold text-purple-400">60s</span>
-                </div>
-            </div>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Memorizar Frases</h1>
         </header>
+        <div id="access-gate" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Control de Acceso</h2>
+            <p class="text-gray-500 mb-6">Por favor, introduce tu clave para continuar.</p>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <input type="password" id="access-key-input" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Clave de acceso">
+            </div>
+            <button id="validate-key-btn" class="w-full mt-4 bg-gray-800 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-gray-900 transition">Validar</button>
+            <p id="error-message" class="text-red-500 font-medium mt-4 hidden"></p>
+        </div>
+        <div id="start-container" class="text-center mb-6 hidden">
+            </div>
+        <main id="game-container" class="hidden">
+            <section id="box-selectors" class="flex flex-wrap justify-center gap-2 mb-6">
+                </section>
+            <section id="card-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-xl min-h-[450px] flex items-center justify-center flex-col">
+                </section>
+        </main>
+        <section id="final-review-container" class="hidden text-center">
+            </section>
 
-        <!-- Barra de Progreso y Contador de Preguntas -->
-        <div id="progress-bar-container" class="p-3 bg-gray-800 rounded-lg shadow-md">
-            <p id="question-counter-text" class="text-center text-sm mb-2 text-gray-400">Pregunta 1 de 3</p>
-            <div class="w-full bg-gray-700 rounded-full h-2.5">
-                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-in-out" style="width: 0%"></div>
+        <section id="storytelling-container" class="hidden text-center bg-white p-6 rounded-2xl shadow-xl">
+             </section>
+
+        <div id="review-modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0">
+            <div class="modal-content bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Frase</h3>
+                <div id="modal-image-container" class="w-full h-48 mb-4 rounded-lg overflow-hidden bg-gray-200">
+                    <img id="modal-image" src="" alt="Pista visual de la frase" class="w-full h-full object-cover">
+                </div>
+                <div class="space-y-2">
+                    <p class="text-lg text-purple-700 font-semibold" id="modal-english-phrase"></p>
+                    <p class="text-md text-blue-600 italic" id="modal-pronunciation"></p>
+                    <p class="text-lg text-gray-600 mt-1" id="modal-spanish-phrase"></p>
+                </div>
+                <button id="modal-close-btn" class="mt-6 w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-red-700 transition">Cerrar</button>
             </div>
         </div>
-        
-        <!-- Área de Contenido Dinámico (Quiz o Resultados) -->
-        <div id="main-content" class="bg-gray-800 p-6 rounded-2xl shadow-xl min-h-[300px]">
-            <!-- Aquí se cargará el quiz o los resultados -->
-            <p class="text-center text-xl text-blue-400">Cargando Quiz...</p>
         </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- VARIABLES GLOBALES Y DATOS ---
+            const csvData = `english,spanish,pronunciation,imageUrl
+"What's up?","¿Qué tal? / ¿Qué onda?","Guats-ap?","https://i.postimg.cc/2jh7tk4f/01.png"
+"How's it going?","¿Cómo va todo?","Jaus-it-gó-in?","https://i.postimg.cc/jnjnGznV/02.png"
+"You alright? ","¿Todo bien?","Yu-ol-ráit?","https://i.postimg.cc/r0jtnhmC/03.png"
+"What have you been up to?","¿En qué has andado?","Guát-jav-iú-bin-ap-tu?","https://i.postimg.cc/dkwy9MqV/04.png"
+"Long time no see!","¡Tanto tiempo sin verte!","Long-táim-no-sí!","https://i.postimg.cc/d7MdLkpd/05.png"
+"Sup? (Short for What's up?)","¿Qué tal? (muy corto)","Sap?","https://i.postimg.cc/cvtwxM90/06.png"
+"Hi, I don't think we've met. I'm .","Hola, creo que no nos conocemos. Soy .","Jái, ái-dont-zink-wiv-met. Áim .","https://i.postimg.cc/pp6KM1Bs/07.png"
+"How's your day going so far?","¿Cómo va tu día hasta ahora?","Jaus-yor-déi-gó-in-so-far?","https://i.postimg.cc/dL1GXKG7/08.png.png"
+"Is this seat taken?","¿Está ocupado este asiento?","Is-dis-sít-téi-ken?","https://i.postimg.cc/9z1GJfw5/09.png"
+"This is some crazy weather, huh?","Vaya clima, ¿no?","Dis-is-som-créi-si-wéder, ja?","https://i.postimg.cc/BtJTTF6B/10.png"
+"What do you do for a living?","¿A qué te dedicas?","Guát-du-iú-du-for-a-lí-ving?","https://i.postimg.cc/rRy5MBbP/11.png"
+"So, what brings you here?","Y bien, ¿qué te trae por aquí?","So, guát-brings-iú-jir?","https://i.postimg.cc/ZBSrDBLZ/12.png"
+"I love your. Where did you get it?","Me encanta tu. ¿Dónde lo conseguiste?","Ai-lov-yor [shirt/bag]. Wér-did-iú-guet-it?","https://i.postimg.cc/QB5Qbk10/13.png"
+"Are you from around here?","¿Eres de por aquí?","Ar-iú-from-a-ráund-jir?","https://i.postimg.cc/mPK3C6zP/14.png"
+"Enjoying the event?","¿Disfrutando el evento?","En-yó-ing-di-i-vént?","https://i.postimg.cc/9DDt4jM3/15.png"
+"Has it been a busy week for you?","¿Has tenido una semana ocupada?","Jas-it-bin-a-bí-si-wik-for-iú?","https://i.postimg.cc/0b2CsS1y/16.png"
+"How was your weekend?","¿Qué tal tu fin de semana?","Jau-was-yor-wík-end?","https://i.postimg.cc/t7zzw5fc/17.png"
+"Hi , do you have a quick second?","Hola [Nombre], ¿tienes un segundo?","Jái [Nombre], du-iú-jav-a-cuík-sé-cond?","https://i.postimg.cc/Tp7JYPTq/18.png"
+"What are your thoughts on ?","¿Qué opinas sobre  ?","Guát-ar-yor-zots-on  ?","https://i.postimg.cc/pyvZs708/19.png"
+"I was hoping I could pick your brain about...","Quería ver si podía consultarte sobre...","Ai-was-jó-ping-ai-cud-pik-yor-bréin-a-báut...","https://i.postimg.cc/8JQHQnN2/20.png"`;
 
-    </div>
-
-    <script type="text/javascript">
-        // El contenido del quiz (preguntas, opciones, respuestas y justificaciones)
-        // Estrictamente según las fuentes proporcionadas por el usuario.
-        const allQuizData = [
-            {
-                "id": 1,
-                "questionText": "La nefropatía obstructiva se determina como",
-                "options": [
-                    { "text": "presencia de daño estructural", "correct": false },
-                    { "text": "Presencia de daño funcional", "correct": false },
-                    { "text": "a y b", "correct": true }, // Respuesta correcta (a y b en minúscula)
-                    { "text": "Ninguna de las anteriores", "correct": false }
-                ],
-                "justification": "La nefropatía obstructiva implica tanto la presencia de daño estructural (hidronefrosis o cambios parenquimales) como la alteración funcional (disminución de la TFG o alteración de la concentración).",
-            },
-            {
-                "id": 2,
-                "questionText": "La uropatía obstructiva es causal de la nefropatía obstructiva?",
-                "options": [
-                    { "text": "Verdadero", "correct": true }, // Respuesta correcta
-                    { "text": "Falso", "correct": false },
-                ],
-                "justification": "Verdadero. La uropatía obstructiva (bloqueo del flujo urinario) es la causa subyacente que conduce al daño renal, o nefropatía obstructiva.",
-            },
-            {
-                "id": 3,
-                "questionText": "El estudio ideal imagenológico en la valoración de la nefropatía u uropatía obstructiva es:",
-                "options": [
-                    { "text": "Ecografia renal", "correct": false },
-                    { "text": "Tomografia", "correct": false },
-                    { "text": "Radiografia", "correct": false },
-                    { "text": "a y b", "correct": true } // Respuesta correcta (Modificado: a y b en minúscula)
-                ],
-                "justification": "La ecografía renal es el estudio de primera línea para detectar hidronefrosis (daño estructural), y la Tomografía (especialmente la uro-TC) es excelente para determinar la ubicación y causa de la obstrucción.",
-            }
-        ];
-
-        // --- Estado Global del Quiz ---
-        let shuffledQuizData = []; // Array para el orden aleatorio de las preguntas
-        let currentQuestionIndex = 0;
-        let correctCount = 0; // PC (Preguntas Correctas)
-        let incorrectCount = 0; // PI (Preguntas Incorrectas, erradas al menos 1 vez)
-        let currentStreak = 0;
-        let maxStreak = 0;
-        let timerInterval;
-        const totalTime = 60; // Segundos por pregunta
-        let timeLeft = totalTime;
-
-        // Estado para rastrear el progreso y los intentos por pregunta
-        // { questionId: 1, attempts: 0, wasAnsweredCorrectly: false, wasIncorrectlyAttempted: false }
-        let quizState = []; 
-
-        const mainContent = document.getElementById('main-content');
-        
-        // --- Funciones de Utilidad ---
-
-        /**
-         * Función Fisher-Yates para barajar un array.
-         * NOTA: Esta función se sigue usando para barajar el ORDEN de las preguntas
-         * pero ya NO se usa para barajar las opciones dentro de cada pregunta.
-         * @param {Array} array El array a barajar.
-         * @returns {Array} El array barajado.
-         */
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        /**
-         * Inicializa y prepara los datos del quiz.
-         */
-        function initializeQuiz() {
-            // Barajar el orden de las preguntas
-            shuffledQuizData = shuffleArray([...allQuizData]);
-            
-            // Inicializar el estado de cada pregunta para el seguimiento de la puntuación
-            quizState = shuffledQuizData.map(q => ({
-                id: q.id,
-                attempts: 0,
-                wasAnsweredCorrectly: false,
-                wasIncorrectlyAttempted: false,
-                initialOrder: allQuizData.findIndex(data => data.id === q.id) + 1, // Para el resumen final
-            }));
-            
-            // Resetear contadores
-            currentQuestionIndex = 0;
-            correctCount = 0;
-            incorrectCount = 0;
-            currentStreak = 0;
-            maxStreak = 0;
-            
-            updateHeader();
-            renderCurrentQuestion();
-            document.getElementById('quiz-header').classList.remove('hidden');
-            document.getElementById('progress-bar-container').classList.remove('hidden');
-        }
-
-        /**
-         * Actualiza los contadores en la cabecera.
-         */
-        function updateHeader() {
-            document.getElementById('correct-count').textContent = correctCount;
-            document.getElementById('incorrect-count').textContent = incorrectCount;
-            document.getElementById('streak-count').textContent = currentStreak;
-
-            const totalQuestions = shuffledQuizData.length;
-            const currentNumber = currentQuestionIndex + 1;
-            
-            // Actualizar texto y barra de progreso
-            document.getElementById('question-counter-text').textContent = `Pregunta ${currentNumber} de ${totalQuestions}`;
-            const progress = (currentNumber / totalQuestions) * 100;
-            document.getElementById('progress-bar').style.width = `${progress}%`;
-        }
-        
-        // --- Lógica del Temporizador ---
-
-        /**
-         * Detiene y reinicia el temporizador.
-         */
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timeLeft = totalTime;
-            document.getElementById('timer-display').textContent = `${timeLeft}s`;
-            document.getElementById('timer-display').classList.remove('text-red-500');
-        }
-
-        /**
-         * Inicia el temporizador de cuenta regresiva.
-         */
-        function startTimer() {
-            resetTimer();
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer-display').textContent = `${timeLeft}s`;
-
-                if (timeLeft <= 10) {
-                    document.getElementById('timer-display').classList.add('text-red-500');
+            const storytellingData = [
+                {
+                    story_en: "It was a rainy afternoon when Jake walked into the local coffee shop. He looked around and spotted an old friend by the window.\n\"<strong>What's up?</strong>\" he called out, waving.\nHis friend grinned, \"<strong>How's it going?</strong>\"\nJake laughed, \"<strong>You alright?</strong> You look like you haven't slept in days!\"\n\"Yeah, I'm good,\" his friend replied. \"<strong>What have you been up to?</strong>\"\nJake shrugged. \"<strong>Long time no see!</strong> I've been traveling a lot for work. <strong>Sup?</strong>\"\nThey both sat down and Jake noticed a stranger nearby. \"<strong>Hi, I don't think we've met.</strong> I'm Jake,\" he said, extending a hand.\nThe stranger smiled. \"Nice to meet you! <strong>How's your day going so far?</strong>\"\n\"Pretty good,\" Jake replied. He glanced at the empty seat next to the stranger. \"<strong>Is this seat taken?</strong>\"\n\"No, go ahead,\" the stranger answered.\nJust then, thunder rumbled outside. Jake laughed, \"<strong>This is some crazy weather, huh?</strong>\"\nEveryone nodded, glad to be inside, sharing stories and escaping the storm together.",
+                    story_es: "Era una tarde lluviosa cuando Jake entró a la cafetería del barrio. Miró a su alrededor y vio a un viejo amigo junto a la ventana.\n-<strong>¿Qué tal?</strong> -saludó con la mano.\nSu amigo sonrió-<strong>¿Cómo va todo?</strong>\nJake se rió-<strong>¿Todo bien?</strong> ¡Pareces no haber dormido en días!\n-Sí, todo bien -respondió su amigo. <strong>¿En qué has andado?</strong>\nJake se encogió de hombros-<strong>¡Tanto tiempo sin verte!</strong> He estado viajando mucho por trabajo. <strong>¿Qué onda?</strong>\nAmbos se sentaron y Jake notó a un desconocido cerca de ellos-<strong>Hola, creo que no nos conocemos.</strong> Soy Jake-dijo, extendiendo la mano.\nEl desconocido sonrió-¡Mucho gusto! <strong>¿Cómo va tu día hasta ahora?</strong>\n-Bastante bien -respondió Jake. Miró el asiento vacío junto al desconocido-<strong>¿Está ocupado este asiento?</strong>\n-No, adelante -respondió el desconocido.\nEn ese momento, un trueno retumbó afuera. Jake se rió-<strong>Vaya clima, ¿no?</strong>\nTodos asintieron, contentos de estar adentro, compartiendo historias y escapando de la tormenta."
+                },
+                {
+                    story_en: "Later that evening, the coffee shop buzzed with new faces. Jake struck up a conversation with another guest.\n\"<strong>What do you do for a living?</strong>\" he asked.\n\"I'm a graphic designer,\" she replied. \"And you?\"\n\"I'm a teacher,\" Jake said. \"<strong>So, what brings you here?</strong>\"\nShe smiled, \"Just needed a break. By the way, <strong>I love your jacket. Where did you get it?</strong>\"\nJake beamed. \"Thanks! <strong>Are you from around here?</strong>\"\n\"Yeah, born and raised. <strong>Are you enjoying the event?</strong>\"\n\"Definitely,\" Jake replied. \"<strong>Has it been a busy week for you?</strong>\"\nShe nodded, \"Super busy. <strong>How was your weekend?</strong>\"\n\"Pretty relaxing, actually,\" Jake said. He spotted another friend across the room. \"<strong>Hi, Sarah, do you have a quick second?</strong>\"\nSarah joined them, and Jake turned to the group. \"<strong>What are your thoughts on the new art exhibit?</strong>\"\nThey all shared opinions, and Jake added, \"<strong>I was hoping I could pick your brain about</strong> creative ideas for my class.\"\nThe conversation flowed, and new friendships blossomed over coffee and curiosity.",
+                    story_es: "Más tarde esa noche, la cafetería estaba llena de caras nuevas. Jake entabló conversación con otra invitada.\n-<strong>¿A qué te dedicas?</strong> -preguntó.\n-Soy diseñadora gráfica -respondió ella. ¿Y tú?\n-Soy maestro -dijo Jake-. Y bien, <strong>¿qué te trae por aquí?</strong>\nElla sonrió-Solo necesitaba un descanso. Por cierto, <strong>me encanta tu chaqueta. ¿Dónde la conseguiste?</strong>\nJake se iluminó-¡Gracias! <strong>¿Eres de por aquí?</strong>\n-Sí, nací y crecí aquí. <strong>¿Disfrutando el evento?</strong>\n-Sin duda -respondió Jake-. <strong>¿Has tenido una semana ocupada?</strong>\nElla asintió-Súper ocupada. <strong>¿Qué tal tu fin de semana?</strong>\n-Bastante relajado, la verdad -dijo Jake. Vio a otra amiga al fondo-<strong>Hola, ¿tienes un segundo?</strong>\nElla se acercó y Jake preguntó al grupo-<strong>¿Qué opinan sobre la nueva exposición de arte?</strong>\nTodos compartieron sus opiniones, y Jake añadió-<strong>Quería ver si podía consultarte sobre</strong> ideas creativas para mi clase.\nLa conversación fluyó y nuevas amistades nacieron entre café y curiosidad."
                 }
+            ];
 
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    handleTimeout();
-                }
-            }, 1000);
-        }
+            const accessKeys = { "*123": "2026-07-20", "*456": "2026-07-30" };
+            const accessGate = document.getElementById('access-gate');
+            const accessKeyInput = document.getElementById('access-key-input');
+            const errorMessage = document.getElementById('error-message');
+            const startContainer = document.getElementById('start-container');
+            const gameContainer = document.getElementById('game-container');
+            const finalReviewContainer = document.getElementById('final-review-container');
+            const storytellingContainer = document.getElementById('storytelling-container');
+            const reviewModal = document.getElementById('review-modal');
+            
+            let loginAttempts = 0;
+            const MAX_ATTEMPTS = 3;
+            let allPhrases = [];
+            let phrases = [];
+            let boxes = [];
+            let currentBoxIndex = 0;
+            let currentBatchIndex = 0;
+            let gameHasBeenPlayed = false;
 
-        /**
-         * Maneja el evento de tiempo agotado (funciona como un intento incorrecto forzado).
-         */
-        function handleTimeout() {
-            clearInterval(timerInterval); // Asegurar que se detiene
-            
-            const currentState = quizState[currentQuestionIndex];
-            
-            // Marcar como un intento fallido
-            currentState.attempts++;
-            
-            // Si el intento por timeout es el primero (y único)
-            if (!currentState.wasAnsweredCorrectly) {
-                // Incrementar PI solo si es la primera vez que se falla
-                if (!currentState.wasIncorrectlyAttempted) {
-                    incorrectCount++;
-                    currentState.wasIncorrectlyAttempted = true;
-                }
-                
-                // Reiniciar Racha por tiempo agotado
-                currentStreak = 0;
+            let utterance = null;
+            if ('speechSynthesis' in window) {
+                utterance = new SpeechSynthesisUtterance();
+                utterance.onend = () => console.log('Reproducción completada.');
+                utterance.onerror = (error) => {
+                    console.error('Error con speechSynthesis, usando fallback:', error);
+                };
             }
-            
-            updateHeader();
 
-            // Deshabilitar todas las opciones y mostrar la justificación
-            const optionsContainer = document.getElementById('options-container');
-            const allOptions = optionsContainer.querySelectorAll('.option-btn');
-            
-            allOptions.forEach(btn => {
-                const isCorrect = btn.dataset.correct === 'true';
-                btn.disabled = true;
-                btn.classList.remove('hover:bg-gray-600');
-                
-                if (isCorrect) {
-                    // Resaltar la respuesta correcta en verde (indicando la correcta)
-                    btn.classList.add('bg-green-600', 'ring-2', 'ring-green-400');
+            stopAllAudio();
+
+            function parseCSV(data) {
+                const lines = data.trim().split('\n').slice(1);
+                return lines.map(line => {
+                    const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.trim().replace(/^"|"$/g, ''));
+                    return { english: values[0], spanish: values[1], pronunciation: values[2], imageUrl: values[3] };
+                }).filter(p => p.english && p.spanish && p.pronunciation && p.imageUrl);
+            }
+            allPhrases = parseCSV(csvData);
+
+            function validateAccessKey() {
+                const key = accessKeyInput.value.trim();
+                errorMessage.classList.add('hidden');
+                if (!accessKeys[key]) {
+                    loginAttempts++;
+                    errorMessage.textContent = `Clave inválida. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
+                    errorMessage.classList.remove('hidden');
                 } else {
-                    // Marcar las opciones no seleccionadas (incorrectas) como deshabilitadas
-                    btn.classList.add('bg-gray-700', 'opacity-70');
+                    const expirationDateString = accessKeys[key];
+                    const expirationDate = new Date(expirationDateString + "T23:59:59");
+                    const today = new Date();
+                    if (today > expirationDate) {
+                        loginAttempts++;
+                        const formattedDate = new Date(expirationDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                        errorMessage.textContent = `La clave caducó el ${formattedDate}. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
+                        errorMessage.classList.remove('hidden');
+                    } else {
+                        loginAttempts = 0;
+                        showBatchSelectionScreen();
+                        return;
+                    }
                 }
-            });
+                if (loginAttempts >= MAX_ATTEMPTS) {
+                    errorMessage.textContent = "Has excedido el número de intentos. La aplicación se ha bloqueado.";
+                    accessKeyInput.disabled = true;
+                    document.getElementById('validate-key-btn').disabled = true;
+                    document.getElementById('validate-key-btn').classList.add('bg-gray-400', 'cursor-not-allowed');
+                }
+            }
             
-            // Ya no mostramos la justificación textualmente.
-            
-            // Activar botón Siguiente Pregunta y Terminar
-            const nextBtn = document.getElementById('next-btn');
-            const finishBtn = document.getElementById('finish-btn');
+            function showBatchSelectionScreen() {
+                stopAllAudio();
+                accessGate.classList.add('hidden');
+                gameContainer.classList.add('hidden');
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                startContainer.innerHTML = '';
+                const infoText = document.createElement('p');
+                infoText.className = 'text-gray-600 mb-6';
+                infoText.textContent = '¡Acceso concedido! Elige un grupo de frases para comenzar.';
+                startContainer.appendChild(infoText);
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'flex flex-col sm:flex-row sm:justify-center gap-4';
+                const batchSize = 10;
+                const numBatches = Math.ceil(allPhrases.length / batchSize);
+                for (let i = 0; i < numBatches; i++) {
+                    const start = i * batchSize + 1;
+                    const end = Math.min((i + 1) * batchSize, allPhrases.length);
+                    const batchBtn = document.createElement('button');
+                    batchBtn.textContent = `Frases ${start} - ${end}`;
+                    batchBtn.className = 'bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300';
+                    batchBtn.onclick = () => startGameWithBatch(i);
+                    buttonContainer.appendChild(batchBtn);
+                }
+                
+                const reviewBtn = document.createElement('button');
+                reviewBtn.textContent = 'Repaso General';
+                if (gameHasBeenPlayed) {
+                    reviewBtn.className = 'bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300';
+                    reviewBtn.onclick = startReview;
+                } else {
+                    reviewBtn.className = 'bg-green-300 text-white font-bold py-3 px-8 rounded-lg shadow-inner cursor-not-allowed';
+                    reviewBtn.disabled = true;
+                    reviewBtn.title = "Completa un bloque de frases para activar esta opción";
+                }
+                buttonContainer.appendChild(reviewBtn);
 
-            nextBtn.disabled = false;
-            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-600');
-            nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            finishBtn.classList.remove('hidden');
-        }
-
-
-        // --- Renderizado y Lógica del Quiz ---
-
-        /**
-         * Renderiza la pregunta actual en la interfaz.
-         */
-        function renderCurrentQuestion() {
-            if (currentQuestionIndex >= shuffledQuizData.length) {
-                renderResults();
-                return;
+                startContainer.appendChild(buttonContainer);
+                startContainer.classList.remove('hidden');
             }
 
-            const questionData = shuffledQuizData[currentQuestionIndex];
-            
-            resetTimer();
-            startTimer();
-            updateHeader();
-
-            // 1. Contenido base
-            mainContent.innerHTML = `
-                <!-- Sección de la Pregunta -->
-                <div id="question-section" class="custom-scrollbar max-h-[calc(100vh-220px)] overflow-y-auto pr-2">
-                    <p class="text-lg sm:text-xl font-medium mb-6 text-gray-100">${questionData.questionText}</p>
-                    
-                    <!-- Opciones de Respuesta -->
-                    <div id="options-container" class="space-y-3">
-                        <!-- Las opciones se inyectan aquí -->
-                    </div>
-                </div>
-
-                <!-- Controles de Navegación -->
-                <div class="mt-8 flex justify-between space-x-4">
-                    <button id="next-btn" disabled class="flex-1 py-3 px-6 rounded-xl text-white font-bold transition-all duration-300 bg-gray-600 opacity-50 cursor-not-allowed hover:bg-gray-600/80">
-                        Siguiente Pregunta
-                    </button>
-                    <button id="finish-btn" class="hidden py-3 px-6 rounded-xl text-red-100 font-bold transition-all duration-300 bg-red-800 hover:bg-red-700">
-                        Terminar
-                    </button>
-                </div>
-            `;
-
-            // 2. Inyectar Opciones en el Orden Original (NO BARJADAS)
-            const optionsContainer = document.getElementById('options-container');
-            // Usamos directamente las opciones de la pregunta sin barajar, para mantener el orden literal
-            const orderedOptions = questionData.options;
-            
-            orderedOptions.forEach((option, index) => {
-                // Crear el botón de opción
-                const btn = document.createElement('button');
-                btn.className = `option-btn w-full text-left py-3 px-4 rounded-xl shadow-md transition-all duration-200 
-                                 bg-gray-700 hover:bg-gray-600 border border-gray-600`;
-                btn.textContent = `${String.fromCharCode(65 + index)}. ${option.text}`; // A, B, C, D...
-                btn.dataset.correct = option.correct;
-                btn.dataset.index = index;
-                btn.addEventListener('click', () => handleOptionClick(btn));
-                optionsContainer.appendChild(btn);
-            });
-            
-            // 3. Añadir Listeners a Controles
-            document.getElementById('next-btn').addEventListener('click', () => {
-                currentQuestionIndex++;
-                renderCurrentQuestion();
-            });
-            document.getElementById('finish-btn').addEventListener('click', renderResults);
-        }
-
-        /**
-         * Maneja el clic en una opción de respuesta (ahora un solo intento).
-         * @param {HTMLElement} selectedButton El botón de opción seleccionado.
-         */
-        function handleOptionClick(selectedButton) {
-            clearInterval(timerInterval); // Detener el temporizador
-            const isCorrect = selectedButton.dataset.correct === 'true';
-            const currentState = quizState[currentQuestionIndex];
-            
-            // Siempre se registra un intento (que será el único)
-            currentState.attempts++;
-
-            const nextBtn = document.getElementById('next-btn');
-            const finishBtn = document.getElementById('finish-btn');
-            const allOptions = document.getElementById('options-container').querySelectorAll('.option-btn');
-
-            // --- 1. Lógica de Retroalimentación Visual (Un solo intento) ---
-            
-            // Deshabilitar TODAS las opciones inmediatamente
-            allOptions.forEach(btn => {
-                btn.disabled = true;
-                btn.classList.remove('hover:bg-gray-600');
-            });
-
-            // Resaltar la selección
-            selectedButton.classList.add('ring-2');
-
-            // --- 2. Lógica de Puntuación (PC, PI, Racha) ---
-            if (isCorrect) {
-                // Acierto
-                selectedButton.classList.add('bg-green-600', 'ring-green-400');
-                
-                // Actualizar PC, Racha, y estado
-                if (!currentState.wasAnsweredCorrectly) {
-                    correctCount++;
-                    currentState.wasAnsweredCorrectly = true;
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
                 }
-                currentStreak++;
-                maxStreak = Math.max(maxStreak, currentStreak);
+            }
+
+            function initializeGameState() {
+                shuffleArray(phrases);
+                boxes = Array.from({ length: 7 }, () => []);
+                boxes[0] = [...phrases];
+                currentBoxIndex = 0;
+            }
+
+            function stopAllAudio() {
+                if (typeof responsiveVoice !== 'undefined') {
+                    responsiveVoice.cancel();
+                }
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
+            }
+            
+            function speak(text, lang, rate = 0.8) {
+                stopAllAudio();
+                const cleanText = text.replace(/<strong>|<\/strong>/g, '');
+                if (speechSynthesis && utterance) {
+                    utterance.text = cleanText;
+                    utterance.lang = lang;
+                    utterance.rate = rate;
+                    utterance.onerror = (event) => {
+                        console.error('Error con speechSynthesis, usando fallback:', event);
+                        useResponsiveVoiceFallback(cleanText, lang, rate);
+                    };
+                    speechSynthesis.speak(utterance);
+                } else {
+                    useResponsiveVoiceFallback(cleanText, lang, rate);
+                }
+            }
+
+            function useResponsiveVoiceFallback(text, lang, rate) {
+                const voiceMap = { 'en-US': 'US English Female', 'es-ES': 'Spanish Female' };
+                const voice = voiceMap[lang] || 'US English Female';
+                responsiveVoice.speak(text, voice, {
+                    rate: rate,
+                    onend: () => console.log('Reproducción completada con ResponsiveVoice.'),
+                    onerror: (error) => console.error('Error al reproducir audio con ResponsiveVoice:', error)
+                });
+            }
+
+            function playAll(lang, rate) {
+                stopAllAudio();
+                const separator = '; ';
+                const textToPlay = (lang === 'en-US' ? phrases.map(p => p.english) : phrases.map(p => p.spanish)).join(separator);
+                speak(textToPlay, lang, rate);
+            }
+
+            function startGameWithBatch(batchIndex) {
+                stopAllAudio();
+                gameHasBeenPlayed = true;
+                currentBatchIndex = batchIndex;
+                const batchSize = 10;
+                const startIndex = batchIndex * batchSize;
+                phrases = allPhrases.slice(startIndex, startIndex + batchSize);
+                startContainer.classList.add('hidden');
+                gameContainer.classList.remove('hidden');
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                initializeGameState();
+                renderUI();
+            }
+
+            function startReview() {
+                stopAllAudio();
+                phrases = [...allPhrases];
+                currentBatchIndex = 0; // Se puede revisar el storytelling de cualquier bloque
+                startContainer.classList.add('hidden');
+                gameContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                displayFinalReview(false);
+            }
+
+            function finishGame() {
+                stopAllAudio();
+                startContainer.classList.add('hidden');
+                gameContainer.classList.add('hidden');
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                accessGate.classList.remove('hidden');
+                accessKeyInput.value = '';
+                loginAttempts = 0;
+                accessKeyInput.disabled = false;
+                document.getElementById('validate-key-btn').disabled = false;
+                document.getElementById('validate-key-btn').classList.remove('bg-gray-400', 'cursor-not-allowed');
+                gameHasBeenPlayed = false;
+                setupEventListeners();
+            }
+            
+            function renderUI() {
+                const boxContainer = document.getElementById('box-selectors');
+                if (boxContainer) {
+                    boxContainer.innerHTML = boxes.map((box, index) =>
+                        `<button data-action="select-box" data-box-index="${index}" class="px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}">Caja ${index + 1} (${box.length})</button>`
+                    ).join('');
+                }
+                displayCard();
+            }
+
+            function displayCard() {
+                const cardContainer = document.getElementById('card-container');
+                if (!cardContainer) return;
+                cardContainer.innerHTML = '';
+                const currentBox = boxes[currentBoxIndex];
+                if (currentBox.length === 0) {
+                    cardContainer.innerHTML = `<div class="text-center text-gray-500"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7m-4 12h.01M12 3h.01M4 12h.01M20 12h.01M4 7h.01M4 17h.01M20 7h.01M20 17h.01" /></svg><h2 class="mt-2 text-xl font-semibold">Caja Vacía</h2><p class="mt-1 text-sm">No hay frases en esta caja. Si todas las frases están en la caja 7, ve a "Repaso Final".</p></div>`;
+                     if (boxes.length > 6 && boxes[6].length === phrases.length) {
+                        cardContainer.innerHTML += `<button id="go-to-review-btn" class="mt-4 bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition">Ir a Repaso Final</button>`;
+                    }
+                    return;
+                }
+                const cardData = currentBox[0];
+                cardContainer.innerHTML = `
+                    <div class="w-full animate-fade-in flex flex-col items-center">
+                        <div class="w-full max-w-md h-64 mb-4 rounded-lg overflow-hidden shadow-lg bg-gray-200">
+                            <img src="${cardData.imageUrl}" alt="Pista visual" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/500x500/e0e0e0/757575?text=Imagen+no+disponible';">
+                        </div>
+                        <div id="reveal-area" class="w-full max-w-md min-h-[60px] bg-gray-100 flex items-center justify-center text-center p-3 rounded-lg mb-4 text-lg font-semibold text-gray-800"></div>
+                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full max-w-md mb-4">
+                            <button data-action="reveal-en" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Inglés</button>
+                            <button data-action="reveal-es" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Español</button>
+                            <button data-action="reveal-pr" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Pron.</button>
+                            <button data-action="speak-en" title="Pronunciar en Inglés" class="col-span-1 sm:col-span-1 bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
+                            <button data-action="speak-es" title="Pronunciar en Español" class="col-span-1 sm:col-span-1 bg-gray-800 text-white p-2 rounded-md hover:bg-gray-900 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
+                        </div>
+                        <div class="flex gap-4 w-full max-w-md">
+                            <button data-action="box-1" class="w-1/2 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition shadow">A la Caja 1</button>
+                            <button data-action="next-box" class="w-1/2 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow">Siguiente Caja</button>
+                        </div>
+                    </div>`;
+            }
+
+            // --- MODIFICADO: Función displayFinalReview ---
+            function displayFinalReview(isCompleted = false) {
+                stopAllAudio();
+                gameContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                finalReviewContainer.classList.remove('hidden');
+
+                const title = isCompleted ? "¡Felicidades! Has completado el set." : "Repaso General";
+                finalReviewContainer.innerHTML = `
+                    <h2 class="text-3xl font-bold text-green-600 mb-2">${title}</h2>
+                     <p class="text-gray-600 mb-8">Aquí están todas las frases que has estudiado. <strong>Haz clic en una imagen para ver los detalles.</strong></p>
+                    <div id="review-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"></div>
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 max-w-4xl mx-auto">
+                        <div class="flex flex-col gap-4">
+                             <button id="storytelling-btn" class="w-full bg-yellow-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition">Ver Storytelling</button>
+                            <button id="reset-game-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition">Elegir otro bloque</button>
+                        </div>
+                         <div class="flex flex-col gap-4">
+                            <button id="play-all-en-normal-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-700 transition">Inglés (Normal)</button>
+                            <button id="play-all-en-slow-btn" class="w-full bg-purple-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-900 transition">Inglés (Lento)</button>
+                        </div>
+                         <div class="flex flex-col gap-4">
+                            <button id="play-all-es-normal-btn" class="w-full bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-gray-800 transition">Español (Normal)</button>
+                            <button id="play-all-es-slow-btn" class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-black transition">Español (Lento)</button>
+                        </div>
+                    </div>
+                     <button id="finish-game-btn" class="mt-6 bg-red-600 text-white font-bold py-2 px-8 rounded-lg shadow-lg hover:bg-red-700 transition">Terminar Sesión</button>
+                `;
+
+                // --- MODIFICADO: Generar grid con data attributes para el modal, incluyendo pronunciación ---
+                document.getElementById('review-grid').innerHTML = phrases.map(phrase =>
+                    `<div class="aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105 cursor-pointer" 
+                         data-english="${phrase.english}" 
+                         data-spanish="${phrase.spanish}"
+                         data-pronunciation="${phrase.pronunciation}"
+                         data-image="${phrase.imageUrl}">
+                        <img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover pointer-events-none">
+                    </div>`
+                ).join('');
+                setupEventListeners();
+            }
+            
+            // --- MODIFICADO: Función para mostrar el modal con pronunciación ---
+            function showReviewModal(english, spanish, pronunciation, imageUrl) {
+                document.getElementById('modal-english-phrase').textContent = english;
+                document.getElementById('modal-spanish-phrase').textContent = spanish;
+                document.getElementById('modal-pronunciation').textContent = pronunciation;
+                document.getElementById('modal-image').src = imageUrl;
                 
-            } else {
-                // Fallo
-                selectedButton.classList.add('bg-red-600', 'ring-red-400');
+                reviewModal.classList.remove('hidden');
+                setTimeout(() => { 
+                    reviewModal.classList.remove('opacity-0');
+                    reviewModal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
+            }
+
+            function hideReviewModal() {
+                reviewModal.classList.add('opacity-0');
+                reviewModal.querySelector('.modal-content').classList.add('scale-95');
+                setTimeout(() => {
+                    reviewModal.classList.add('hidden');
+                }, 300); 
+            }
+
+            function displayStorytelling() {
+                stopAllAudio();
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.remove('hidden');
+
+                const story = storytellingData[currentBatchIndex];
+                const storyEnArray = story.story_en.split('\n');
+                const storyEsArray = story.story_es.split('\n');
+
+                storytellingContainer.innerHTML = `
+                    <h2 class="text-3xl font-bold text-yellow-600 mb-6">Storytelling</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3 text-purple-700">English Story</h3>
+                            <div id="story-en-container" class="space-y-2 leading-relaxed">
+                                ${storyEnArray.map((p, i) => `<p class="story-text p-2 rounded-md cursor-pointer" data-lang="en" data-index="${i}">${p}</p>`).join('')}
+                            </div>
+                            <button id="play-story-en" class="mt-4 w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-purple-700 transition">Reproducir en Inglés</button>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">Historia en Español</h3>
+                            <div id="story-es-container" class="space-y-2 leading-relaxed">
+                                 ${storyEsArray.map((p, i) => `<p class="story-text p-2 rounded-md cursor-pointer" data-lang="es" data-index="${i}">${p}</p>`).join('')}
+                            </div>
+                            <button id="play-story-es" class="mt-4 w-full bg-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-900 transition">Reproducir en Español</button>
+                        </div>
+                    </div>
+                    <button id="back-to-review-btn" class="mt-8 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition">Volver al Repaso</button>
+                `;
+                setupEventListeners();
+            }
+
+            function highlightText(lang, index) {
+                document.querySelectorAll('.story-text.selected').forEach(el => el.classList.remove('selected'));
+                const enEl = document.querySelector(`.story-text[data-lang="en"][data-index="${index}"]`);
+                const esEl = document.querySelector(`.story-text[data-lang="es"][data-index="${index}"]`);
+                if (enEl) enEl.classList.add('selected');
+                if (esEl) esEl.classList.add('selected');
+            }
+            
+            function moveCard(advance) {
+                const cardToMove = boxes[currentBoxIndex].shift();
+                if (!cardToMove) return;
+                const nextBoxIndex = advance ? currentBoxIndex + 1 : 0;
+                if (advance && nextBoxIndex < boxes.length) {
+                    boxes[nextBoxIndex].push(cardToMove);
+                } else if (advance) {
+                    boxes[boxes.length - 1].push(cardToMove);
+                } else {
+                    boxes[0].push(cardToMove);
+                }
                 
-                // Encontrar y resaltar la respuesta CORRECTA
-                let correctButton = null;
-                allOptions.forEach(btn => {
-                    if (btn.dataset.correct === 'true') {
-                        correctButton = btn;
-                        // Resaltar la correcta en verde semi-transparente
-                        correctButton.classList.add('bg-green-700/50', 'ring-2', 'ring-green-500/50');
+                if (boxes.length > 6 && boxes[6].length === phrases.length) {
+                    displayFinalReview(true);
+                } else {
+                    renderUI();
+                }
+            }
+            
+            function setupEventListeners() {
+                document.getElementById('validate-key-btn')?.addEventListener('click', validateAccessKey);
+                document.getElementById('reset-game-btn')?.addEventListener('click', showBatchSelectionScreen);
+                document.getElementById('finish-game-btn')?.addEventListener('click', finishGame);
+                document.getElementById('go-to-review-btn')?.addEventListener('click', () => displayFinalReview(true));
+
+                document.getElementById('play-all-en-normal-btn')?.addEventListener('click', () => playAll('en-US', 0.8));
+                document.getElementById('play-all-en-slow-btn')?.addEventListener('click', () => playAll('en-US', 0.5));
+                document.getElementById('play-all-es-normal-btn')?.addEventListener('click', () => playAll('es-ES', 0.8));
+                document.getElementById('play-all-es-slow-btn')?.addEventListener('click', () => playAll('es-ES', 0.5));
+                document.getElementById('storytelling-btn')?.addEventListener('click', displayStorytelling);
+
+                document.getElementById('back-to-review-btn')?.addEventListener('click', () => displayFinalReview(boxes.length > 6 && boxes[6].length === phrases.length));
+                document.getElementById('play-story-en')?.addEventListener('click', () => {
+                    const storyText = storytellingData[currentBatchIndex].story_en;
+                    speak(storyText, 'en-US', 0.6);
+                });
+                document.getElementById('play-story-es')?.addEventListener('click', () => {
+                    const storyText = storytellingData[currentBatchIndex].story_es;
+                    speak(storyText, 'es-ES', 0.6);
+                });
+
+                document.getElementById('story-en-container')?.addEventListener('click', (e) => {
+                     const target = e.target.closest('.story-text');
+                    if (target) highlightText(target.dataset.lang, target.dataset.index);
+                });
+                 document.getElementById('story-es-container')?.addEventListener('click', (e) => {
+                     const target = e.target.closest('.story-text');
+                    if (target) highlightText(target.dataset.lang, target.dataset.index);
+                });
+
+                const boxContainer = document.getElementById('box-selectors');
+                if (boxContainer) boxContainer.onclick = (e) => {
+                    const target = e.target.closest('button[data-action="select-box"]');
+                    if (target) {
+                        const newIndex = parseInt(target.dataset.boxIndex, 10);
+                        if (newIndex !== currentBoxIndex) {
+                            currentBoxIndex = newIndex;
+                            renderUI();
+                        }
+                    }
+                };
+
+                const cardContainer = document.getElementById('card-container');
+                if (cardContainer) cardContainer.onclick = (e) => {
+                    const target = e.target.closest('button');
+                    if (!target || !target.dataset.action) return;
+                    const action = target.dataset.action;
+                    const card = boxes[currentBoxIndex]?.[0];
+                    if (!card) return;
+                    switch (action) {
+                        case 'reveal-en': document.getElementById('reveal-area').textContent = card.english; break;
+                        case 'reveal-es': document.getElementById('reveal-area').textContent = card.spanish; break;
+                        case 'reveal-pr': document.getElementById('reveal-area').textContent = card.pronunciation; break;
+                        case 'speak-en': speak(card.english, 'en-US'); break;
+                        case 'speak-es': speak(card.spanish, 'es-ES'); break;
+                        case 'next-box': moveCard(true); break;
+                        case 'box-1': moveCard(false); break;
+                    }
+                };
+                
+                // --- MODIFICADO: Event listener para la grid, ahora pasa la pronunciación ---
+                document.getElementById('review-grid')?.addEventListener('click', (e) => {
+                    const target = e.target.closest('div[data-english]');
+                    if (target) {
+                        showReviewModal(
+                            target.dataset.english, 
+                            target.dataset.spanish, 
+                            target.dataset.pronunciation, 
+                            target.dataset.image
+                        );
+                    }
+                });
+                
+                document.getElementById('modal-close-btn')?.addEventListener('click', hideReviewModal);
+                reviewModal?.addEventListener('click', (e) => {
+                    if (e.target === reviewModal) {
+                        hideReviewModal();
                     }
                 });
 
-                // Actualizar PI y Racha
-                currentStreak = 0;
-                if (!currentState.wasIncorrectlyAttempted) {
-                    incorrectCount++; 
-                    currentState.wasIncorrectlyAttempted = true;
+                const keyInput = document.getElementById('access-key-input');
+                if (keyInput) {
+                    keyInput.onkeydown = (e) => { if (e.key === 'Enter') validateAccessKey(); };
+                    keyInput.oninput = () => errorMessage.classList.add('hidden');
                 }
             }
 
-            // 3. Activar botones de avance
-            
-            nextBtn.disabled = false;
-            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-600');
-            nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            finishBtn.classList.remove('hidden');
-
-            updateHeader();
-        }
-
-        /**
-         * Muestra la pantalla de resultados finales.
-         */
-        function renderResults() {
-            clearInterval(timerInterval);
-            document.getElementById('quiz-header').classList.add('hidden');
-            document.getElementById('progress-bar-container').classList.add('hidden');
-
-            // Ordenar el estado de las preguntas por número de intentos (menor a mayor)
-            // Aunque ahora solo hay 1 intento, se mantiene por si el estado global se reutiliza.
-            const sortedState = quizState.sort((a, b) => a.attempts - b.attempts);
-            
-            const totalQuestions = shuffledQuizData.length;
-            const percentage = totalQuestions > 0 ? ((correctCount / totalQuestions) * 100).toFixed(1) : 0;
-            const passed = percentage >= 70; // Criterio de aprobación simple
-            const statusColor = passed ? 'text-green-400' : 'text-red-400';
-
-            // Generar la lista de resumen de intentos
-            const attemptsListHTML = sortedState.map(state => {
-                const questionData = allQuizData.find(q => q.id === state.id);
-                const statusIcon = state.wasAnsweredCorrectly ? '✔' : '✖';
-                const statusClass = state.wasAnsweredCorrectly ? 'text-green-500' : 'text-red-500';
-                
-                return `
-                    <li class="p-3 bg-gray-700/50 rounded-lg flex justify-between items-center transition-all duration-150 hover:bg-gray-700">
-                        <span class="text-sm sm:text-base text-gray-300 line-clamp-1">
-                            P${state.initialOrder}: ${questionData.questionText}
-                        </span>
-                        <div class="flex items-center space-x-3 font-mono">
-                            <span class="font-bold ${statusClass}">${statusIcon}</span>
-                            <span class="text-xs sm:text-sm text-gray-400">Intentos: ${state.attempts}</span>
-                        </div>
-                    </li>
-                `;
-            }).join('');
-
-            mainContent.innerHTML = `
-                <div class="text-center space-y-6">
-                    <h2 class="text-4xl font-extrabold ${statusColor}">¡Quiz Finalizado!</h2>
-                    <p class="text-lg text-gray-400">Tu desempeño en el simulacro de ${totalQuestions} preguntas.</p>
-                    
-                    <!-- Resumen de Puntuación -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-gray-900 p-5 rounded-xl shadow-2xl border border-gray-700">
-                        <div class="p-4 rounded-xl bg-green-900/50">
-                            <p class="text-2xl font-bold text-green-400">${correctCount}</p>
-                            <p class="text-sm text-gray-400">Preguntas Correctas</p>
-                        </div>
-                        <div class="p-4 rounded-xl bg-red-900/50">
-                            <p class="text-2xl font-bold text-red-400">${incorrectCount}</p>
-                            <p class="text-sm text-gray-400">Preguntas Falladas</p>
-                        </div>
-                        <div class="p-4 rounded-xl bg-yellow-900/50">
-                            <p class="text-2xl font-bold text-yellow-400">${maxStreak}</p>
-                            <p class="text-sm text-gray-400">Racha Máxima</p>
-                        </div>
-                    </div>
-                    
-                    <p class="text-xl font-bold mt-6 ${statusColor}">Puntaje Total: ${percentage}%</p>
-
-                    <!-- Detalle de Intentos -->
-                    <div class="mt-8 text-left">
-                        <h3 class="text-xl font-semibold text-blue-400 mb-4 border-b border-gray-700 pb-2">Resumen por Pregunta (Ordenado por Intentos)</h3>
-                        <ul class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
-                            ${attemptsListHTML}
-                        </ul>
-                    </div>
-
-                    <!-- Mensaje Finalizado (No Reiniciable) -->
-                    <button disabled class="mt-8 w-full sm:w-1/2 mx-auto py-4 rounded-xl text-white font-bold text-lg bg-gray-600 opacity-70 cursor-not-allowed shadow-xl">
-                        Cuestionario Finalizado
-                    </button>
-                </div>
-            `;
-        }
-
-        // --- Inicialización del Quiz al cargar la página ---
-        document.addEventListener('DOMContentLoaded', initializeQuiz);
-
+            // Inicialización
+            setupEventListeners();
+        });
     </script>
 </body>
 </html>
