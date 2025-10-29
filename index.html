@@ -22,12 +22,18 @@
         .story-text strong {
             color: #4f46e5; /* Color índigo para resaltar (indigo-600) */
         }
-        /* Estilos para la ventana modal */
+        /* Estilo para la ventana modal */
         .modal {
             transition: opacity 0.3s ease;
         }
         .modal-content {
             transition: transform 0.3s ease;
+        }
+        /* NUEVO ESTILO: Resaltado temporal para la tarjeta de estudio */
+        #reveal-area.highlight-active {
+            box-shadow: 0 0 0 3px #3b82f6; /* Ring azul de Tailwind (blue-500) */
+            background-color: #eff6ff; /* blue-50 */
+            transition: all 0.2s ease-in-out;
         }
     </style>
 </head>
@@ -124,6 +130,7 @@
             const finalReviewContainer = document.getElementById('final-review-container');
             const storytellingContainer = document.getElementById('storytelling-container');
             const reviewModal = document.getElementById('review-modal');
+            const revealArea = document.getElementById('reveal-area');
             
             let loginAttempts = 0;
             const MAX_ATTEMPTS = 3;
@@ -137,7 +144,11 @@
             let utterance = null;
             if ('speechSynthesis' in window) {
                 utterance = new SpeechSynthesisUtterance();
-                utterance.onend = () => console.log('Reproducción completada.');
+                utterance.onend = () => {
+                     // NUEVO: Quitar resaltado al terminar la lectura individual
+                    if (revealArea) revealArea.classList.remove('highlight-active');
+                    console.log('Reproducción completada.');
+                };
                 utterance.onerror = (error) => {
                     console.error('Error con speechSynthesis, usando fallback:', error);
                 };
@@ -245,36 +256,51 @@
                 }
                 if ('speechSynthesis' in window) {
                     speechSynthesis.cancel();
+                    // NUEVO: Asegurarse de quitar el resaltado si se cancela
+                     if (revealArea) revealArea.classList.remove('highlight-active'); 
+                     document.querySelectorAll('.story-text.selected').forEach(el => el.classList.remove('selected'));
                 }
             }
             
-            function speak(text, lang, rate = 0.8) {
+            // MODIFICADO: speak ahora acepta una función de callback onend
+            function speak(text, lang, rate = 0.8, onEndCallback = () => {}) {
                 stopAllAudio();
                 const cleanText = text.replace(/<strong>|<\/strong>/g, '');
                 if (speechSynthesis && utterance) {
                     utterance.text = cleanText;
                     utterance.lang = lang;
                     utterance.rate = rate;
+                    utterance.onend = () => {
+                         // Llamar al callback ANTES de la lógica general (quitar resaltado)
+                        onEndCallback(); 
+                        if (revealArea) revealArea.classList.remove('highlight-active');
+                        console.log('Reproducción completada.');
+                    };
                     utterance.onerror = (event) => {
                         console.error('Error con speechSynthesis, usando fallback:', event);
-                        useResponsiveVoiceFallback(cleanText, lang, rate);
+                        useResponsiveVoiceFallback(cleanText, lang, rate, onEndCallback);
                     };
                     speechSynthesis.speak(utterance);
                 } else {
-                    useResponsiveVoiceFallback(cleanText, lang, rate);
+                    useResponsiveVoiceFallback(cleanText, lang, rate, onEndCallback);
                 }
             }
 
-            function useResponsiveVoiceFallback(text, lang, rate) {
+            // MODIFICADO: useResponsiveVoiceFallback ahora acepta una función de callback onend
+            function useResponsiveVoiceFallback(text, lang, rate, onEndCallback = () => {}) {
                 const voiceMap = { 'en-US': 'US English Female', 'es-ES': 'Spanish Female' };
                 const voice = voiceMap[lang] || 'US English Female';
                 responsiveVoice.speak(text, voice, {
                     rate: rate,
-                    onend: () => console.log('Reproducción completada con ResponsiveVoice.'),
+                    onend: () => {
+                        onEndCallback();
+                        console.log('Reproducción completada con ResponsiveVoice.');
+                    },
                     onerror: (error) => console.error('Error al reproducir audio con ResponsiveVoice:', error)
                 });
             }
 
+            // MODIFICADO: playAll sigue usando la lógica anterior, ya que el resaltado palabra por palabra es complejo
             function playAll(lang, rate) {
                 stopAllAudio();
                 const separator = '; ';
@@ -434,6 +460,7 @@
                 stopAllAudio();
                 finalReviewContainer.classList.add('hidden');
                 storytellingContainer.classList.remove('hidden');
+                document.querySelectorAll('.story-text.selected').forEach(el => el.classList.remove('selected')); // Limpiar resaltado previo
 
                 const story = storytellingData[currentBatchIndex];
                 const storyEnArray = story.story_en.split('\n');
@@ -470,6 +497,63 @@
                 if (esEl) esEl.classList.add('selected');
             }
             
+            // NUEVO: Función para leer una historia secuencialmente y resaltar
+            function readStoryAndHighlight(storyText, lang, rate) {
+                stopAllAudio();
+                const sentences = storyText.split('\n').filter(s => s.trim() !== '');
+                let sentenceIndex = 0;
+                
+                function playNextSentence() {
+                    if (sentenceIndex >= sentences.length) {
+                        highlightText(lang, -1); // Desactivar resaltado
+                        return;
+                    }
+
+                    // Asegurarse de que responsiveVoice esté cancelado (por si acaso)
+                    if (typeof responsiveVoice !== 'undefined') responsiveVoice.cancel();
+                    
+                    highlightText(lang, sentenceIndex);
+                    
+                    const textToSpeak = sentences[sentenceIndex].replace(/<strong>|<\/strong>/g, '');
+                    
+                    // Usar la API nativa para poder controlar la secuenciación
+                    if (speechSynthesis && utterance) {
+                        utterance.text = textToSpeak;
+                        utterance.lang = lang;
+                        utterance.rate = rate;
+                        utterance.onend = () => {
+                             sentenceIndex++;
+                             playNextSentence();
+                        };
+                        utterance.onerror = (event) => {
+                             // Fallback en caso de error de la API nativa
+                            console.error('Error al hablar una frase, saltando al siguiente:', event);
+                            sentenceIndex++;
+                            playNextSentence();
+                        };
+                        speechSynthesis.speak(utterance);
+                    } else {
+                        // Usar ResponsiveVoice como fallback y luego llamar a la siguiente frase
+                         const voiceMap = { 'en-US': 'US English Female', 'es-ES': 'Spanish Female' };
+                         const voice = voiceMap[lang] || 'US English Female';
+                         responsiveVoice.speak(textToSpeak, voice, {
+                            rate: rate,
+                            onend: () => {
+                                sentenceIndex++;
+                                playNextSentence();
+                            },
+                             onerror: (error) => {
+                                console.error('Error de ResponsiveVoice, saltando al siguiente:', error);
+                                sentenceIndex++;
+                                playNextSentence();
+                            }
+                         });
+                    }
+                }
+                playNextSentence();
+            }
+
+
             function moveCard(advance) {
                 const cardToMove = boxes[currentBoxIndex].shift();
                 if (!cardToMove) return;
@@ -502,22 +586,34 @@
                 document.getElementById('storytelling-btn')?.addEventListener('click', displayStorytelling);
 
                 document.getElementById('back-to-review-btn')?.addEventListener('click', () => displayFinalReview(boxes.length > 6 && boxes[6].length === phrases.length));
+                
+                // NUEVO: Usar la nueva función para reproducir la historia secuencialmente con resaltado
                 document.getElementById('play-story-en')?.addEventListener('click', () => {
                     const storyText = storytellingData[currentBatchIndex].story_en;
-                    speak(storyText, 'en-US', 0.6);
+                    readStoryAndHighlight(storyText, 'en-US', 0.7);
                 });
                 document.getElementById('play-story-es')?.addEventListener('click', () => {
                     const storyText = storytellingData[currentBatchIndex].story_es;
-                    speak(storyText, 'es-ES', 0.6);
+                    readStoryAndHighlight(storyText, 'es-ES', 0.7);
                 });
 
                 document.getElementById('story-en-container')?.addEventListener('click', (e) => {
                      const target = e.target.closest('.story-text');
-                    if (target) highlightText(target.dataset.lang, target.dataset.index);
+                    if (target) {
+                        highlightText(target.dataset.lang, target.dataset.index);
+                        // NUEVO: Reproducir la frase al hacer clic
+                        const textToSpeak = target.textContent.replace(/<strong>|<\/strong>/g, '').trim();
+                        speak(textToSpeak, target.dataset.lang === 'en' ? 'en-US' : 'es-ES', 0.8);
+                    }
                 });
                  document.getElementById('story-es-container')?.addEventListener('click', (e) => {
                      const target = e.target.closest('.story-text');
-                    if (target) highlightText(target.dataset.lang, target.dataset.index);
+                    if (target) {
+                        highlightText(target.dataset.lang, target.dataset.index);
+                        // NUEVO: Reproducir la frase al hacer clic
+                        const textToSpeak = target.textContent.replace(/<strong>|<\/strong>/g, '').trim();
+                        speak(textToSpeak, target.dataset.lang === 'en' ? 'en-US' : 'es-ES', 0.8);
+                    }
                 });
 
                 const boxContainer = document.getElementById('box-selectors');
@@ -538,13 +634,26 @@
                     if (!target || !target.dataset.action) return;
                     const action = target.dataset.action;
                     const card = boxes[currentBoxIndex]?.[0];
-                    if (!card) return;
+                    const currentRevealArea = document.getElementById('reveal-area');
+                    if (!card || !currentRevealArea) return;
+                    
+                    // Lógica para botones de revelación
                     switch (action) {
-                        case 'reveal-en': document.getElementById('reveal-area').textContent = card.english; break;
-                        case 'reveal-es': document.getElementById('reveal-area').textContent = card.spanish; break;
-                        case 'reveal-pr': document.getElementById('reveal-area').textContent = card.pronunciation; break;
-                        case 'speak-en': speak(card.english, 'en-US'); break;
-                        case 'speak-es': speak(card.spanish, 'es-ES'); break;
+                        case 'reveal-en': currentRevealArea.textContent = card.english; break;
+                        case 'reveal-es': currentRevealArea.textContent = card.spanish; break;
+                        case 'reveal-pr': currentRevealArea.textContent = card.pronunciation; break;
+                        // Lógica para botones de voz (con resaltado temporal)
+                        case 'speak-en': 
+                            currentRevealArea.textContent = card.english;
+                            currentRevealArea.classList.add('highlight-active');
+                            speak(card.english, 'en-US'); // La función speak quitará la clase al terminar
+                            break;
+                        case 'speak-es': 
+                            currentRevealArea.textContent = card.spanish;
+                            currentRevealArea.classList.add('highlight-active');
+                            speak(card.spanish, 'es-ES'); // La función speak quitará la clase al terminar
+                            break;
+                        // Lógica de movimiento
                         case 'next-box': moveCard(true); break;
                         case 'box-1': moveCard(false); break;
                     }
