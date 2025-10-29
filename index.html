@@ -3,604 +3,600 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actividad de Aprendizaje Intensivo</title>
-    
+    <title>Juego de Memorización de Frases</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=QqHIq0Z0"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    
     <style>
-        /* Estilos personalizados para la aplicación */
+        /* Aplicamos la fuente Inter a todo el cuerpo */
         body {
             font-family: 'Inter', sans-serif;
         }
-
-        /* Estilos para las pestañas de navegación */
-        .tab-btn {
-            @apply py-3 px-2 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 focus:outline-none transition-all duration-300;
+        /* Estilo para el texto seleccionado en el storytelling */
+        .story-text.selected {
+            background-color: #dbeafe; /* Un azul claro de Tailwind (blue-100) */
+            transition: background-color 0.3s;
         }
-
-        .active-tab {
-            @apply border-sky-500 text-sky-500;
+        .story-text strong {
+            color: #4f46e5; /* Color índigo para resaltar (indigo-600) */
         }
-
-        /* Estilos para el elemento que se está arrastrando */
-        .dragging {
-            opacity: 0.5;
-            transform: scale(1.1);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        }
-
-        /* Estilo para la zona de destino cuando se arrastra un elemento sobre ella */
-        #drop-zone.drag-over {
-            background-color: #e0f2fe; /* bg-sky-100 */
-            border-color: #38bdf8;   /* border-sky-400 */
-        }
-
-        /* Animación para feedback de respuesta correcta */
-        @keyframes correct-animation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .correct {
-            animation: correct-animation 0.5s ease-in-out;
-        }
-        
-        /* Estilo para la traducción */
-        .translation {
-            @apply text-slate-500 italic text-sm pt-0;
-        }
-
-        /* Estilos para el modal */
+        /* Estilos para la ventana modal */
         .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: opacity 0.3s ease;
         }
-
         .modal-content {
-            background-color: #fff;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            max-width: 400px;
-            width: 90%;
-            position: relative;
-        }
-
-        .close-button {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #64748b;
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen p-4 antialiased">
-
-    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6 md:p-8">
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
         <header class="text-center mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Actividad de Aprendizaje Intensivo</h1>
-            <p class="text-slate-500 mt-2">Práctica de Conversación Detallada</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Memorizar Frases</h1>
         </header>
-
-        <div class="border-b border-slate-200 mb-6">
-            <nav class="flex -mb-px space-x-6" aria-label="Tabs" role="tablist">
-                <button id="tab-reconstruye" class="tab-btn active-tab" role="tab" aria-selected="true" aria-controls="panel-reconstruye">Reconstruye</button>
-                <button id="tab-adivina" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-adivina">Adivina</button>
-                <button id="tab-ordena" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-ordena">Ordena</button>
-                <button id="tab-shadowing" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-shadowing">Shadowing</button>
-            </nav>
+        <div id="access-gate" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Control de Acceso</h2>
+            <p class="text-gray-500 mb-6">Por favor, introduce tu clave para continuar.</p>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002 2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <input type="password" id="access-key-input" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Clave de acceso">
+            </div>
+            <button id="validate-key-btn" class="w-full mt-4 bg-gray-800 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-gray-900 transition">Validar</button>
+            <p id="error-message" class="text-red-500 font-medium mt-4 hidden"></p>
         </div>
-
-        <main>
-            <div id="panel-reconstruye" class="tab-content" role="tabpanel" aria-labelledby="tab-reconstruye">
-                <h2 class="text-xl font-semibold mb-4 text-center">Reconstrucción del Diálogo</h2>
-                <p class="text-center text-slate-600 mb-4">Usa la secuencia de emojis como guía para recordar el flujo de la conversación.</p>
-                <div class="bg-slate-50 rounded-lg p-4 mb-4">
-                    <p class="font-semibold mb-2 text-center text-slate-700">Guía de Emojis:</p>
-                    <div id="reco-emojis" class="text-2xl md:text-3xl text-center tracking-wider leading-relaxed"></div>
-                </div>
-                <div id="reco-feedback" class="mt-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-left hidden max-h-[450px] overflow-y-auto">
-                    <p class="font-semibold text-emerald-800 mb-2">Diálogo Original:</p>
-                    <div id="reco-original-text" class="text-emerald-700 mt-1 space-y-3"></div>
-                </div>
-                <div class="mt-6 flex justify-center">
-                    <button id="check-reco-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg transition shadow-md">Revelar Diálogo</button>
-                </div>
+        <div id="start-container" class="text-center mb-6 hidden">
             </div>
-            
-            <div id="panel-adivina" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-adivina">
-                <h2 class="text-xl font-semibold mb-4 text-center">Adivina la Frase Clave</h2>
-                <p class="text-center text-slate-600 mb-6">Haz clic en "Revelar" para descubrir cada frase, su pronunciación y traducción.</p>
-                <div id="guess-container" class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                    </div>
-            </div>
-
-            <div id="panel-ordena" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-ordena">
-                <h2 class="text-xl font-semibold mb-4 text-center">Ordena la Historia</h2>
-                <p class="text-center text-slate-600 mb-4">Arrastra los grupos de emojis en el orden correcto para contar la historia.</p>
-                <div class="mb-6">
-                    <p class="font-semibold mb-2 text-center text-slate-700">Emojis Desordenados:</p>
-                    <div id="drag-source" class="flex flex-wrap justify-center items-center gap-4 p-4 bg-slate-50 rounded-lg min-h-[80px]">
-                        </div>
-                </div>
-                <div>
-                    <p class="font-semibold mb-2 text-center text-slate-700">Tu Historia:</p>
-                    <div id="drop-zone" class="flex flex-wrap justify-center items-center gap-4 p-4 rounded-lg min-h-[80px] border-2 dashed border-slate-300 transition-all duration-300">
-                        </div>
-                </div>
-                <div id="order-feedback" class="mt-4 h-6 text-lg font-medium text-center transition-colors"></div>
-                <div class="mt-6 flex justify-center space-x-4">
-                    <button id="check-order-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-6 rounded-lg transition shadow-md disabled:bg-slate-400 disabled:cursor-not-allowed">Verificar Orden</button>
-                    <button id="reset-order-btn" class="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-6 rounded-lg transition shadow-md">Reiniciar</button>
-                </div>
-            </div>
-
-            <!-- Shadowing Panel (moved after Ordena) -->
-            <div id="panel-shadowing" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-shadowing">
-                <h2 class="text-xl font-semibold mb-4 text-center">Práctica de Shadowing</h2>
-                <p class="text-center text-slate-600 mb-6">Selecciona una opción para escuchar el diálogo completo y practicar tu pronunciación.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button id="shadow-es-slow-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition shadow-md">
-                        Shadowing Español Lento (0.6x)
-                    </button>
-                    <button id="shadow-es-normal-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition shadow-md">
-                        Shadowing Español Normal (1.0x)
-                    </button>
-                    <button id="shadow-en-slow-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition shadow-md">
-                        Shadowing Inglés Lento (0.6x)
-                    </button>
-                    <button id="shadow-en-normal-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition shadow-md">
-                        Shadowing Inglés Normal (1.0x)
-                    </button>
-                </div>
-            </div>
-            <!-- End Shadowing Panel -->
+        <main id="game-container" class="hidden">
+            <section id="box-selectors" class="flex flex-wrap justify-center gap-2 mb-6">
+                </section>
+            <section id="card-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-xl min-h-[450px] flex items-center justify-center flex-col">
+                </section>
         </main>
-    </div>
+        <section id="final-review-container" class="hidden text-center">
+            </section>
 
-    <!-- Modal Structure for Emoji Details -->
-    <div id="emoji-detail-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-button" id="close-modal-btn">&times;</span>
-            <div class="text-center mb-4">
-                <p id="modal-display-emoji" class="text-4xl mb-2"></p>
-                <p id="modal-english-text" class="text-xl font-bold text-sky-700"></p>
-                <p id="modal-pronunciation-text" class="text-base text-slate-600"></p>
-                <p id="modal-spanish-translation" class="text-base italic text-slate-500 mt-2"></p>
-            </div>
-            <div class="flex justify-center">
-                <button id="play-modal-audio-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition shadow-md">
-                    Reproducir Audio
-                </button>
+        <section id="storytelling-container" class="hidden text-center bg-white p-6 rounded-2xl shadow-xl">
+             </section>
+
+        <div id="review-modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0">
+            <div class="modal-content bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Frase</h3>
+                <div id="modal-image-container" class="w-full h-48 mb-4 rounded-lg overflow-hidden bg-gray-200">
+                    <img id="modal-image" src="" alt="Pista visual de la frase" class="w-full h-full object-cover">
+                </div>
+                <div class="space-y-2">
+                    <p class="text-lg text-purple-700 font-semibold" id="modal-english-phrase"></p>
+                    <p class="text-md text-blue-600 italic" id="modal-pronunciation"></p>
+                    <p class="text-lg text-gray-600 mt-1" id="modal-spanish-phrase"></p>
+                </div>
+                <button id="modal-close-btn" class="mt-6 w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-red-700 transition">Cerrar</button>
             </div>
         </div>
-    </div>
-
+        </div>
     <script>
-        const LearningApp = {
-            config: {
-                vocabulary: [
-                    { emoji: '😬🏠', word: { es: '(Tensión en el Hogar)', en: '<b>Tension in the Home</b> [tén-shon in da houm]' }},
-                    { emoji: '👫✉️🍽️👫', word: { es: '(Amy y Ben han sido invitados a cenar por otra pareja.)', en: '<b>Amy and Ben have been invited to dinner by another couple.</b> [éi-mi and ben jav bin in-váit-ed tu dí-ner bai a-ná-der ka-pol]' }},
-                    { emoji: '😟🚗💨', word: { es: '(Están un poco nerviosos, y están a punto de ser recogidos.)', en: '<b>They’re a little nervous, and are about to get picked up.</b> [zeir a lí-tol ner-vus, and ar a-baut tu get pikt ap]' }},
-                    { emoji: '🗣️❓', word: { es: '(Ben: Amy, ¿qué crees que estás haciendo?)', en: '<strong>Ben:</strong> <b>Amy, what do you think you’re doing?</b> [éi-mi, wat du iu zink iur dú-ing?]' }},
-                    { emoji: '🦷🤷‍♀️', word: { es: '(Amy: ¿Qué? Me estoy cepillando los dientes. ¿Qué parece que estoy haciendo?)', en: '<strong>Amy:</strong> <b>What? I’m brushing my teeth. What does it look like I’m doing?</b> [wat? aim brá-shing mai tiz. wat das it luk laik aim dú-ing?]' }},
-                    { emoji: '🚫🗣️', word: { es: '(Ben: Bueno, déjalo ya.)', en: '<strong>Ben:</strong> <b>Well, cut it out.</b> [wel, kat it aut]' }},
-                    { emoji: '⏰❓📼', word: { es: '(Están a punto de llegar y no puedo averiguar cómo programar tu nueva VCR.)', en: '<b>They’re about to get here and I can’t figure out how to program your new VCR.</b> [zeir a-baut tu get jir and ai cant fí-guer aut jau tu prou-gram iur niu vi-si-ar.]' }},
-                    { emoji: '🤝🏃‍♀️', word: { es: '(Ven aquí y ayúdame.)', en: '<b>Get over here and help me.</b> [get ó-ver jir and jelp mi.]' }},
-                    { emoji: '🤷‍♀️❓', word: { es: '(Amy: ¿Por qué? No sé cómo usarlo mejor que tú.)', en: '<strong>Amy:</strong> <b>Why? I don’t know how to work it any better than you.</b> [wai? ai dont nou jau tu werk it é-ni bé-ter zan iu.]' }},
-                    { emoji: ' 🧠💡', word: { es: '(Ben: Lo sé, pero dos cabezas piensan mejor que una.)', en: '<strong>Ben:</strong> <b>I know, but two heads are better than one.</b> [ai nou, bat tu jedz ar bé-ter zan uan.]' }},
-                    { emoji: '💩❓', word: { es: '(Mierda, ¿qué está haciendo?)', en: '<b>Crap, what’s it doing?</b> [crap, wats it dú-ing?]' }},
-                    { emoji: '🤦‍♀️👎', word: { es: '(Amy: ¡Lo arruinaste! ¡Dios mío, eres un manazas!)', en: '<strong>Amy:</strong> <b>You messed it up! Oh my gosh, you’re all thumbs!</b> [iu mest it ap! ou mai gosh, iur ol zams!]' }},
-                    { emoji: '🤷‍♂️🤔', word: { es: '(Ben: No lo entiendo... Pulsé el botón correcto, debería haber funcionado.)', en: '<strong>Ben:</strong> <b>I don’t get it… I pressed the right button, it should’ve worked.</b> [ai dont get it... ai prest da rait bo-ton, it shud-ev werkt.]' }},
-                    { emoji: '🙅‍♀️📺❌', word: { es: '(Amy: Olvidémoslo. Puedes perderte tu programa esta noche.)', en: '<strong>Amy:</strong> <b>Let’s just forget it. You can miss your show tonight.</b> [lets yost for-get it. iu can mis iur shou tu-náit.]' }},
-                    { emoji: '🪙🔢', word: { es: '(Son muy comunes de todos modos.)', en: '<b>They’re a dime a dozen anyway.</b> [zeir a daim a dó-sen é-ni-wei.]' }},
-                    { emoji: '🗣️➡️🥊', word: { es: '(Ben: Eso es fácil de decir para ti. No me rindo todavía.)', en: '<strong>Ben:</strong> <b>That’s easy for you to say. I’m not throwing in the towel just yet.</b> [zats í-si for iu tu sei. aim not zrou-ing in da táu-el yost yet.]' }},
-                    { emoji: '👍⏰🚶‍♀️', word: { es: '(Amy: Bien, solo prepárate a tiempo. Vuelvo enseguida.)', en: '<strong>Amy:</strong> <b>Fine, just be ready on time. I’ll be right back.</b> [fain, yost bi ré-di on taim. ail bi rait bak.]' }},
-                    { emoji: '🤷‍♀️🦷📺', word: { es: '(Amy: ¿Por qué te estás cepillando los dientes frente al televisor?)', en: '<strong>Amy:</strong> <b>Why are you brushing your teeth in front of the TV?</b> [wai ar iu brá-shing iur tiz in front of da ti-vi?]' }},
-                    { emoji: '🐦🐦🪨', word: { es: '(Ben: Estoy matando dos pájaros de un tiro.)', en: '<strong>Ben:</strong> <b>I’m killing two birds with one stone.</b> [aim kí-ling tu berds wiz uan stoun.]' }},
-                    { emoji: '✅📺 grabar', word: { es: '(Casi tengo el programa programado para grabar.)', en: '<b>I’ve almost got the show programmed to record.</b> [aiv ol-most got da shou prou-gramd tu re-cord.]' }},
-                    { emoji: '💧🧴⬇️', word: { es: '(Amy: Bueno, estás goteando pasta de dientes en el suelo.)', en: '<strong>Amy:</strong> <b>Well, you’re dripping toothpaste on the floor.</b> [wel, iur drí-ping tuz-peist on da flor.]' }},
-                    { emoji: '😬🧼🔙', word: { es: '(Ben: ¡Ups! Podemos limpiarlo cuando volvamos.)', en: '<strong>Ben:</strong> <b>Whoops! We can clean it up when we get back.</b> [wups! wi can klin it ap wen wi get bak.]' }},
-                    { emoji: '⏰🏃‍♀️💨', word: { es: '(Más vale tarde que nunca.)', en: '<b>Better late than never.</b> [bé-ter leit zan né-ver.]' }},
-                    { emoji: '🤷‍♀️🧹', word: { es: '(Amy: ¿Nosotros? ¡Quieres decir que tú lo limpiarás!)', en: '<strong>Amy:</strong> <b>We? You mean you’ll clean it!</b> [wi? iu min iul klin it!]' }},
-                    { emoji: '🙄🤏', word: { es: '(Ben: Oh, supéralo. No es para tanto.)', en: '<strong>Ben:</strong> <b>Oh, get over it. It’s not that big of a deal.</b> [ou, get ó-ver it. its not zat big of a dil.]' }},
-                    { emoji: '👋🚗', word: { es: '(Oye, están aquí para recogernos.)', en: '<b>Hey, they’re here to get us.</b> [jei, zeir jir tu get as.]' }},
-                    { emoji: '🏃‍♀️💨👀', word: { es: '(Amy: Vamos, démonos prisa y salgamos de aquí antes de que entren y vean el suelo.)', en: '<strong>Amy:</strong> <b>Come on, let’s hurry up and get out of here before they come in and see the floor.</b> [com on, lets já-ri ap and get aut of jir bi-for zei com in and si da flor.]' }}
-                ],
-                correctSequence: [
-                    '😬🏠', '👫✉️🍽️👫', '😟🚗💨', '🗣️❓', '🦷🤷‍♀️', '🚫🗣️', '⏰❓📼', '🤝🏃‍♀️', '🤷‍♀️❓', 
-                    '🧠🧠💡', '💩❓', '🤦‍♀️👎', '🤷‍♂️🤔', '🙅‍♀️📺❌', '🪙🔢', '🗣️➡️🥊', '👍⏰🚶‍♀️', 
-                    '🤷‍♀️🦷📺', '🐦🐦🪨', '✅📺 grabar', '💧🧴⬇️', '😬🧼🔙', '⏰🏃‍♀️💨', '🤷‍♀️🧹', 
-                    '🙄🤏', '👋🚗', '🏃‍♀️💨👀'
-                ],
-                originalText: `
-                    <div><p><strong>Amy and Ben have been invited to dinner by another couple.</strong> [éi-mi and ben jav bin in-váit-ed tu dí-ner bai a-ná-der ka-pol] <b>They’re a little nervous, and are about to get picked up.</b> [zeir a lí-tol ner-vus, and ar a-baut tu get pikt ap]</p><p class="translation">(Amy y Ben han sido invitados a cenar por otra pareja. Están un poco nerviosos, y están a punto de ser recogidos.)</p></div>
-                    <div><p><strong>Ben:</strong> <b>Amy, what do you think you’re doing?</b> [éi-mi, wat du iu zink iur dú-ing?]</p><p class="translation">(Ben: Amy, ¿qué crees que estás haciendo?)</p></div>
-                    <div><p><strong>Amy:</strong> <b>What? I’m brushing my teeth. What does it look like I’m doing?</b> [wat? aim brá-shing mai tiz. wat das it luk laik aim dú-ing?]</p><p class="translation">(Amy: ¿Qué? Me estoy cepillando los dientes. ¿Qué parece que estoy haciendo?)</p></div>
-                    <div><p><strong>Ben:</strong> <b>Well, cut it out. They’re about to get here and I can’t figure out how to program your new VCR. Get over here and help me.</b> [wel, kat it aut. Zeir a-baut tu get jir and ai cant fí-guer aut jau tu prou-gram iur niu vi-si-ar. Get ó-ver jir and jelp mi.]</p><p class="translation">(Ben: Bueno, déjalo ya. Están a punto de llegar y no puedo averiguar cómo programar tu nueva VCR. Ven aquí y ayúdame.)</p></div>
-                    <div><p><strong>Amy:</strong> <b>Why? I don’t know how to work it any better than you.</b> [wai? ai dont nou jau tu werk it é-ni bé-ter zan iu.]</p><p class="translation">(Amy: ¿Por qué? No sé cómo usarlo mejor que tú.)</p></div>
-                    <div><p><strong>Ben:</strong> <b>I know, but two heads are better than one. Crap, what’s it doing?</b> [ai nou, bat tu jedz ar bé-ter zan uan. Crap, wats it dú-ing?]</p><p class="translation">(Ben: Lo sé, pero dos cabezas piensan mejor que una. Mierda, ¿qué está haciendo?)</p></div>
-                    <div><p><strong>Amy:</strong> <b>You messed it up! Oh my gosh, you’re all thumbs!</b> [iu mest it ap! ou mai gosh, iur ol zams!]</p><p class="translation">(Amy: ¡Lo arruinaste! ¡Dios mío, eres un manazas!)</p></div>
-                    <div><p><strong>Ben:</strong> <b>I don’t get it… I pressed the right button, it should’ve worked.</b> [ai dont get it... ai prest da rait bo-ton, it shud-ev werkt.]</p><p class="translation">(Ben: No lo entiendo... Pulsé el botón correcto, debería haber funcionado.)</p></div>
-                    <div><p><strong>Amy:</strong> <b>Let’s just forget it. You can miss your show tonight. They’re a dime a dozen anyway.</b> [lets yost for-get it. iu can mis iur shou tu-náit. Zeir a daim a dó-sen é-ni-wei.]</p><p class="translation">(Amy: Olvidémoslo. Puedes perderte tu programa esta noche. Son muy comunes de todos modos.)</p></div>
-                    <div><p><strong>Ben:</strong> <b>That’s easy for you to say. I’m not throwing in the towel just yet.</b> [zats í-si for iu tu sei. aim not zrou-ing in da táu-el yost yet.]</p><p class="translation">(Ben: Eso es fácil de decir para ti. No me rindo todavía.)</p></div>
-                    <div><p><strong>Amy:</strong> <b>Fine, just be ready on time. I’ll be right back.</b> [fain, yost bi ré-di on taim. ail bi rait bak.]</p><p class="translation">(Amy: Bien, solo prepárate a tiempo. Vuelvo enseguida.)</p></div>
-                    <div><p><strong>Amy:</strong> <b>Why are you brushing your teeth in front of the TV?</b> [wai ar iu brá-shing iur tiz in front of da ti-vi?]</p><p class="translation">(Amy: ¿Por qué te estás cepillando los dientes frente al televisor?)</p></div>
-                    <div><p><strong>Ben:</strong> <b>I’m killing two birds with one stone. I’ve almost got the show programmed to record.</b> [aim kí-ling tu berds wiz uan stoun. Aiv ol-most got da shou prou-gramd tu re-cord.]</p><p class="translation">(Ben: Estoy matando dos pájaros de un tiro. Casi tengo el programa programado para grabar.)</p></div>
-                    <div><p><strong>Amy:</strong> <b>Well, you’re dripping toothpaste on the floor.</b> [wel, iur drí-ping tuz-peist on da flor.]</p><p class="translation">(Amy: Bueno, estás goteando pasta de dientes en el suelo.)</p></div>
-                    <div><p><strong>Ben:</strong> <b>Whoops! We can clean it up when we get back. Better late than never.</b> [wups! wi can klin it ap wen wi get bak. Bé-ter leit zan né-ver.]</p><p class="translation">(Ben: ¡Ups! Podemos limpiarlo cuando volvamos. Más vale tarde que nunca.)</p></div>
-                    <div><p><strong>Amy:</strong> <b>We? You mean you’ll clean it!</b> [wi? iu min iul klin it!]</p><p class="translation">(Amy: ¿Nosotros? ¡Quieres decir que tú lo limpiarás!)</p></div>
-                    <div><p><strong>Ben:</strong> <b>Oh, get over it. It’s not that big of a deal. Hey, they’re here to get us.</b> [ou, get ó-ver it. its not zat big of a dil. Jei, zeir jir tu get as.]</p><p class="translation">(Ben: Oh, supéralo. No es para tanto. Oye, están aquí para recogernos.)</p></div>
-                    <div><p><strong>Amy:</strong> <b>Come on, let’s hurry up and get out of here before they come in and see the floor.</b> [com on, lets já-ri ap and get aut of jir bi-for zei com in and si da flor.]</p><p class="translation">(Amy: Vamos, démonos prisa y salgamos de aquí antes de que entren y vean el suelo.)</p></div>
-                `
-            },
-            state: { draggedElement: null, currentAudioText: '', lastDoubleClickedElement: null }, 
-            elements: {},
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- VARIABLES GLOBALES Y DATOS ---
+            const csvData = `"english","spanish","pronunciation","imageUrl"
+"What's up?","¿Qué tal? / ¿Qué onda?","Guats-ap?","https://i.postimg.cc/2jh7tk4f/01.png"
+"How's it going?","¿Cómo va todo?","Jaus-it-gó-in?","https://i.postimg.cc/jnjnGznV/02.png"
+"You alright? ","¿Todo bien?","Yu-ol-ráit?","https://i.postimg.cc/r0jtnhmC/03.png"
+"What have you been up to?","¿En qué has andado?","Guát-jav-iú-bin-ap-tu?","https://i.postimg.cc/dkwy9MqV/04.png"
+"Long time no see!","¡Tanto tiempo sin verte!","Long-táim-no-sí!","https://i.postimg.cc/d7MdLkpd/05.png"
+"Sup? (Short for What's up?)","¿Qué tal? (muy corto)","Sap?","https://i.postimg.cc/cvtwxM90/06.png"
+"Hi, I don't think we've met. I'm .","Hola, creo que no nos conocemos. Soy .","Jái, ái-dont-zink-wiv-met. Áim .","https://i.postimg.cc/pp6KM1Bs/07.png"
+"How's your day going so far?","¿Cómo va tu día hasta ahora?","Jaus-yor-déi-gó-in-so-far?","https://i.postimg.cc/dL1GXKG7/08.png.png"
+"Is this seat taken?","¿Está ocupado este asiento?","Is-dis-sít-téi-ken?","https://i.postimg.cc/9z1GJfw5/09.png"
+"This is some crazy weather, huh?","Vaya clima, ¿no?","Dis-is-som-créi-si-wéder, ja?","https://i.postimg.cc/BtJTTF6B/10.png"
+"What do you do for a living?","¿A qué te dedicas?","Guát-du-iú-du-for-a-lí-ving?","https://i.postimg.cc/rRy5MBbP/11.png"
+"So, what brings you here?","Y bien, ¿qué te trae por aquí?","So, guát-brings-iú-jir?","https://i.postimg.cc/ZBSrDBLZ/12.png"
+"I love your. Where did you get it?","Me encanta tu. ¿Dónde lo conseguiste?","Ai-lov-yor [shirt/bag]. Wér-did-iú-guet-it?","https://i.postimg.cc/QB5Qbk10/13.png"
+"Are you from around here?","¿Eres de por aquí?","Ar-iú-from-a-ráund-jir?","https://i.postimg.cc/mPK3C6zP/14.png"
+"Enjoying the event?","¿Disfrutando el evento?","En-yó-ing-di-i-vént?","https://i.postimg.cc/9DDt4jM3/15.png"
+"Has it been a busy week for you?","¿Has tenido una semana ocupada?","Jas-it-bin-a-bí-si-wik-for-iú?","https://i.postimg.cc/0b2CsS1y/16.png"
+"How was your weekend?","¿Qué tal tu fin de semana?","Jau-was-yor-wík-end?","https://i.postimg.cc/t7zzw5fc/17.png"
+"Hi , do you have a quick second?","Hola [Nombre], ¿tienes un segundo?","Jái [Nombre], du-iú-jav-a-cuík-sé-cond?","https://i.postimg.cc/Tp7JYPTq/18.png"
+"What are your thoughts on ?","¿Qué opinas sobre  ?","Guát-ar-yor-zots-on  ?","https://i.postimg.cc/pyvZs708/19.png"
+"I was hoping I could pick your brain about...","Quería ver si podía consultarte sobre...","Ai-was-jó-ping-ai-cud-pik-yor-bréin-a-báut...","https://i.postimg.cc/8JQHQnN2/20.png"`;
 
-            init() {
-                this.cacheDomElements();
-                this.bindEvents();
-                this.renderAllActivities();
-            },
-
-            cacheDomElements() {
-                this.elements.tabButtons = document.querySelectorAll('.tab-btn');
-                this.elements.tabPanels = document.querySelectorAll('.tab-content');
-                this.elements.guessContainer = document.getElementById('guess-container');
-                this.elements.dragSource = document.getElementById('drag-source');
-                this.elements.dropZone = document.getElementById('drop-zone');
-                this.elements.orderFeedback = document.getElementById('order-feedback');
-                this.elements.checkOrderBtn = document.getElementById('check-order-btn');
-                this.elements.resetOrderBtn = document.getElementById('reset-order-btn');
-                this.elements.recoEmojis = document.getElementById('reco-emojis');
-                this.elements.recoFeedback = document.getElementById('reco-feedback');
-                this.elements.recoOriginalText = document.getElementById('reco-original-text');
-                this.elements.checkRecoBtn = document.getElementById('check-reco-btn');
-
-                // Modal Elements for "Ordena" section
-                this.elements.emojiDetailModal = document.getElementById('emoji-detail-modal');
-                this.elements.closeModalBtn = document.getElementById('close-modal-btn');
-                this.elements.modalDisplayEmoji = document.getElementById('modal-display-emoji');
-                this.elements.modalEnglishText = document.getElementById('modal-english-text');
-                this.elements.modalPronunciationText = document.getElementById('modal-pronunciation-text');
-                this.elements.modalSpanishTranslation = document.getElementById('modal-spanish-translation');
-                this.elements.playModalAudioBtn = document.getElementById('play-modal-audio-btn');
-
-                // Shadowing elements
-                this.elements.tabShadowing = document.getElementById('tab-shadowing');
-                this.elements.shadowEsSlowBtn = document.getElementById('shadow-es-slow-btn');
-                this.elements.shadowEsNormalBtn = document.getElementById('shadow-es-normal-btn');
-                this.elements.shadowEnSlowBtn = document.getElementById('shadow-en-slow-btn');
-                this.elements.shadowEnNormalBtn = document.getElementById('shadow-en-normal-btn');
-            },
-
-            bindEvents() {
-                this.elements.tabButtons.forEach(button => button.addEventListener('click', (e) => this.changeTab(e)));
-                this.elements.guessContainer.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('reveal-btn')) {
-                        this.toggleAnswer(e.target);
-                    }
-                });
-                this.elements.checkOrderBtn.addEventListener('click', () => this.checkOrder());
-                this.elements.resetOrderBtn.addEventListener('click', () => this.renderOrderGame());
-                this.elements.checkRecoBtn.addEventListener('click', () => this.toggleRecoFeedback());
-
-                // Bind modal close and audio play events
-                this.elements.closeModalBtn.addEventListener('click', () => this.hideEmojiDetailsModal());
-                this.elements.emojiDetailModal.addEventListener('click', (e) => {
-                    if (e.target === this.elements.emojiDetailModal) {
-                        this.hideEmojiDetailsModal();
-                    }
-                });
-                this.elements.playModalAudioBtn.addEventListener('click', () => this.playTextAudio(this.state.currentAudioText, 'en-US', 1.0)); // Modal always plays English normal
-
-                // Shadowing button event listeners
-                this.elements.shadowEsSlowBtn.addEventListener('click', () => this.playShadowingAudio('es', 0.6));
-                this.elements.shadowEsNormalBtn.addEventListener('click', () => this.playShadowingAudio('es', 1.0));
-                this.elements.shadowEnSlowBtn.addEventListener('click', () => this.playShadowingAudio('en', 0.6));
-                this.elements.shadowEnNormalBtn.addEventListener('click', () => this.playShadowingAudio('en', 1.0));
-
-                // Initial binding for drag and drop (will be re-applied in renderOrderGame)
-                this.bindDragAndDropEvents();
-            },
-
-            renderAllActivities() {
-                this.renderRecoGame();
-                this.renderGuessGame();
-                this.renderOrderGame();
-            },
-
-            changeTab(event) {
-                const clickedTab = event.currentTarget;
-                const targetPanelId = clickedTab.getAttribute('aria-controls');
-
-                this.elements.tabPanels.forEach(panel => panel.classList.add('hidden'));
-                this.elements.tabButtons.forEach(btn => {
-                    btn.classList.remove('active-tab');
-                    btn.setAttribute('aria-selected', 'false');
-                });
-
-                document.getElementById(targetPanelId).classList.remove('hidden');
-                clickedTab.classList.add('active-tab');
-                clickedTab.setAttribute('aria-selected', 'true');
-            },
-
-            renderRecoGame() {
-                this.elements.recoEmojis.textContent = this.config.correctSequence.join(' ');
-                this.elements.recoOriginalText.innerHTML = this.config.originalText;
-                this.elements.recoFeedback.classList.add('hidden');
-                this.elements.checkRecoBtn.textContent = 'Revelar Diálogo';
-            },
-
-            toggleRecoFeedback() {
-                const isHidden = this.elements.recoFeedback.classList.toggle('hidden');
-                this.elements.checkRecoBtn.textContent = isHidden ? 'Revelar Diálogo' : 'Ocultar Diálogo';
-            },
-
-            renderGuessGame() {
-                this.elements.guessContainer.innerHTML = '';
-                this.config.vocabulary.forEach(item => {
-                    const wordEl = document.createElement('div');
-                    wordEl.className = 'flex items-center justify-between p-3 bg-slate-50 rounded-lg shadow-sm';
-                    const bilingualText = `${item.word.en}<br><span class="text-slate-500 font-normal">${item.word.es}</span>`;
-                    wordEl.innerHTML = `
-                        <span class="text-2xl md:text-3xl">${item.emoji}</span>
-                        <div class="text-right flex-1 ml-4">
-                            <p class="answer-text hidden text-base md:text-lg font-semibold text-sky-700 mb-1">${bilingualText}</p>
-                            <button class="reveal-btn bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold py-1 px-3 rounded-full transition shadow">Revelar</button>
-                        </div>`;
-                    this.elements.guessContainer.appendChild(wordEl);
-                });
-            },
-
-            toggleAnswer(button) {
-                const answerP = button.previousElementSibling;
-                const isHidden = answerP.classList.toggle('hidden');
-                button.textContent = isHidden ? 'Revelar' : 'Ocultar';
-            },
-
-            shuffleArray(array) {
-                return [...array].sort(() => Math.random() - 0.5);
-            },
-
-            renderOrderGame() {
-                this.elements.dragSource.innerHTML = '';
-                this.elements.dropZone.innerHTML = '';
-                this.elements.orderFeedback.textContent = '';
-                this.elements.checkOrderBtn.disabled = true;
-
-                const shuffledEmojis = this.shuffleArray(this.config.correctSequence);
-                shuffledEmojis.forEach(emoji => {
-                    const emojiEl = document.createElement('div');
-                    emojiEl.textContent = emoji;
-                    emojiEl.className = 'text-2xl md:text-3xl cursor-grab p-2 bg-white rounded-md shadow-sm transition-transform';
-                    emojiEl.draggable = true;
-                    // Store the emoji in a data attribute for easy lookup
-                    emojiEl.setAttribute('data-emoji', emoji); 
-                    this.elements.dragSource.appendChild(emojiEl);
-                });
-
-                // Re-apply event listeners after rendering new elements
-                this.addDragListenersToItems();
-                this.addDoubleClickListenersToOrderItems();
-            },
-
-            bindDragAndDropEvents() {
-                const dropZones = [this.elements.dropZone, this.elements.dragSource];
-                dropZones.forEach(zone => {
-                    zone.addEventListener('dragover', e => {
-                        e.preventDefault();
-                        if (zone.id === 'drop-zone') zone.classList.add('drag-over');
-                    });
-                    zone.addEventListener('dragleave', e => {
-                        if (zone.id === 'drop-zone') zone.classList.remove('drag-over');
-                    });
-                    zone.addEventListener('drop', e => {
-                        e.preventDefault();
-                        if (this.state.draggedElement) {
-                            zone.appendChild(this.state.draggedElement);
-                            // Re-attach double-click listeners after a drop
-                            this.addDoubleClickListenersToOrderItems(); 
-                        }
-                        if (zone.id === 'drop-zone') zone.classList.remove('drag-over');
-                        this.updateCheckButtonState();
-                    });
-                });
-            },
-
-            addDragListenersToItems() {
-                 document.querySelectorAll('#drag-source div, #drop-zone div').forEach(item => {
-                    item.addEventListener('dragstart', e => {
-                        this.state.draggedElement = e.target;
-                        setTimeout(() => e.target.classList.add('dragging'), 0);
-                    });
-                    item.addEventListener('dragend', e => {
-                        e.target.classList.remove('dragging');
-                        this.state.draggedElement = null;
-                    });
-                });
-            },
-
-            // Function to add double-click listeners specifically for "Ordena" items
-            addDoubleClickListenersToOrderItems() {
-                document.querySelectorAll('#drag-source div, #drop-zone div').forEach(item => {
-                    // Remove existing listener to prevent duplicates if elements are re-rendered/moved
-                    item.removeEventListener('dblclick', this.handleOrderItemDoubleClick);
-                    // Add new listener, binding 'this' to the LearningApp object
-                    item.addEventListener('dblclick', this.handleOrderItemDoubleClick.bind(this));
-                });
-            },
-
-            handleOrderItemDoubleClick(event) {
-                // Store the element that was double-clicked
-                this.state.lastDoubleClickedElement = event.target;
-                const emoji = event.target.getAttribute('data-emoji');
-                if (emoji) {
-                    this.showEmojiDetailsModal(emoji);
+            const storytellingData = [
+                {
+                    story_en: "It was a rainy afternoon when Jake walked into the local coffee shop. He looked around and spotted an old friend by the window.\n\"<strong>What's up?</strong>\" he called out, waving.\nHis friend grinned, \"<strong>How's it going?</strong>\"\nJake laughed, \"<strong>You alright?</strong> You look like you haven't slept in days!\"\n\"Yeah, I'm good,\" his friend replied. \"<strong>What have you been up to?</strong>\"\nJake shrugged. \"<strong>Long time no see!</strong> I've been traveling a lot for work. <strong>Sup?</strong>\"\nThey both sat down and Jake noticed a stranger nearby. \"<strong>Hi, I don't think we've met.</strong> I'm Jake,\" he said, extending a hand.\nThe stranger smiled. \"Nice to meet you! <strong>How's your day going so far?</strong>\"\n\"Pretty good,\" Jake replied. He glanced at the empty seat next to the stranger. \"<strong>Is this seat taken?</strong>\"\n\"No, go ahead,\" the stranger answered.\nJust then, thunder rumbled outside. Jake laughed, \"<strong>This is some crazy weather, huh?</strong>\"\nEveryone nodded, glad to be inside, sharing stories and escaping the storm together.",
+                    story_es: "Era una tarde lluviosa cuando Jake entró a la cafetería del barrio. Miró a su alrededor y vio a un viejo amigo junto a la ventana.\n-<strong>¿Qué tal?</strong> -saludó con la mano.\nSu amigo sonrió-<strong>¿Cómo va todo?</strong>\nJake se rió-<strong>¿Todo bien?</strong> ¡Pareces no haber dormido en días!\n-Sí, todo bien -respondió su amigo. <strong>¿En qué has andado?</strong>\nJake se encogió de hombros-<strong>¡Tanto tiempo sin verte!</strong> He estado viajando mucho por trabajo. <strong>¿Qué onda?</strong>\nAmbos se sentaron y Jake notó a un desconocido cerca de ellos-<strong>Hola, creo que no nos conocemos.</strong> Soy Jake-dijo, extendiendo la mano.\nEl desconocido sonrió-¡Mucho gusto! <strong>¿Cómo va tu día hasta ahora?</strong>\n-Bastante bien -respondió Jake. Miró el asiento vacío junto al desconocido-<strong>¿Está ocupado este asiento?</strong>\n-No, adelante -respondió el desconocido.\nEn ese momento, un trueno retumbó afuera. Jake se rió-<strong>Vaya clima, ¿no?</strong>\nTodos asintieron, contentos de estar adentro, compartiendo historias y escapando de la tormenta."
+                },
+                {
+                    story_en: "Later that evening, the coffee shop buzzed with new faces. Jake struck up a conversation with another guest.\n\"<strong>What do you do for a living?</strong>\" he asked.\n\"I'm a graphic designer,\" she replied. \"And you?\"\n\"I'm a teacher,\" Jake said. \"<strong>So, what brings you here?</strong>\"\nShe smiled, \"Just needed a break. By the way, <strong>I love your jacket. Where did you get it?</strong>\"\nJake beamed. \"Thanks! <strong>Are you from around here?</strong>\"\n\"Yeah, born and raised. <strong>Are you enjoying the event?</strong>\"\n\"Definitely,\" Jake replied. \"<strong>Has it been a busy week for you?</strong>\"\nShe nodded, \"Super busy. <strong>How was your weekend?</strong>\"\n\"Pretty relaxing, actually,\" Jake said. He spotted another friend across the room. \"<strong>Hi, Sarah, do you have a quick second?</strong>\"\nSarah joined them, and Jake turned to the group. \"<strong>What are your thoughts on the new art exhibit?</strong>\"\nThey all shared opinions, and Jake added, \"<strong>I was hoping I could pick your brain about</strong> creative ideas for my class.\"\nThe conversation flowed, and new friendships blossomed over coffee and curiosity.",
+                    story_es: "Más tarde esa noche, la cafetería estaba llena de caras nuevas. Jake entabló conversación con otra invitada.\n-<strong>¿A qué te dedicas?</strong> -preguntó.\n-Soy diseñadora gráfica -respondió ella. ¿Y tú?\n-Soy maestro -dijo Jake-. Y bien, <strong>¿qué te trae por aquí?</strong>\nElla sonrió-Solo necesitaba un descanso. Por cierto, <strong>me encanta tu chaqueta. ¿Dónde la conseguiste?</strong>\nJake se iluminó-¡Gracias! <strong>¿Eres de por aquí?</strong>\n-Sí, nací y crecí aquí. <strong>¿Disfrutando el evento?</strong>\n-Sin duda -respondió Jake-. <strong>¿Has tenido una semana ocupada?</strong>\nElla asintió-Súper ocupada. <strong>¿Qué tal tu fin de semana?</strong>\n-Bastante relajado, la verdad -dijo Jake. Vio a otra amiga al fondo-<strong>Hola, ¿tienes un segundo?</strong>\nElla se acercó y Jake preguntó al grupo-<strong>¿Qué opinan sobre la nueva exposición de arte?</strong>\nTodos compartieron sus opiniones, y Jake añadió-<strong>Quería ver si podía consultarte sobre</strong> ideas creativas para mi clase.\nLa conversación fluyó y nuevas amistades nacieron entre café y curiosidad."
                 }
-            },
+            ];
 
-            showEmojiDetailsModal(emoji) {
-                const item = this.config.vocabulary.find(vocab => vocab.emoji === emoji);
-                if (item) {
-                    this.elements.modalDisplayEmoji.textContent = item.emoji;
+            const accessKeys = { "*123": "2026-07-20", "*456": "2026-07-30" };
+            const accessGate = document.getElementById('access-gate');
+            const accessKeyInput = document.getElementById('access-key-input');
+            const errorMessage = document.getElementById('error-message');
+            const startContainer = document.getElementById('start-container');
+            const gameContainer = document.getElementById('game-container');
+            const finalReviewContainer = document.getElementById('final-review-container');
+            const storytellingContainer = document.getElementById('storytelling-container');
+            const reviewModal = document.getElementById('review-modal');
+            
+            let loginAttempts = 0;
+            const MAX_ATTEMPTS = 3;
+            let allPhrases = [];
+            let phrases = [];
+            let boxes = [];
+            let currentBoxIndex = 0;
+            let currentBatchIndex = 0;
+            let gameHasBeenPlayed = false;
 
-                    // Extract English text and pronunciation
-                    const englishTextWithPronunciation = item.word.en;
-                    const regex = /<b>(.*?)<\/b>\s*\[(.*?)\]/;
-                    const match = englishTextWithPronunciation.match(regex);
+            let utterance = null;
+            if ('speechSynthesis' in window) {
+                utterance = new SpeechSynthesisUtterance();
+                utterance.onend = () => console.log('Reproducción completada.');
+                utterance.onerror = (error) => {
+                    console.error('Error con speechSynthesis, usando fallback:', error);
+                };
+            }
 
-                    let englishText = englishTextWithPronunciation.replace(/<[^>]*>/g, '').trim(); // Default, remove HTML tags
-                    let pronunciation = '';
+            stopAllAudio();
 
-                    if (match && match[1] && match[2]) {
-                        englishText = match[1];
-                        pronunciation = `[${match[2]}]`;
+            function parseCSV(data) {
+                const lines = data.trim().split('\n').slice(1);
+                return lines.map(line => {
+                    const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.trim().replace(/^"|"$/g, ''));
+                    return { english: values[0], spanish: values[1], pronunciation: values[2], imageUrl: values[3] };
+                }).filter(p => p.english && p.spanish && p.pronunciation && p.imageUrl);
+            }
+            allPhrases = parseCSV(csvData);
+
+            function validateAccessKey() {
+                const key = accessKeyInput.value.trim();
+                errorMessage.classList.add('hidden');
+                if (!accessKeys[key]) {
+                    loginAttempts++;
+                    errorMessage.textContent = `Clave inválida. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
+                    errorMessage.classList.remove('hidden');
+                } else {
+                    const expirationDateString = accessKeys[key];
+                    const expirationDate = new Date(expirationDateString + "T23:59:59");
+                    const today = new Date();
+                    if (today > expirationDate) {
+                        loginAttempts++;
+                        const formattedDate = new Date(expirationDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                        errorMessage.textContent = `La clave caducó el ${formattedDate}. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
+                        errorMessage.classList.remove('hidden');
                     } else {
-                        // Fallback if the regex doesn't match the expected format
-                        const boldTextMatch = englishTextWithPronunciation.match(/<b>(.*?)<\/b>/);
-                        if(boldTextMatch && boldTextMatch[1]) englishText = boldTextMatch[1];
-
-                        const bracketTextMatch = englishTextWithPronunciation.match(/\[(.*?)\]/);
-                        if(bracketTextMatch && bracketTextMatch[1]) pronunciation = `[${bracketTextMatch[1]}]`;
+                        loginAttempts = 0;
+                        showBatchSelectionScreen();
+                        return;
                     }
-                    
-                    this.elements.modalEnglishText.textContent = englishText;
-                    this.elements.modalPronunciationText.textContent = pronunciation;
-                    this.elements.modalSpanishTranslation.textContent = item.word.es;
-                    this.elements.emojiDetailModal.classList.remove('hidden');
-
-                    // Store the clean English text for audio playback
-                    this.state.currentAudioText = englishText; 
-                    
-                    // Automatically play audio when modal opens
-                    this.playTextAudio(this.state.currentAudioText, 'en-US', 1.0); // Play English normal speed
                 }
-            },
-
-            hideEmojiDetailsModal() {
-                this.elements.emojiDetailModal.classList.add('hidden');
-                // Stop any ongoing speech when closing the modal
-                if (window.speechSynthesis.speaking) {
-                    window.speechSynthesis.cancel();
-                }
-
-                // Move the element if it was double-clicked
-                if (this.state.lastDoubleClickedElement) {
-                    const clickedElement = this.state.lastDoubleClickedElement;
-                    const currentParent = clickedElement.parentNode;
-
-                    if (currentParent === this.elements.dragSource) {
-                        // If it was in Emojis Desordenados, move to Tu Historia
-                        this.elements.dropZone.appendChild(clickedElement);
-                    } else if (currentParent === this.elements.dropZone) {
-                        // If it was in Tu Historia, move to Emojis Desordenados
-                        this.elements.dragSource.appendChild(clickedElement);
-                    }
-                    // Clear the stored element after moving
-                    this.state.lastDoubleClickedElement = null; 
-                    this.updateCheckButtonState(); // Update button state after move
-                    this.addDoubleClickListenersToOrderItems(); // Re-add listeners after moving
-                }
-            },
-
-            playTextAudio(text, lang = 'en-US', rate = 1.0) {
-                if ('speechSynthesis' in window) {
-                    // Cancel any ongoing speech before starting a new one
-                    if (window.speechSynthesis.speaking) {
-                        window.speechSynthesis.cancel();
-                    }
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = lang; 
-                    utterance.volume = 1; 
-                    utterance.rate = rate; 
-                    utterance.pitch = 1; 
-                    window.speechSynthesis.speak(utterance);
-                } else {
-                    alert('Tu navegador no soporta la síntesis de voz.');
-                }
-            },
-
-            // Function to handle Shadowing audio playback
-            playShadowingAudio(langCode, rate) {
-                let fullText = '';
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(this.config.originalText, 'text/html');
-                const divs = doc.querySelectorAll('body > div'); // Select direct child divs
-
-                divs.forEach(div => {
-                    if (langCode === 'en') {
-                        const englishParagraph = div.querySelector('p:not(.translation)');
-                        if (englishParagraph) {
-                            let text = englishParagraph.textContent || '';
-                            // Remove pronunciation part like [Jé-lou]
-                            text = text.replace(/\[.*?\]/g, '').trim();
-                            // Remove speaker names like "Tanya:" or "Angela:"
-                            text = text.replace(/^(<strong>)?(Amy|Ben):\s*/i, '').trim(); // Updated speaker names for Amy/Ben
-                            fullText += text + ' ';
-                        }
-                    } else if (langCode === 'es') {
-                        const spanishParagraph = div.querySelector('p.translation');
-                        if (spanishParagraph) {
-                            let text = spanishParagraph.textContent || '';
-                            // Remove parentheses like (Hola.)
-                            text = text.replace(/\(|\)/g, '').trim();
-                            fullText += text + ' ';
-                        }
-                    }
-                });
-
-                // Determine the correct language tag for SpeechSynthesis
-                let speechLang = '';
-                if (langCode === 'en') {
-                    speechLang = 'en-US';
-                } else if (langCode === 'es') {
-                    speechLang = 'es-ES';
-                }
-
-                if (fullText.trim()) {
-                    this.playTextAudio(fullText.trim(), speechLang, rate);
-                } else {
-                    alert('No se pudo extraer el texto para la reproducción de audio.');
-                }
-            },
-
-            updateCheckButtonState() {
-                this.elements.checkOrderBtn.disabled = this.elements.dropZone.children.length === 0;
-            },
-
-            checkOrder() {
-                const userSequence = Array.from(this.elements.dropZone.children).map(el => el.textContent);
-                this.elements.orderFeedback.classList.remove('correct');
-                // Trigger reflow to restart animation
-                void this.elements.orderFeedback.offsetWidth; 
-
-                if (JSON.stringify(userSequence) === JSON.stringify(this.config.correctSequence)) {
-                    this.elements.orderFeedback.textContent = '¡Historia Perfecta!  ';
-                    this.elements.orderFeedback.className = 'mt-4 h-6 text-lg font-medium text-center text-green-600 correct';
-                } else {
-                    this.elements.orderFeedback.textContent = 'El orden no es correcto. ¡Sigue intentando!';
-                    this.elements.orderFeedback.className = 'mt-4 h-6 text-lg font-medium text-center text-red-500';
+                if (loginAttempts >= MAX_ATTEMPTS) {
+                    errorMessage.textContent = "Has excedido el número de intentos. La aplicación se ha bloqueado.";
+                    accessKeyInput.disabled = true;
+                    document.getElementById('validate-key-btn').disabled = true;
+                    document.getElementById('validate-key-btn').classList.add('bg-gray-400', 'cursor-not-allowed');
                 }
             }
-        };
+            
+            function showBatchSelectionScreen() {
+                stopAllAudio();
+                accessGate.classList.add('hidden');
+                gameContainer.classList.add('hidden');
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                startContainer.innerHTML = '';
+                const infoText = document.createElement('p');
+                infoText.className = 'text-gray-600 mb-6';
+                infoText.textContent = '¡Acceso concedido! Elige un grupo de frases para comenzar.';
+                startContainer.appendChild(infoText);
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'flex flex-col sm:flex-row sm:justify-center gap-4';
+                const batchSize = 10;
+                const numBatches = Math.ceil(allPhrases.length / batchSize);
+                for (let i = 0; i < numBatches; i++) {
+                    const start = i * batchSize + 1;
+                    const end = Math.min((i + 1) * batchSize, allPhrases.length);
+                    const batchBtn = document.createElement('button');
+                    batchBtn.textContent = `Frases ${start} - ${end}`;
+                    batchBtn.className = 'bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300';
+                    batchBtn.onclick = () => startGameWithBatch(i);
+                    buttonContainer.appendChild(batchBtn);
+                }
+                
+                const reviewBtn = document.createElement('button');
+                reviewBtn.textContent = 'Repaso General';
+                if (gameHasBeenPlayed) {
+                    reviewBtn.className = 'bg-green-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-green-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300';
+                    reviewBtn.onclick = startReview;
+                } else {
+                    reviewBtn.className = 'bg-green-300 text-white font-bold py-3 px-8 rounded-lg shadow-inner cursor-not-allowed';
+                    reviewBtn.disabled = true;
+                    reviewBtn.title = "Completa un bloque de frases para activar esta opción";
+                }
+                buttonContainer.appendChild(reviewBtn);
 
-        window.addEventListener('load', () => LearningApp.init());
+                startContainer.appendChild(buttonContainer);
+                startContainer.classList.remove('hidden');
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            function initializeGameState() {
+                shuffleArray(phrases);
+                boxes = Array.from({ length: 7 }, () => []);
+                boxes[0] = [...phrases];
+                currentBoxIndex = 0;
+            }
+
+            function stopAllAudio() {
+                if (typeof responsiveVoice !== 'undefined') {
+                    responsiveVoice.cancel();
+                }
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                }
+            }
+            
+            function speak(text, lang, rate = 0.8) {
+                stopAllAudio();
+                const cleanText = text.replace(/<strong>|<\/strong>/g, '');
+                if (speechSynthesis && utterance) {
+                    utterance.text = cleanText;
+                    utterance.lang = lang;
+                    utterance.rate = rate;
+                    utterance.onerror = (event) => {
+                        console.error('Error con speechSynthesis, usando fallback:', event);
+                        useResponsiveVoiceFallback(cleanText, lang, rate);
+                    };
+                    speechSynthesis.speak(utterance);
+                } else {
+                    useResponsiveVoiceFallback(cleanText, lang, rate);
+                }
+            }
+
+            function useResponsiveVoiceFallback(text, lang, rate) {
+                const voiceMap = { 'en-US': 'US English Female', 'es-ES': 'Spanish Female' };
+                const voice = voiceMap[lang] || 'US English Female';
+                responsiveVoice.speak(text, voice, {
+                    rate: rate,
+                    onend: () => console.log('Reproducción completada con ResponsiveVoice.'),
+                    onerror: (error) => console.error('Error al reproducir audio con ResponsiveVoice:', error)
+                });
+            }
+
+            function playAll(lang, rate) {
+                stopAllAudio();
+                const separator = '; ';
+                const textToPlay = (lang === 'en-US' ? phrases.map(p => p.english) : phrases.map(p => p.spanish)).join(separator);
+                speak(textToPlay, lang, rate);
+            }
+
+            function startGameWithBatch(batchIndex) {
+                stopAllAudio();
+                gameHasBeenPlayed = true;
+                currentBatchIndex = batchIndex;
+                const batchSize = 10;
+                const startIndex = batchIndex * batchSize;
+                phrases = allPhrases.slice(startIndex, startIndex + batchSize);
+                startContainer.classList.add('hidden');
+                gameContainer.classList.remove('hidden');
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                initializeGameState();
+                renderUI();
+            }
+
+            function startReview() {
+                stopAllAudio();
+                phrases = [...allPhrases];
+                currentBatchIndex = 0; // Se puede revisar el storytelling de cualquier bloque
+                startContainer.classList.add('hidden');
+                gameContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                displayFinalReview(false);
+            }
+
+            function finishGame() {
+                stopAllAudio();
+                startContainer.classList.add('hidden');
+                gameContainer.classList.add('hidden');
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                accessGate.classList.remove('hidden');
+                accessKeyInput.value = '';
+                loginAttempts = 0;
+                accessKeyInput.disabled = false;
+                document.getElementById('validate-key-btn').disabled = false;
+                document.getElementById('validate-key-btn').classList.remove('bg-gray-400', 'cursor-not-allowed');
+                gameHasBeenPlayed = false;
+                setupEventListeners();
+            }
+            
+            function renderUI() {
+                const boxContainer = document.getElementById('box-selectors');
+                if (boxContainer) {
+                    boxContainer.innerHTML = boxes.map((box, index) =>
+                        `<button data-action="select-box" data-box-index="${index}" class="px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}">Caja ${index + 1} (${box.length})</button>`
+                    ).join('');
+                }
+                displayCard();
+            }
+
+            function displayCard() {
+                const cardContainer = document.getElementById('card-container');
+                if (!cardContainer) return;
+                cardContainer.innerHTML = '';
+                const currentBox = boxes[currentBoxIndex];
+                if (currentBox.length === 0) {
+                    cardContainer.innerHTML = `<div class="text-center text-gray-500"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7m-4 12h.01M12 3h.01M4 12h.01M20 12h.01M4 7h.01M4 17h.01M20 7h.01M20 17h.01" /></svg><h2 class="mt-2 text-xl font-semibold">Caja Vacía</h2><p class="mt-1 text-sm">No hay frases en esta caja. Si todas las frases están en la caja 7, ve a "Repaso Final".</p></div>`;
+                     if (boxes.length > 6 && boxes[6].length === phrases.length) {
+                        cardContainer.innerHTML += `<button id="go-to-review-btn" class="mt-4 bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition">Ir a Repaso Final</button>`;
+                    }
+                    return;
+                }
+                const cardData = currentBox[0];
+                cardContainer.innerHTML = `
+                    <div class="w-full animate-fade-in flex flex-col items-center">
+                        <div class="w-full max-w-md h-64 mb-4 rounded-lg overflow-hidden shadow-lg bg-gray-200">
+                            <img src="${cardData.imageUrl}" alt="Pista visual" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/500x500/e0e0e0/757575?text=Imagen+no+disponible';">
+                        </div>
+                        <div id="reveal-area" class="w-full max-w-md min-h-[60px] bg-gray-100 flex items-center justify-center text-center p-3 rounded-lg mb-4 text-lg font-semibold text-gray-800"></div>
+                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full max-w-md mb-4">
+                            <button data-action="reveal-en" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Inglés</button>
+                            <button data-action="reveal-es" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Español</button>
+                            <button data-action="reveal-pr" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50 transition">Pron.</button>
+                            <button data-action="speak-en" title="Pronunciar en Inglés" class="col-span-1 sm:col-span-1 bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
+                            <button data-action="speak-es" title="Pronunciar en Español" class="col-span-1 sm:col-span-1 bg-gray-800 text-white p-2 rounded-md hover:bg-gray-900 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
+                        </div>
+                        <div class="flex gap-4 w-full max-w-md">
+                            <button data-action="box-1" class="w-1/2 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition shadow">A la Caja 1</button>
+                            <button data-action="next-box" class="w-1/2 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow">Siguiente Caja</button>
+                        </div>
+                    </div>`;
+            }
+
+            // --- MODIFICADO: Función displayFinalReview ---
+            function displayFinalReview(isCompleted = false) {
+                stopAllAudio();
+                gameContainer.classList.add('hidden');
+                storytellingContainer.classList.add('hidden');
+                finalReviewContainer.classList.remove('hidden');
+
+                const title = isCompleted ? "¡Felicidades! Has completado el set." : "Repaso General";
+                finalReviewContainer.innerHTML = `
+                    <h2 class="text-3xl font-bold text-green-600 mb-2">${title}</h2>
+                     <p class="text-gray-600 mb-8">Aquí están todas las frases que has estudiado. <strong>Haz clic en una imagen para ver los detalles.</strong></p>
+                    <div id="review-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"></div>
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 max-w-4xl mx-auto">
+                        <div class="flex flex-col gap-4">
+                             <button id="storytelling-btn" class="w-full bg-yellow-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition">Ver Storytelling</button>
+                            <button id="reset-game-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition">Elegir otro bloque</button>
+                        </div>
+                         <div class="flex flex-col gap-4">
+                            <button id="play-all-en-normal-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-700 transition">Inglés (Normal)</button>
+                            <button id="play-all-en-slow-btn" class="w-full bg-purple-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-900 transition">Inglés (Lento)</button>
+                        </div>
+                         <div class="flex flex-col gap-4">
+                            <button id="play-all-es-normal-btn" class="w-full bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-gray-800 transition">Español (Normal)</button>
+                            <button id="play-all-es-slow-btn" class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-black transition">Español (Lento)</button>
+                        </div>
+                    </div>
+                     <button id="finish-game-btn" class="mt-6 bg-red-600 text-white font-bold py-2 px-8 rounded-lg shadow-lg hover:bg-red-700 transition">Terminar Sesión</button>
+                `;
+
+                // --- MODIFICADO: Generar grid con data attributes para el modal, incluyendo pronunciación ---
+                document.getElementById('review-grid').innerHTML = phrases.map(phrase =>
+                    `<div class="aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105 cursor-pointer" 
+                         data-english="${phrase.english}" 
+                         data-spanish="${phrase.spanish}"
+                         data-pronunciation="${phrase.pronunciation}"
+                         data-image="${phrase.imageUrl}">
+                        <img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover pointer-events-none">
+                    </div>`
+                ).join('');
+                setupEventListeners();
+            }
+            
+            // --- MODIFICADO: Función para mostrar el modal con pronunciación ---
+            function showReviewModal(english, spanish, pronunciation, imageUrl) {
+                document.getElementById('modal-english-phrase').textContent = english;
+                document.getElementById('modal-spanish-phrase').textContent = spanish;
+                document.getElementById('modal-pronunciation').textContent = pronunciation;
+                document.getElementById('modal-image').src = imageUrl;
+                
+                reviewModal.classList.remove('hidden');
+                setTimeout(() => { 
+                    reviewModal.classList.remove('opacity-0');
+                    reviewModal.querySelector('.modal-content').classList.remove('scale-95');
+                }, 10);
+            }
+
+            function hideReviewModal() {
+                reviewModal.classList.add('opacity-0');
+                reviewModal.querySelector('.modal-content').classList.add('scale-95');
+                setTimeout(() => {
+                    reviewModal.classList.add('hidden');
+                }, 300); 
+            }
+
+            function displayStorytelling() {
+                stopAllAudio();
+                finalReviewContainer.classList.add('hidden');
+                storytellingContainer.classList.remove('hidden');
+
+                const story = storytellingData[currentBatchIndex];
+                const storyEnArray = story.story_en.split('\n');
+                const storyEsArray = story.story_es.split('\n');
+
+                storytellingContainer.innerHTML = `
+                    <h2 class="text-3xl font-bold text-yellow-600 mb-6">Storytelling</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3 text-purple-700">English Story</h3>
+                            <div id="story-en-container" class="space-y-2 leading-relaxed">
+                                ${storyEnArray.map((p, i) => `<p class="story-text p-2 rounded-md cursor-pointer" data-lang="en" data-index="${i}">${p}</p>`).join('')}
+                            </div>
+                            <button id="play-story-en" class="mt-4 w-full bg-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-purple-700 transition">Reproducir en Inglés</button>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-3 text-gray-800">Historia en Español</h3>
+                            <div id="story-es-container" class="space-y-2 leading-relaxed">
+                                 ${storyEsArray.map((p, i) => `<p class="story-text p-2 rounded-md cursor-pointer" data-lang="es" data-index="${i}">${p}</p>`).join('')}
+                            </div>
+                            <button id="play-story-es" class="mt-4 w-full bg-gray-800 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-gray-900 transition">Reproducir en Español</button>
+                        </div>
+                    </div>
+                    <button id="back-to-review-btn" class="mt-8 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition">Volver al Repaso</button>
+                `;
+                setupEventListeners();
+            }
+
+            function highlightText(lang, index) {
+                document.querySelectorAll('.story-text.selected').forEach(el => el.classList.remove('selected'));
+                const enEl = document.querySelector(`.story-text[data-lang="en"][data-index="${index}"]`);
+                const esEl = document.querySelector(`.story-text[data-lang="es"][data-index="${index}"]`);
+                if (enEl) enEl.classList.add('selected');
+                if (esEl) esEl.classList.add('selected');
+            }
+            
+            function moveCard(advance) {
+                const cardToMove = boxes[currentBoxIndex].shift();
+                if (!cardToMove) return;
+                const nextBoxIndex = advance ? currentBoxIndex + 1 : 0;
+                if (advance && nextBoxIndex < boxes.length) {
+                    boxes[nextBoxIndex].push(cardToMove);
+                } else if (advance) {
+                    boxes[boxes.length - 1].push(cardToMove);
+                } else {
+                    boxes[0].push(cardToMove);
+                }
+                
+                if (boxes.length > 6 && boxes[6].length === phrases.length) {
+                    displayFinalReview(true);
+                } else {
+                    renderUI();
+                }
+            }
+            
+            function setupEventListeners() {
+                document.getElementById('validate-key-btn')?.addEventListener('click', validateAccessKey);
+                document.getElementById('reset-game-btn')?.addEventListener('click', showBatchSelectionScreen);
+                document.getElementById('finish-game-btn')?.addEventListener('click', finishGame);
+                document.getElementById('go-to-review-btn')?.addEventListener('click', () => displayFinalReview(true));
+
+                document.getElementById('play-all-en-normal-btn')?.addEventListener('click', () => playAll('en-US', 0.8));
+                document.getElementById('play-all-en-slow-btn')?.addEventListener('click', () => playAll('en-US', 0.5));
+                document.getElementById('play-all-es-normal-btn')?.addEventListener('click', () => playAll('es-ES', 0.8));
+                document.getElementById('play-all-es-slow-btn')?.addEventListener('click', () => playAll('es-ES', 0.5));
+                document.getElementById('storytelling-btn')?.addEventListener('click', displayStorytelling);
+
+                document.getElementById('back-to-review-btn')?.addEventListener('click', () => displayFinalReview(boxes.length > 6 && boxes[6].length === phrases.length));
+                document.getElementById('play-story-en')?.addEventListener('click', () => {
+                    const storyText = storytellingData[currentBatchIndex].story_en;
+                    speak(storyText, 'en-US', 0.6);
+                });
+                document.getElementById('play-story-es')?.addEventListener('click', () => {
+                    const storyText = storytellingData[currentBatchIndex].story_es;
+                    speak(storyText, 'es-ES', 0.6);
+                });
+
+                document.getElementById('story-en-container')?.addEventListener('click', (e) => {
+                     const target = e.target.closest('.story-text');
+                    if (target) highlightText(target.dataset.lang, target.dataset.index);
+                });
+                 document.getElementById('story-es-container')?.addEventListener('click', (e) => {
+                     const target = e.target.closest('.story-text');
+                    if (target) highlightText(target.dataset.lang, target.dataset.index);
+                });
+
+                const boxContainer = document.getElementById('box-selectors');
+                if (boxContainer) boxContainer.onclick = (e) => {
+                    const target = e.target.closest('button[data-action="select-box"]');
+                    if (target) {
+                        const newIndex = parseInt(target.dataset.boxIndex, 10);
+                        if (newIndex !== currentBoxIndex) {
+                            currentBoxIndex = newIndex;
+                            renderUI();
+                        }
+                    }
+                };
+
+                const cardContainer = document.getElementById('card-container');
+                if (cardContainer) cardContainer.onclick = (e) => {
+                    const target = e.target.closest('button');
+                    if (!target || !target.dataset.action) return;
+                    const action = target.dataset.action;
+                    const card = boxes[currentBoxIndex]?.[0];
+                    if (!card) return;
+                    switch (action) {
+                        case 'reveal-en': document.getElementById('reveal-area').textContent = card.english; break;
+                        case 'reveal-es': document.getElementById('reveal-area').textContent = card.spanish; break;
+                        case 'reveal-pr': document.getElementById('reveal-area').textContent = card.pronunciation; break;
+                        case 'speak-en': speak(card.english, 'en-US'); break;
+                        case 'speak-es': speak(card.spanish, 'es-ES'); break;
+                        case 'next-box': moveCard(true); break;
+                        case 'box-1': moveCard(false); break;
+                    }
+                };
+                
+                // --- MODIFICADO: Event listener para la grid, ahora pasa la pronunciación ---
+                document.getElementById('review-grid')?.addEventListener('click', (e) => {
+                    const target = e.target.closest('div[data-english]');
+                    if (target) {
+                        showReviewModal(
+                            target.dataset.english, 
+                            target.dataset.spanish, 
+                            target.dataset.pronunciation, 
+                            target.dataset.image
+                        );
+                    }
+                });
+                
+                document.getElementById('modal-close-btn')?.addEventListener('click', hideReviewModal);
+                reviewModal?.addEventListener('click', (e) => {
+                    if (e.target === reviewModal) {
+                        hideReviewModal();
+                    }
+                });
+
+                const keyInput = document.getElementById('access-key-input');
+                if (keyInput) {
+                    keyInput.onkeydown = (e) => { if (e.key === 'Enter') validateAccessKey(); };
+                    keyInput.oninput = () => errorMessage.classList.add('hidden');
+                }
+            }
+
+            // Inicialización
+            setupEventListeners();
+        });
     </script>
+<script>
+let androidAudioUnlocked = false;
+function unlockAndroidAudio(){
+  if(androidAudioUnlocked) return;
+  try{
+    const dummy = new SpeechSynthesisUtterance(' ');
+    speechSynthesis.speak(dummy);
+    androidAudioUnlocked = true;
+    console.log('Audio Android desbloqueado');
+  }catch(e){ console.warn(e); }
+}
+window.addEventListener('click', (e)=>{
+  if(e.target.closest('[data-action="speak-en"], [data-action="speak-es"], #play-all-en-normal-btn, #play-all-en-slow-btn, #play-all-es-normal-btn, #play-all-es-slow-btn, #play-story-en, #play-story-es')){
+    unlockAndroidAudio();
+  }
+});
+</script>
 </body>
 </html>
