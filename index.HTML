@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEMOGRAFIA INGENIERO CARLOS CACERES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(5px);
+            background-color: #e5e7eb;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Scrollbar personalizado */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* ESTILOS PARA IMPRESIÓN */
+        @media print {
+            body {
+                background-color: white;
+            }
+            /* Ocultar elementos no deseados en la impresión */
+            #login-screen, #start-screen, #quiz-screen, .no-print {
+                display: none !important;
+            }
+            /* Asegurar que la pantalla de resultados sea visible y ocupe todo */
+            #results-screen {
+                display: block !important;
+                position: static !important;
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: none !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            /* Expandir el contenedor principal */
+            .main-container {
+                box-shadow: none !important;
+                max-width: 100% !important;
+            }
+            /* Ajustes para el contenido del reporte */
+            .scroll-area {
+                overflow: visible !important;
+                height: auto !important;
+                border: 1px solid #ddd !important;
+            }
+            /* Header de impresión */
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+        }
+        
+        .print-header {
+            display: none; /* Oculto en pantalla normal */
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Contenedor Principal -->
+    <div class="main-container bg-white shadow-2xl rounded-2xl w-full max-w-3xl overflow-hidden flex flex-col" style="min-height: 80vh;">
+        
+        <!-- Header Visual (Solo pantalla) -->
+        <div class="bg-blue-900 text-white p-6 shadow-md z-10 no-print">
+            <h1 class="text-xl md:text-2xl font-bold text-center tracking-wide uppercase">DEMOGRAFIA INGENIERO CARLOS CACERES</h1>
+            <p class="text-center text-blue-200 text-sm mt-1">Cuestionario de Evaluación y Gestión Pública Territorial</p>
+        </div>
+
+        <!-- PANTALLA 1: LOGIN (Acceso) -->
+        <div id="login-screen" class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6">
+            <div class="bg-blue-50 p-4 rounded-full mb-2">
+                <i class="fas fa-user-lock text-4xl text-blue-800"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">Identificación del Estudiante</h2>
+            <p class="text-gray-600 text-sm">Por favor ingrese sus datos y la clave de acceso proporcionada por el docente.</p>
+            
+            <div class="w-full max-w-sm space-y-4 text-left">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                    <input type="text" id="input-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej. Juan Pérez">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Código Estudiantil</label>
+                    <input type="text" id="input-code" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej. 12345678">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Clave de Acceso</label>
+                    <input type="password" id="input-key" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ingrese la clave">
+                </div>
+                <p id="login-error" class="text-red-500 text-sm hidden text-center font-semibold"><i class="fas fa-exclamation-triangle mr-1"></i> Datos incompletos o clave incorrecta.</p>
+            </div>
+
+            <button onclick="validateLogin()" class="w-full max-w-sm py-3 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                Ingresar al Sistema
+            </button>
+        </div>
+
+        <!-- PANTALLA 2: INICIO (Instrucciones) -->
+        <div id="start-screen" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6">
+            <div class="bg-green-100 p-4 rounded-full">
+                <i class="fas fa-check-circle text-4xl text-green-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">¡Bienvenido, <span id="welcome-name" class="text-blue-700">Estudiante</span>!</h2>
+            <p class="text-gray-600 max-w-md">
+                Estás a punto de iniciar el cuestionario de <b>30 preguntas</b>.
+                <br><br>
+                <span class="text-sm bg-blue-50 text-blue-800 py-1 px-3 rounded-full border border-blue-200">
+                    <i class="fas fa-shuffle mr-1"></i> Orden aleatorio activado
+                </span>
+                <br><br>
+                Recibirás retroalimentación inmediata. Al finalizar, podrás generar tu reporte de resultados.
+            </p>
+            <button onclick="startQuiz()" class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transform transition hover:scale-105">
+                Comenzar Evaluación
+            </button>
+        </div>
+
+        <!-- PANTALLA 3: QUIZ (Preguntas) -->
+        <div id="quiz-screen" class="hidden flex-1 flex flex-col">
+            <!-- Barra de Progreso -->
+            <div class="w-full bg-gray-200 h-2">
+                <div id="progress-bar" class="bg-blue-500 h-2 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between px-6 py-2 text-sm text-gray-500 font-semibold bg-gray-50">
+                <span id="question-counter">Pregunta 1 de 30</span>
+                <span id="score-display" class="text-blue-600">Puntaje: 0</span>
+            </div>
+
+            <!-- Área de Pregunta -->
+            <div class="p-6 md:p-8 flex-1 overflow-y-auto custom-scroll">
+                <h3 id="question-text" class="text-lg md:text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
+                    <!-- La pregunta se carga aquí -->
+                </h3>
+
+                <div id="options-container" class="space-y-3">
+                    <!-- Las opciones se generan aquí -->
+                </div>
+
+                <!-- Caja de Retroalimentación -->
+                <div id="feedback-box" class="hidden mt-6 p-4 rounded-lg border-l-4 fade-in bg-gray-50">
+                    <p id="feedback-message" class="font-bold text-lg mb-1"></p>
+                    <p id="feedback-explanation" class="text-gray-700 text-sm leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Footer con Botón Siguiente -->
+            <div class="p-4 bg-gray-50 border-t flex justify-end">
+                <button id="next-btn" onclick="nextQuestion()" disabled class="px-6 py-2 bg-gray-300 text-gray-500 font-bold rounded-lg cursor-not-allowed transition-colors">
+                    Siguiente <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- PANTALLA 4: RESULTADOS -->
+        <div id="results-screen" class="hidden flex-1 flex flex-col p-8 bg-white">
+            
+            <!-- Header de Impresión (Solo visible al imprimir) -->
+            <div class="print-header">
+                <h1 class="text-2xl font-bold uppercase">Reporte de Evaluación</h1>
+                <p class="text-sm">Demografía y Gestión Pública Territorial</p>
+                <p class="text-xs">Ingeniero Carlos Cáceres</p>
+            </div>
+
+            <!-- Información del Estudiante -->
+            <div class="bg-gray-100 p-4 rounded-lg mb-6 border border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Estudiante</p>
+                        <p id="result-student-name" class="text-lg font-bold text-gray-800">-</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Código</p>
+                        <p id="result-student-code" class="text-lg font-bold text-gray-800">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 no-print">Resultados Finales</h2>
+                <div class="flex items-center justify-center gap-4">
+                    <div class="text-center">
+                        <span class="text-sm text-gray-500 uppercase font-bold">Puntaje</span>
+                        <div class="text-4xl font-extrabold text-blue-600" id="final-score">0/30</div>
+                    </div>
+                    <div class="text-center border-l pl-4">
+                        <span class="text-sm text-gray-500 uppercase font-bold">Calificación</span>
+                        <div class="text-xl font-bold text-gray-700" id="final-percentage">0%</div>
+                    </div>
+                </div>
+                <p id="score-message" class="text-gray-600 font-medium mt-2"></p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scroll border rounded-lg p-4 bg-gray-50 mb-6 scroll-area">
+                <h3 class="font-bold text-gray-700 mb-4 sticky top-0 bg-gray-50 pb-2 border-b">Detalle de Respuestas:</h3>
+                <div id="answers-summary" class="space-y-4">
+                    <!-- Resumen generado dinámicamente -->
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
+                <button onclick="window.print()" class="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-lg shadow-md transition-colors">
+                    <i class="fas fa-print mr-2"></i> Imprimir Reporte
+                </button>
+                <button onclick="restartApp()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-colors">
+                    <i class="fas fa-redo mr-2"></i> Nuevo Intento
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Lógica de la Aplicación -->
+    <script>
+        // VARIABLES GLOBALES DE USUARIO
+        let studentName = "";
+        let studentCode = "";
+        const REQUIRED_KEY = "MICLAVEESAP";
+
+        // Base de datos de preguntas
+        const quizData = [
+            {
+                id: 1,
+                question: "Según la definición de demografía aplicada a la gestión pública, ¿cuál es el objetivo principal de analizar la estructura de la población?",
+                options: {
+                    A: "Memorizar las cifras exactas de los censos históricos.",
+                    B: "Determinar la demanda futura de servicios públicos y la base fiscal del territorio.",
+                    C: "Controlar estrictamente la natalidad para evitar el crecimiento urbano."
+                },
+                correct: "B",
+                explanation: "La demografía en la gestión pública trasciende el conteo; es la base para evaluar problemas, planificar recursos y la viabilidad de políticas, determinando la demanda de servicios y la base fiscal."
+            },
+            {
+                id: 2,
+                question: "¿Cuáles son los tres componentes de la \"ecuación compensadora\" que determinan la dinámica poblacional de un territorio?",
+                options: {
+                    A: "Fecundidad, Mortalidad y Migración.",
+                    B: "Pobreza, Educación y Empleo.",
+                    C: "Urbanización, Industrialización y Tecnología."
+                },
+                correct: "A",
+                explanation: "La ecuación compensadora explica el cambio poblacional mediante la interacción de nacimientos (fecundidad), defunciones (mortalidad) y movimientos migratorios (migración)."
+            },
+            {
+                id: 3,
+                question: "De acuerdo con las proyecciones de la CEPAL (revisión 2024), ¿cuál es la tendencia de la tasa de crecimiento poblacional en América Latina para el año 2050?",
+                options: {
+                    A: "Se mantendrá estable en el 1.5% anual.",
+                    B: "Aumentará debido a la inmigración.",
+                    C: "Se acercará a cero, indicando un fin de la explosión demográfica."
+                },
+                correct: "C",
+                explanation: "La revisión de 2024 de la CEPAL indica que la tasa de crecimiento poblacional disminuye aceleradamente y se acercará a cero para el año 2050."
+            },
+            {
+                id: 4,
+                question: "¿Qué fenómeno demográfico explica principalmente el estrechamiento de la base de la pirámide poblacional en la región?",
+                options: {
+                    A: "El aumento de la mortalidad infantil.",
+                    B: "La caída de la fecundidad por debajo del nivel de reemplazo (2.1 hijos por mujer).",
+                    C: "La emigración masiva de niños hacia Europa."
+                },
+                correct: "B",
+                explanation: "La región ha caído por debajo del nivel de reemplazo poblacional (2.1), situándose en 1.7 hijos por mujer, lo que estrecha la base de la pirámide."
+            },
+            {
+                id: 5,
+                question: "¿Qué grupo etario ha mostrado un descenso acelerado en su tasa de fecundidad en la última década, contribuyendo a la baja natalidad general?",
+                options: {
+                    A: "Mujeres mayores de 40 años.",
+                    B: "Adolescentes y mujeres jóvenes (15-24 años).",
+                    C: "Mujeres en zonas rurales exclusivamente."
+                },
+                correct: "B",
+                explanation: "El descenso de la fecundidad ha sido impulsado notablemente por la caída en la fecundidad adolescente y de mujeres jóvenes (15-24 años)."
+            },
+            {
+                id: 6,
+                question: "Según las proyecciones demográficas, ¿en qué año aproximado la población de personas mayores superará a la de niños y niñas en América Latina?",
+                options: {
+                    A: "Ya ocurrió en el año 2020.",
+                    B: "Se proyecta para el año 2046.",
+                    C: "No ocurrirá antes del año 2100."
+                },
+                correct: "B",
+                explanation: "Se proyecta que en la región de América Latina y el Caribe, la población de personas mayores superará a la de niños y niñas en el año 2046."
+            },
+            {
+                id: 7,
+                question: "¿Qué impacto tuvo la pandemia de COVID-19 sobre la esperanza de vida en América Latina durante el año 2021?",
+                options: {
+                    A: "Un aumento leve debido a las mejoras en higiene.",
+                    B: "No tuvo impacto significativo en las estadísticas vitales.",
+                    C: "Una pérdida de casi 3 años, retrocediendo a niveles de inicios de siglo."
+                },
+                correct: "C",
+                explanation: "La pandemia provocó una pérdida de casi 3 años de esperanza de vida en promedio en la región en 2021, retrocediendo a niveles de años anteriores."
+            },
+            {
+                id: 8,
+                question: "En el contexto de la gestión territorial, ¿qué desafío principal plantea el envejecimiento de la población?",
+                options: {
+                    A: "La necesidad de construir más escuelas primarias.",
+                    B: "El aumento de la relación de dependencia y la presión sobre los sistemas de pensiones y salud.",
+                    C: "El exceso de fuerza laboral joven sin empleo."
+                },
+                correct: "B",
+                explanation: "El envejecimiento implica un aumento de la población dependiente (mayores de 65), presionando los sistemas de seguridad social, salud y cuidados."
+            },
+            {
+                id: 9,
+                question: "¿Qué característica distingue a los patrones migratorios recientes en América Latina frente a décadas pasadas?",
+                options: {
+                    A: "El cese total de la migración hacia Estados Unidos.",
+                    B: "El predominio de la migración intrarregional (entre países de la misma región) y el retorno.",
+                    C: "La migración exclusivamente por motivos de estudios superiores."
+                },
+                correct: "B",
+                explanation: "Históricamente era emigración neta fuera de la región, pero recientemente ha crecido la movilidad intrarregional (ej. Venezuela) y el retorno."
+            },
+            {
+                id: 10,
+                question: "Según el informe Groundswell del Banco Mundial, ¿cuántos migrantes climáticos internos podría haber en América Latina para 2050 si no se toman medidas?",
+                options: {
+                    A: "17 millones.",
+                    B: "5 millones.",
+                    C: "500 mil."
+                },
+                correct: "A",
+                explanation: "El informe Groundswell estima que para 2050 podría haber hasta 17 millones de migrantes climáticos internos en América Latina."
+            },
+            {
+                id: 11,
+                question: "¿Cuál es el principal vacío legal internacional respecto a las personas desplazadas por el cambio climático?",
+                options: {
+                    A: "No se les permite trabajar en el sector agrícola.",
+                    B: "No existe un reconocimiento explícito de la figura de \"refugiado climático\" en la Convención de 1951.",
+                    C: "Se les prohíbe el acceso a servicios de salud básicos en cualquier país."
+                },
+                correct: "B",
+                explanation: "La Convención de 1951 no reconoce la figura de refugiado por causas ambientales o climáticas, lo que genera un vacío de protección."
+            },
+            {
+                id: 12,
+                question: "¿Por qué es fundamental el análisis de la distribución espacial para un administrador público territorial?",
+                options: {
+                    A: "Para calcular el PIB nacional con mayor exactitud.",
+                    B: "Porque el espacio geográfico condiciona los fenómenos sociales y la asignación eficiente de recursos.",
+                    C: "Para diseñar banderas y escudos municipales más representativos."
+                },
+                correct: "B",
+                explanation: "El espacio geográfico no es un contenedor pasivo; condiciona los fenómenos y la distribución de la población determina dónde asignar recursos e infraestructura."
+            },
+            {
+                id: 13,
+                question: "¿Qué funcionalidad clave ofrece el Geoportal del DANE para la gestión local?",
+                options: {
+                    A: "Permite visualizar datos del Censo Nacional a nivel de manzana censal.",
+                    B: "Ofrece pronósticos del clima en tiempo real.",
+                    C: "Permite realizar trámites de identificación personal (cédulas)."
+                },
+                correct: "A",
+                explanation: "El Geoportal del DANE permite consultar y visualizar información georreferenciada del Censo (CNPV 2018) a nivel detallado, incluyendo la manzana censal."
+            },
+            {
+                id: 14,
+                question: "¿Qué son los \"geovisores\" en el contexto de herramientas como el Geoportal?",
+                options: {
+                    A: "Gafas de realidad virtual para ver mapas en 3D.",
+                    B: "Herramientas interactivas para analizar variables específicas (como déficit habitacional) sobre el mapa.",
+                    C: "Drones que vigilan el crecimiento urbano ilegal."
+                },
+                correct: "B",
+                explanation: "Los geovisores son herramientas del portal que permiten visualizar variables específicas como déficit habitacional o vulnerabilidad en el mapa."
+            },
+            {
+                id: 15,
+                question: "¿Qué metodología utiliza el proyecto WorldPop para estimar población en zonas donde no hay censos recientes o son de difícil acceso?",
+                options: {
+                    A: "Encuestas telefónicas aleatorias.",
+                    B: "Modelado estadístico \"bottom-up\" usando imágenes satelitales y cartografía social.",
+                    C: "Conteo manual casa por casa realizado por voluntarios internacionales."
+                },
+                correct: "B",
+                explanation: "WorldPop utiliza un enfoque \"bottom-up\" integrando imágenes satelitales y microcensos para estimar población en áreas donde no hay censo completo."
+            },
+            {
+                id: 16,
+                question: "¿Qué ventaja ofrece el uso de Big Data frente a las estadísticas tradicionales en la gestión pública?",
+                options: {
+                    A: "Los datos son 100% exactos y no requieren limpieza.",
+                    B: "Ofrece mayor volumen, velocidad y variedad, permitiendo análisis casi en tiempo real.",
+                    C: "Es mucho más costoso y lento, pero más seguro."
+                },
+                correct: "B",
+                explanation: "El Big Data se caracteriza por las \"3 Vs\" (Volumen, Velocidad, Variedad) y permite análisis en tiempo real, superando la latencia de los censos."
+            },
+            {
+                id: 17,
+                question: "En el ámbito de la seguridad y convivencia, ¿cómo puede la Inteligencia Artificial ayudar a la administración municipal?",
+                options: {
+                    A: "Reemplazando totalmente a los jueces humanos.",
+                    B: "Mediante la predicción de zonas de riesgo (hotspots) basada en patrones históricos.",
+                    C: "Eliminando la necesidad de patrullaje policial."
+                },
+                correct: "B",
+                explanation: "La IA permite el análisis de datos históricos de criminalidad para predecir zonas de riesgo y desplegar recursos estratégicamente (policía predictiva)."
+            },
+            {
+                id: 18,
+                question: "¿Qué paradigma promueve el Sistema Nacional Integrado de Cuidados (SNIC) de Uruguay?",
+                options: {
+                    A: "Que el cuidado es responsabilidad exclusiva de las mujeres en el hogar.",
+                    B: "La corresponsabilidad entre Estado, mercado, comunidad y familias.",
+                    C: "La privatización total de los servicios de cuidado infantil y geriátrico."
+                },
+                correct: "B",
+                explanation: "El SNIC de Uruguay se basa en un modelo de corresponsabilidad donde el Estado, mercado, comunidad y familias comparten la carga del cuidado."
+            },
+            {
+                id: 19,
+                question: "Según la OIT, si se valorara económicamente el trabajo de cuidados no remunerado, ¿qué porcentaje del PIB mundial representaría aproximadamente?",
+                options: {
+                    A: "Menos del 1%.",
+                    B: "Alrededor del 9%.",
+                    C: "Más del 50%."
+                },
+                correct: "B",
+                explanation: "La OIT estima que el trabajo de cuidado no remunerado representaría el 9% del PIB mundial si se valorara con un salario mínimo."
+            },
+            {
+                id: 20,
+                question: "¿Qué herramienta tecnológica permite a la ciudadanía monitorear la ejecución física y financiera de obras públicas en un mapa?",
+                options: {
+                    A: "Facebook Marketplace.",
+                    B: "MapaInversiones.",
+                    C: "Google Earth."
+                },
+                correct: "B",
+                explanation: "MapaInversiones es una plataforma del BID que visualiza el gasto público y la inversión en mapas para fomentar la transparencia."
+            },
+            {
+                id: 21,
+                question: "¿Qué se entiende por \"Bono Demográfico\" en el contexto económico?",
+                options: {
+                    A: "Un subsidio que el gobierno da a las familias numerosas.",
+                    B: "Un periodo donde la población en edad de trabajar es mayor que la población dependiente.",
+                    C: "El aumento de la población jubilada que gasta sus ahorros."
+                },
+                correct: "B",
+                explanation: "El bono demográfico ocurre cuando la población en edad de trabajar (productiva) es mayor que la dependiente, lo que impulsa el crecimiento."
+            },
+            {
+                id: 22,
+                question: "¿Qué implica el término \"Invierno Demográfico\" para la sostenibilidad fiscal?",
+                options: {
+                    A: "Una época del año donde aumentan los gastos en calefacción pública.",
+                    B: "La reducción de la base de cotizantes activos que financian los sistemas de seguridad social.",
+                    C: "La congelación de los salarios de los funcionarios públicos."
+                },
+                correct: "B",
+                explanation: "Se refiere a la reducción de la fuerza laboral activa que sostiene los sistemas de reparto, amenazando la sostenibilidad fiscal."
+            },
+            {
+                id: 23,
+                question: "¿Qué es la \"economía plateada\" mencionada como oportunidad para la gestión territorial?",
+                options: {
+                    A: "La minería de plata en zonas rurales.",
+                    B: "El conjunto de actividades económicas, productos y servicios orientados a satisfacer las necesidades de la población mayor.",
+                    C: "Un sistema de economía informal que no paga impuestos."
+                },
+                correct: "B",
+                explanation: "La economía plateada se refiere a las oportunidades económicas derivadas de las necesidades de la población mayor (salud, ocio, cuidados)."
+            },
+            {
+                id: 24,
+                question: "¿Cuál es el rol del administrador público frente a los datos demográficos según el perfil del curso?",
+                options: {
+                    A: "Recolectar datos puerta a puerta.",
+                    B: "Interpretar los datos para justificar decisiones estratégicas y diseñar políticas públicas.",
+                    C: "Archivar los datos históricos en bibliotecas físicas."
+                },
+                correct: "B",
+                explanation: "El rol es de analista y estratega: usar los datos para interpretar pirámides, anticipar demandas y justificar decisiones de política pública."
+            },
+            {
+                id: 25,
+                question: "¿Qué acción permite realizar el análisis de \"déficit habitacional\" disponible en los geovisores del DANE?",
+                options: {
+                    A: "Identificar barrios con alta densidad de viviendas inadecuadas para focalizar subsidios de mejoramiento.",
+                    B: "Calcular el impuesto predial de las fincas rurales.",
+                    C: "Vender propiedades del Estado a inmobiliarias privadas."
+                },
+                correct: "A",
+                explanation: "Los geovisores de déficit habitacional permiten identificar zonas específicas con necesidades de vivienda para focalizar la inversión pública."
+            },
+            {
+                id: 26,
+                question: "¿Qué diferencia principal existe entre un censo tradicional y las estimaciones basadas en modelos como las de WorldPop?",
+                options: {
+                    A: "El censo es anual; WorldPop es cada 10 años.",
+                    B: "El censo es un conteo directo (top-down); WorldPop usa estimaciones indirectas basadas en covariables (bottom-up).",
+                    C: "No hay diferencia, son lo mismo."
+                },
+                correct: "B",
+                explanation: "El censo tradicional es \"top-down\" (conteo total desagregado), mientras que modelos como WorldPop pueden usar enfoques \"bottom-up\"."
+            },
+            {
+                id: 27,
+                question: "¿Qué servicio ofrece el programa de \"Teleasistencia\" dentro de un Sistema de Cuidados?",
+                options: {
+                    A: "Clases de computación para niños.",
+                    B: "Un dispositivo de alerta (botón/pulsera) para que personas dependientes pidan ayuda en emergencias.",
+                    C: "Reparación remota de electrodomésticos para ancianos."
+                },
+                correct: "B",
+                explanation: "La teleasistencia es un servicio de alerta (botón/pulsera) para personas con dependencia leve o moderada ante emergencias en el hogar."
+            },
+            {
+                id: 28,
+                question: "¿Por qué se considera que la migración venezolana reciente ha impactado la demografía de los países receptores?",
+                options: {
+                    A: "Porque ha aumentado significativamente la edad promedio de la población receptora.",
+                    B: "Porque ha aportado población joven en edad laboral, compensando temporalmente el envejecimiento local.",
+                    C: "Porque ha reducido la tasa de urbanización en las ciudades capitales."
+                },
+                correct: "B",
+                explanation: "La migración venezolana suele ser de población joven en edad productiva, lo que puede compensar momentáneamente el envejecimiento de la fuerza laboral local."
+            },
+            {
+                id: 29,
+                question: "En el ciclo de políticas públicas, ¿en qué fase es crucial el uso de la demografía?",
+                options: {
+                    A: "Solo en la evaluación final.",
+                    B: "En el diagnóstico y diseño, para identificar la población objetivo y cuantificar la demanda.",
+                    C: "Únicamente en la fase de comunicación y propaganda."
+                },
+                correct: "B",
+                explanation: "La demografía es crucial en el diagnóstico para identificar la población objetivo y en el diseño para planificar la capacidad de los servicios necesarios."
+            },
+            {
+                id: 30,
+                question: "¿Cuál es la conclusión principal sobre la relación entre demografía y tecnología en la gestión pública moderna?",
+                options: {
+                    A: "La tecnología es opcional; lo importante es la intuición del líder político.",
+                    B: "El uso de datos georreferenciados y Big Data es indispensable para una gestión eficiente, transparente y focalizada.",
+                    C: "La tecnología debe usarse solo para reemplazar empleados públicos."
+                },
+                correct: "B",
+                explanation: "La conclusión es que el uso de tecnologías geoespaciales y Big Data es obligatorio para una gestión territorial eficiente, transparente y adaptada a la realidad."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = []; 
+        let currentRoundCorrectLabel = ''; 
+        let currentRoundCorrectText = '';  
+
+        // Referencias al DOM
+        const loginScreen = document.getElementById('login-screen');
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreDisplayEl = document.getElementById('score-display');
+        const progressBarEl = document.getElementById('progress-bar');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        
+        const feedbackBox = document.getElementById('feedback-box');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const feedbackExplanation = document.getElementById('feedback-explanation');
+
+        // FUNCIÓN LOGIN
+        function validateLogin() {
+            const nameInput = document.getElementById('input-name').value.trim();
+            const codeInput = document.getElementById('input-code').value.trim();
+            const keyInput = document.getElementById('input-key').value.trim();
+            const errorMsg = document.getElementById('login-error');
+
+            if (nameInput === "" || codeInput === "" || keyInput !== REQUIRED_KEY) {
+                errorMsg.classList.remove('hidden');
+                if (keyInput !== REQUIRED_KEY && keyInput !== "") {
+                    errorMsg.innerHTML = '<i class="fas fa-lock mr-1"></i> Clave de acceso incorrecta.';
+                } else {
+                    errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> Todos los campos son obligatorios.';
+                }
+                return;
+            }
+
+            // Login Exitoso
+            studentName = nameInput;
+            studentCode = codeInput;
+            
+            // Actualizar textos de bienvenida
+            document.getElementById('welcome-name').textContent = studentName.split(" ")[0]; // Solo primer nombre
+            document.getElementById('result-student-name').textContent = studentName;
+            document.getElementById('result-student-code').textContent = studentCode;
+
+            // Transición
+            loginScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        // Función para mezclar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const data = quizData[currentQuestionIndex];
+            
+            // Actualizar UI básica
+            questionCounterEl.textContent = `Pregunta ${currentQuestionIndex + 1} de ${quizData.length}`;
+            scoreDisplayEl.textContent = `Puntaje: ${score}`;
+            const progress = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBarEl.style.width = `${progress}%`;
+            
+            // Resetear estados
+            feedbackBox.classList.add('hidden');
+            nextBtn.disabled = true;
+            nextBtn.classList.add('cursor-not-allowed', 'bg-gray-300', 'text-gray-500');
+            nextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white', 'cursor-pointer');
+            
+            // Cargar texto
+            questionTextEl.textContent = `${data.id}. ${data.question}`;
+            
+            // Aleatorización
+            let optionsList = [
+                { originalKey: 'A', text: data.options.A },
+                { originalKey: 'B', text: data.options.B },
+                { originalKey: 'C', text: data.options.C }
+            ];
+
+            shuffleArray(optionsList);
+
+            const displayLabels = ['A', 'B', 'C'];
+            optionsContainer.innerHTML = '';
+            
+            optionsList.forEach((opt, index) => {
+                const displayLabel = displayLabels[index];
+                
+                if (opt.originalKey === data.correct) {
+                    currentRoundCorrectLabel = displayLabel;
+                    currentRoundCorrectText = opt.text;
+                }
+
+                const btn = document.createElement('div');
+                btn.className = 'option-btn w-full p-4 rounded-lg border-2 border-gray-200 cursor-pointer bg-white flex items-start gap-3';
+                btn.onclick = () => checkAnswer(displayLabel, btn, opt.text);
+                
+                btn.innerHTML = `
+                    <div class="font-bold text-gray-500 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 border border-gray-300">${displayLabel}</div>
+                    <div class="text-gray-700 text-base md:text-lg">${opt.text}</div>
+                `;
+                btn.dataset.displayLabel = displayLabel; 
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedLabel, selectedBtn, selectedText) {
+            const allButtons = optionsContainer.children;
+            if ([...allButtons].some(btn => btn.classList.contains('cursor-default'))) return;
+
+            const currentData = quizData[currentQuestionIndex];
+            const isCorrect = selectedLabel === currentRoundCorrectLabel;
+            
+            userAnswers.push({
+                questionId: currentData.id,
+                question: currentData.question,
+                isCorrect: isCorrect,
+                userText: selectedText,
+                correctText: currentRoundCorrectText,
+                userLabel: selectedLabel,
+                correctLabel: currentRoundCorrectLabel
+            });
+
+            if (isCorrect) score++;
+            scoreDisplayEl.textContent = `Puntaje: ${score}`;
+
+            [...allButtons].forEach(btn => {
+                btn.onclick = null;
+                btn.classList.remove('cursor-pointer', 'hover:bg-e5e7eb', 'hover:transform');
+                btn.classList.add('cursor-default');
+                
+                const btnLabel = btn.dataset.displayLabel;
+                
+                if (btnLabel === currentRoundCorrectLabel) {
+                    btn.classList.remove('border-gray-200', 'bg-white');
+                    btn.classList.add('border-green-500', 'bg-green-50');
+                    btn.querySelector('div:first-child').classList.add('bg-green-500', 'text-white', 'border-green-600');
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-check text-green-600 ml-auto self-center text-xl';
+                    btn.appendChild(icon);
+                }
+                
+                if (btnLabel === selectedLabel && !isCorrect) {
+                    btn.classList.remove('border-gray-200', 'bg-white');
+                    btn.classList.add('border-red-500', 'bg-red-50');
+                    btn.querySelector('div:first-child').classList.add('bg-red-500', 'text-white', 'border-red-600');
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-times text-red-600 ml-auto self-center text-xl';
+                    btn.appendChild(icon);
+                } else if (btnLabel !== currentRoundCorrectLabel && btnLabel !== selectedLabel) {
+                    btn.classList.add('opacity-50');
+                }
+            });
+
+            feedbackBox.classList.remove('hidden');
+            feedbackBox.classList.remove('bg-green-50', 'border-green-500', 'bg-red-50', 'border-red-500'); 
+            
+            if (isCorrect) {
+                feedbackBox.classList.add('bg-green-50', 'border-green-500');
+                feedbackMessage.innerHTML = '<span class="text-green-700"><i class="fas fa-check-circle mr-2"></i>¡Correcto!</span>';
+            } else {
+                feedbackBox.classList.add('bg-red-50', 'border-red-500');
+                feedbackMessage.innerHTML = `<span class="text-red-700"><i class="fas fa-times-circle mr-2"></i>Incorrecto. La respuesta era la ${currentRoundCorrectLabel}.</span>`;
+            }
+            feedbackExplanation.innerHTML = `<b>Justificación:</b> ${currentData.explanation}`;
+
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('cursor-not-allowed', 'bg-gray-300', 'text-gray-500');
+            nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white', 'cursor-pointer');
+            
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.innerHTML = 'Ver Resultados <i class="fas fa-trophy ml-2"></i>';
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            const finalScoreEl = document.getElementById('final-score');
+            const finalPercentageEl = document.getElementById('final-percentage');
+            finalScoreEl.textContent = `${score}/${quizData.length}`;
+            
+            const scoreMessage = document.getElementById('score-message');
+            
+            const percentage = (score / quizData.length) * 100;
+            finalPercentageEl.textContent = `${percentage.toFixed(0)}%`;
+            
+            if (percentage >= 80) {
+                scoreMessage.textContent = "¡Excelente trabajo! Dominas el tema.";
+                finalScoreEl.classList.add('text-green-600');
+            } else if (percentage >= 60) {
+                scoreMessage.textContent = "Buen trabajo, pero repasa algunos conceptos.";
+                finalScoreEl.classList.add('text-yellow-600');
+            } else {
+                scoreMessage.textContent = "Sigue estudiando, puedes mejorar.";
+                finalScoreEl.classList.add('text-red-600');
+            }
+
+            const summaryContainer = document.getElementById('answers-summary');
+            summaryContainer.innerHTML = '';
+            
+            userAnswers.forEach((ans, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-start gap-3 p-3 rounded bg-white shadow-sm border border-gray-100 break-inside-avoid';
+                
+                const iconClass = ans.isCorrect ? 'fa-check text-green-500' : 'fa-times text-red-500';
+                
+                item.innerHTML = `
+                    <div class="mt-1"><i class="fas ${iconClass}"></i></div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-gray-800">Pregunta ${ans.questionId}</p>
+                        <p class="text-xs text-gray-500 mb-2">${ans.question}</p>
+                        
+                        <div class="text-sm border-l-2 pl-2 ${ans.isCorrect ? 'border-green-400' : 'border-red-400'}">
+                            ${ans.isCorrect 
+                                ? `<span class="text-green-700">Respuesta correcta: ${ans.userText}</span>` 
+                                : `<div class="mb-1 text-red-700">Tu respuesta (${ans.userLabel}): ${ans.userText}</div>
+                                   <div class="text-green-700 font-semibold">Correcta (${ans.correctLabel}): ${ans.correctText}</div>`
+                            }
+                        </div>
+                    </div>
+                `;
+                summaryContainer.appendChild(item);
+            });
+        }
+
+        function restartApp() {
+            // Recargar para volver al login
+            location.reload();
+        }
+
+    </script>
+</body>
+</html>
