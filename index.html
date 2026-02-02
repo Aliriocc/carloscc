@@ -3,874 +3,841 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Memorización de Frases</title>
+    <title>DEMOGRAFIA INGENIERO CARLOS CACERES</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=QqHIq0Z0"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Aplicamos la fuente Inter a todo el cuerpo */
         body {
-            font-family: 'Inter', sans-serif;
-            /* Prevenir selección de texto accidental en móviles */
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
         }
-        /* Estilo para el texto seleccionado en el storytelling */
-        .story-text.selected {
-            background-color: #dbeafe; /* Un azul claro de Tailwind (blue-100) */
-            transition: background-color 0.3s;
-            border-radius: 4px;
+        .option-btn {
+            transition: all 0.2s ease;
         }
-        .story-text strong {
-            color: #4f46e5; /* Color índigo para resaltar (indigo-600) */
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(5px);
+            background-color: #e5e7eb;
         }
-        /* Estilo para la ventana modal */
-        .modal {
-            transition: opacity 0.3s ease;
-        }
-        .modal-content {
-            transition: transform 0.3s ease;
-        }
-        /* NUEVO ESTILO: Resaltado temporal para la tarjeta de estudio */
-        #reveal-area.highlight-active {
-            box-shadow: 0 0 0 3px #3b82f6; /* Ring azul de Tailwind (blue-500) */
-            background-color: #eff6ff; /* blue-50 */
-            transition: all 0.2s ease-in-out;
-        }
-        /* Animaciones suaves */
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out;
+        .fade-in {
+            animation: fadeIn 0.5s;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Scrollbar personalizado */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* ESTILOS PARA IMPRESIÓN */
+        @media print {
+            body {
+                background-color: white;
+            }
+            /* Ocultar elementos no deseados en la impresión */
+            #login-screen, #start-screen, #quiz-screen, .no-print {
+                display: none !important;
+            }
+            /* Asegurar que la pantalla de resultados sea visible y ocupe todo */
+            #results-screen {
+                display: block !important;
+                position: static !important;
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: none !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            /* Expandir el contenedor principal */
+            .main-container {
+                box-shadow: none !important;
+                max-width: 100% !important;
+            }
+            /* Ajustes para el contenido del reporte */
+            .scroll-area {
+                overflow: visible !important;
+                height: auto !important;
+                border: 1px solid #ddd !important;
+            }
+            /* Header de impresión */
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+        }
+        
+        .print-header {
+            display: none; /* Oculto en pantalla normal */
+        }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
-    <div class="container mx-auto p-4 md:p-8 max-w-5xl flex-grow">
-        <header class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Memorizar Frases</h1>
-        </header>
+<body class="text-gray-800 min-h-screen flex flex-col items-center justify-center p-4">
 
-        <!-- PANTALLA DE ACCESO -->
-        <div id="access-gate" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl text-center animate-fade-in">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Control de Acceso</h2>
-            <p class="text-gray-500 mb-6">Por favor, introduce tu clave para continuar.</p>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002 2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <input type="password" id="access-key-input" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Clave de acceso">
+    <!-- Contenedor Principal -->
+    <div class="main-container bg-white shadow-2xl rounded-2xl w-full max-w-3xl overflow-hidden flex flex-col" style="min-height: 80vh;">
+        
+        <!-- Header Visual (Solo pantalla) -->
+        <div class="bg-blue-900 text-white p-6 shadow-md z-10 no-print">
+            <h1 class="text-xl md:text-2xl font-bold text-center tracking-wide uppercase">DEMOGRAFIA INGENIERO CARLOS CACERES</h1>
+            <p class="text-center text-blue-200 text-sm mt-1">Cuestionario de Evaluación y Gestión Pública Territorial</p>
+        </div>
+
+        <!-- PANTALLA 1: LOGIN (Acceso) -->
+        <div id="login-screen" class="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6">
+            <div class="bg-blue-50 p-4 rounded-full mb-2">
+                <i class="fas fa-user-lock text-4xl text-blue-800"></i>
             </div>
-            <button id="validate-key-btn" class="w-full mt-4 bg-gray-800 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-gray-900 transition transform active:scale-95">Validar</button>
-            <p id="error-message" class="text-red-500 font-medium mt-4 hidden"></p>
+            <h2 class="text-2xl font-bold text-gray-800">Identificación del Estudiante</h2>
+            <p class="text-gray-600 text-sm">Por favor ingrese sus datos y la clave de acceso proporcionada por el docente.</p>
+            
+            <div class="w-full max-w-sm space-y-4 text-left">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                    <input type="text" id="input-name" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej. Juan Pérez">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Código Estudiantil</label>
+                    <input type="text" id="input-code" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ej. 12345678">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Clave de Acceso</label>
+                    <input type="password" id="input-key" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Ingrese la clave">
+                </div>
+                <p id="login-error" class="text-red-500 text-sm hidden text-center font-semibold"><i class="fas fa-exclamation-triangle mr-1"></i> Datos incompletos o clave incorrecta.</p>
+            </div>
+
+            <button onclick="validateLogin()" class="w-full max-w-sm py-3 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                Ingresar al Sistema
+            </button>
         </div>
 
-        <!-- PANTALLA DE SELECCIÓN (NUEVA ESTRUCTURA) -->
-        <div id="start-container" class="max-w-4xl mx-auto hidden animate-fade-in">
-            <!-- El contenido se genera dinámicamente en JS -->
+        <!-- PANTALLA 2: INICIO (Instrucciones) -->
+        <div id="start-screen" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6">
+            <div class="bg-green-100 p-4 rounded-full">
+                <i class="fas fa-check-circle text-4xl text-green-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">¡Bienvenido, <span id="welcome-name" class="text-blue-700">Estudiante</span>!</h2>
+            <p class="text-gray-600 max-w-md">
+                Estás a punto de iniciar el cuestionario de <b>30 preguntas</b>.
+                <br><br>
+                <span class="text-sm bg-blue-50 text-blue-800 py-1 px-3 rounded-full border border-blue-200">
+                    <i class="fas fa-shuffle mr-1"></i> Orden aleatorio activado
+                </span>
+                <br><br>
+                Recibirás retroalimentación inmediata. Al finalizar, podrás generar tu reporte de resultados.
+            </p>
+            <button onclick="startQuiz()" class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transform transition hover:scale-105">
+                Comenzar Evaluación
+            </button>
         </div>
 
-        <!-- JUEGO PRINCIPAL (CAJAS) -->
-        <main id="game-container" class="hidden animate-fade-in">
-            <section id="box-selectors" class="flex flex-wrap justify-center gap-2 mb-6">
-                <!-- Botones de cajas -->
-            </section>
-            <section id="card-container" class="bg-white p-4 sm:p-6 rounded-2xl shadow-xl min-h-[450px] flex items-center justify-center flex-col transition-all">
-                <!-- Tarjeta de estudio -->
-            </section>
-        </main>
+        <!-- PANTALLA 3: QUIZ (Preguntas) -->
+        <div id="quiz-screen" class="hidden flex-1 flex flex-col">
+            <!-- Barra de Progreso -->
+            <div class="w-full bg-gray-200 h-2">
+                <div id="progress-bar" class="bg-blue-500 h-2 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between px-6 py-2 text-sm text-gray-500 font-semibold bg-gray-50">
+                <span id="question-counter">Pregunta 1 de 30</span>
+                <span id="score-display" class="text-blue-600">Puntaje: 0</span>
+            </div>
 
-        <!-- REPASO GENERAL (GRID DE IMÁGENES) -->
-        <section id="final-review-container" class="hidden text-center animate-fade-in">
-            <!-- Contenido del repaso -->
-        </section>
+            <!-- Área de Pregunta -->
+            <div class="p-6 md:p-8 flex-1 overflow-y-auto custom-scroll">
+                <h3 id="question-text" class="text-lg md:text-xl font-semibold text-gray-800 mb-6 leading-relaxed">
+                    <!-- La pregunta se carga aquí -->
+                </h3>
 
-        <!-- STORYTELLING -->
-        <section id="storytelling-container" class="hidden text-center bg-white p-6 rounded-2xl shadow-xl animate-fade-in">
-             <!-- Historia -->
-        </section>
+                <div id="options-container" class="space-y-3">
+                    <!-- Las opciones se generan aquí -->
+                </div>
 
-        <!-- MODAL DE DETALLE -->
-        <div id="review-modal" class="modal fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0">
-            <div class="modal-content bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-md w-full text-center transform scale-95 relative">
-                <button id="modal-close-x" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <!-- Caja de Retroalimentación -->
+                <div id="feedback-box" class="hidden mt-6 p-4 rounded-lg border-l-4 fade-in bg-gray-50">
+                    <p id="feedback-message" class="font-bold text-lg mb-1"></p>
+                    <p id="feedback-explanation" class="text-gray-700 text-sm leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Footer con Botón Siguiente -->
+            <div class="p-4 bg-gray-50 border-t flex justify-end">
+                <button id="next-btn" onclick="nextQuestion()" disabled class="px-6 py-2 bg-gray-300 text-gray-500 font-bold rounded-lg cursor-not-allowed transition-colors">
+                    Siguiente <i class="fas fa-arrow-right ml-2"></i>
                 </button>
-                <h3 class="text-2xl font-bold text-gray-800 mb-4">Frase</h3>
-                <div id="modal-image-container" class="w-full h-48 mb-4 rounded-lg overflow-hidden bg-gray-200">
-                    <img id="modal-image" src="" alt="Pista visual de la frase" class="w-full h-full object-cover">
-                </div>
-                <div class="space-y-3">
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wide">Inglés</p>
-                        <p class="text-xl text-purple-700 font-bold" id="modal-english-phrase"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wide">Pronunciación</p>
-                        <p class="text-md text-blue-600 italic font-medium" id="modal-pronunciation"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wide">Español</p>
-                        <p class="text-lg text-gray-800" id="modal-spanish-phrase"></p>
-                    </div>
-                </div>
-                <button id="modal-close-btn" class="mt-6 w-full bg-red-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-red-700 transition">Cerrar</button>
             </div>
         </div>
+
+        <!-- PANTALLA 4: RESULTADOS -->
+        <div id="results-screen" class="hidden flex-1 flex flex-col p-8 bg-white">
+            
+            <!-- Header de Impresión (Solo visible al imprimir) -->
+            <div class="print-header">
+                <h1 class="text-2xl font-bold uppercase">Reporte de Evaluación</h1>
+                <p class="text-sm">Demografía y Gestión Pública Territorial</p>
+                <p class="text-xs">Ingeniero Carlos Cáceres</p>
+            </div>
+
+            <!-- Información del Estudiante -->
+            <div class="bg-gray-100 p-4 rounded-lg mb-6 border border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Estudiante</p>
+                        <p id="result-student-name" class="text-lg font-bold text-gray-800">-</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Código</p>
+                        <p id="result-student-code" class="text-lg font-bold text-gray-800">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2 no-print">Resultados Finales</h2>
+                <div class="flex items-center justify-center gap-4">
+                    <div class="text-center">
+                        <span class="text-sm text-gray-500 uppercase font-bold">Puntaje</span>
+                        <div class="text-4xl font-extrabold text-blue-600" id="final-score">0/30</div>
+                    </div>
+                    <div class="text-center border-l pl-4">
+                        <span class="text-sm text-gray-500 uppercase font-bold">Calificación</span>
+                        <div class="text-xl font-bold text-gray-700" id="final-percentage">0%</div>
+                    </div>
+                </div>
+                <p id="score-message" class="text-gray-600 font-medium mt-2"></p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scroll border rounded-lg p-4 bg-gray-50 mb-6 scroll-area">
+                <h3 class="font-bold text-gray-700 mb-4 sticky top-0 bg-gray-50 pb-2 border-b">Detalle de Respuestas:</h3>
+                <div id="answers-summary" class="space-y-4">
+                    <!-- Resumen generado dinámicamente -->
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
+                <button onclick="window.print()" class="w-full py-3 bg-gray-800 hover:bg-gray-900 text-white font-bold rounded-lg shadow-md transition-colors">
+                    <i class="fas fa-print mr-2"></i> Imprimir Reporte
+                </button>
+                <button onclick="restartApp()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-md transition-colors">
+                    <i class="fas fa-redo mr-2"></i> Nuevo Intento
+                </button>
+            </div>
+        </div>
+
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- Lógica de la Aplicación -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- VARIABLES GLOBALES Y DATOS ---
-            // Se agregaron las frases 21-30 solicitadas.
-            const csvData = `"english","spanish","pronunciation","imageUrl"
-"What's up?","¿Qué tal? / ¿Qué onda?","Guats-ap?","https://i.postimg.cc/2jh7tk4f/01.png"
-"How's it going?","¿Cómo va todo?","Jaus-it-gó-in?","https://i.postimg.cc/jnjnGznV/02.png"
-"You alright? ","¿Todo bien?","Yu-ol-ráit?","https://i.postimg.cc/r0jtnhmC/03.png"
-"What have you been up to?","¿En qué has andado?","Guát-jav-iú-bin-ap-tu?","https://i.postimg.cc/dkwy9MqV/04.png"
-"Long time no see!","¡Tanto tiempo sin verte!","Long-táim-no-sí!","https://i.postimg.cc/d7MdLkpd/05.png"
-"Sup? (Short for What's up?)","¿Qué tal? (muy corto)","Sap?","https://i.postimg.cc/cvtwxM90/06.png"
-"Hi, I don't think we've met. I'm .","Hola, creo que no nos conocemos. Soy .","Jái, ái-dont-zink-wiv-met. Áim .","https://i.postimg.cc/pp6KM1Bs/07.png"
-"How's your day going so far?","¿Cómo va tu día hasta ahora?","Jaus-yor-déi-gó-in-so-far?","https://i.postimg.cc/dL1GXKG7/08.png.png"
-"Is this seat taken?","¿Está ocupado este asiento?","Is-dis-sít-téi-ken?","https://i.postimg.cc/9z1GJfw5/09.png"
-"This is some crazy weather, huh?","Vaya clima, ¿no?","Dis-is-som-créi-si-wéder, ja?","https://i.postimg.cc/BtJTTF6B/10.png"
-"What do you do for a living?","¿A qué te dedicas?","Guát-du-iú-du-for-a-lí-ving?","https://i.postimg.cc/rRy5MBbP/11.png"
-"So, what brings you here?","Y bien, ¿qué te trae por aquí?","So, guát-brings-iú-jir?","https://i.postimg.cc/ZBSrDBLZ/12.png"
-"I love your. Where did you get it?","Me encanta tu. ¿Dónde lo conseguiste?","Ai-lov-yor [shirt/bag]. Wér-did-iú-guet-it?","https://i.postimg.cc/QB5Qbk10/13.png"
-"Are you from around here?","¿Eres de por aquí?","Ar-iú-from-a-ráund-jir?","https://i.postimg.cc/mPK3C6zP/14.png"
-"Enjoying the event?","¿Disfrutando el evento?","En-yó-ing-di-i-vént?","https://i.postimg.cc/9DDt4jM3/15.png"
-"Has it been a busy week for you?","¿Has tenido una semana ocupada?","Jas-it-bin-a-bí-si-wik-for-iú?","https://i.postimg.cc/0b2CsS1y/16.png"
-"How was your weekend?","¿Qué tal tu fin de semana?","Jau-was-yor-wík-end?","https://i.postimg.cc/t7zzw5fc/17.png"
-"Hi , do you have a quick second?","Hola [Nombre], ¿tienes un segundo?","Jái [Nombre], du-iú-jav-a-cuík-sé-cond?","https://i.postimg.cc/Tp7JYPTq/18.png"
-"What are your thoughts on ?","¿Qué opinas sobre  ?","Guát-ar-yor-zots-on  ?","https://i.postimg.cc/pyvZs708/19.png"
-"I was hoping I could pick your brain about...","Quería ver si podía consultarte sobre...","Ai-was-jó-ping-ai-cud-pik-yor-bréin-a-báut...","https://i.postimg.cc/8JQHQnN2/20.png"
-"whether it's predictive agile","ya sea predictivo o ágil","wéder-its-pre-díc-tiv-á-yail","https://placehold.co/500x500/e0e0e0/757575?text=Agile"
-"accountable for the use","responsable del uso","a-cáun-ta-bol-for-di-iús","https://placehold.co/500x500/e0e0e0/757575?text=Accountable"
-"more effectively","más eficazmente","mor-i-féc-tiv-li","https://placehold.co/500x500/e0e0e0/757575?text=Effectively"
-"allowing your team to focus on solving","permitiendo a tu equipo enfocarse en resolver","a-láu-ing-yor-tím-tu-fó-cus-on-sól-ving","https://placehold.co/500x500/e0e0e0/757575?text=Focus+Solving"
-"deliver accurate result","entregar resultados precisos","di-lí-ver-á-kiu-ret-ri-sált","https://placehold.co/500x500/e0e0e0/757575?text=Accurate+Results"
-"enhance your project's performance","mejorar el rendimiento de tu proyecto","en-jáns-yor-pró-yects-per-fór-mans","https://placehold.co/500x500/e0e0e0/757575?text=Performance"
-"Being fluent in multiple ways","Ser fluido de múltiples formas","bí-ing-flú-ent-in-mál-ti-pol-wéis","https://placehold.co/500x500/e0e0e0/757575?text=Fluent"
-"the continuous improvement","la mejora continua","da-con-tín-iu-as-im-prúv-ment","https://placehold.co/500x500/e0e0e0/757575?text=Improvement"
-"helping you spot","ayudándote a detectar","jél-ping-iú-spót","https://placehold.co/500x500/e0e0e0/757575?text=Spotting"
-"might otherwise go unnoticed","podría pasar desapercibido de otro modo","máit-ó-der-wais-góu-an-nó-tist","https://placehold.co/500x500/e0e0e0/757575?text=Unnoticed"`;
+        // VARIABLES GLOBALES DE USUARIO
+        let studentName = "";
+        let studentCode = "";
+        const REQUIRED_KEY = "MICLAVEESAP";
 
-            const storytellingData = [
-                {
-                    story_en: "It was a rainy afternoon when Jake walked into the local coffee shop. He looked around and spotted an old friend by the window.\n\"<strong>What's up?</strong>\" he called out, waving.\nHis friend grinned, \"<strong>How's it going?</strong>\"\nJake laughed, \"<strong>You alright?</strong> You look like you haven't slept in days!\"\n\"Yeah, I'm good,\" his friend replied. \"<strong>What have you been up to?</strong>\"\nJake shrugged. \"<strong>Long time no see!</strong> I've been traveling a lot for work. <strong>Sup?</strong>\"\nThey both sat down and Jake noticed a stranger nearby. \"<strong>Hi, I don't think we've met.</strong> I'm Jake,\" he said, extending a hand.\nThe stranger smiled. \"Nice to meet you! <strong>How's your day going so far?</strong>\"\n\"Pretty good,\" Jake replied. He glanced at the empty seat next to the stranger. \"<strong>Is this seat taken?</strong>\"\n\"No, go ahead,\" the stranger answered.\nJust then, thunder rumbled outside. Jake laughed, \"<strong>This is some crazy weather, huh?</strong>\"\nEveryone nodded, glad to be inside, sharing stories and escaping the storm together.",
-                    story_es: "Era una tarde lluviosa cuando Jake entró a la cafetería del barrio. Miró a su alrededor y vio a un viejo amigo junto a la ventana.\n-<strong>¿Qué tal?</strong> -saludó con la mano.\nSu amigo sonrió-<strong>¿Cómo va todo?</strong>\nJake se rió-<strong>¿Todo bien?</strong> ¡Pareces no haber dormido en días!\n-Sí, todo bien -respondió su amigo. <strong>¿En qué has andado?</strong>\nJake se encogió de hombros-<strong>¡Tanto tiempo sin verte!</strong> He estado viajando mucho por trabajo. <strong>¿Qué onda?</strong>\nAmbos se sentaron y Jake notó a un desconocido cerca de ellos-<strong>Hola, creo que no nos conocemos.</strong> Soy Jake-dijo, extendiendo la mano.\nEl desconocido sonrió-¡Mucho gusto! <strong>¿Cómo va tu día hasta ahora?</strong>\n-Bastante bien -respondió Jake. Miró el asiento vacío junto al desconocido-<strong>¿Está ocupado este asiento?</strong>\n-No, adelante -respondió el desconocido.\nEn ese momento, un trueno retumbó afuera. Jake se rió-<strong>Vaya clima, ¿no?</strong>\nTodos asintieron, contentos de estar adentro, compartiendo historias y escapando de la tormenta."
+        // Base de datos de preguntas
+        const quizData = [
+            {
+                id: 1,
+                question: "Según la definición de demografía aplicada a la gestión pública, ¿cuál es el objetivo principal de analizar la estructura de la población?",
+                options: {
+                    A: "Memorizar las cifras exactas de los censos históricos.",
+                    B: "Determinar la demanda futura de servicios públicos y la base fiscal del territorio.",
+                    C: "Controlar estrictamente la natalidad para evitar el crecimiento urbano."
                 },
-                {
-                    story_en: "Later that evening, the coffee shop buzzed with new faces. Jake struck up a conversation with another guest.\n\"<strong>What do you do for a living?</strong>\" he asked.\n\"I'm a graphic designer,\" she replied. \"And you?\"\n\"I'm a teacher,\" Jake said. \"<strong>So, what brings you here?</strong>\"\nShe smiled, \"Just needed a break. By the way, <strong>I love your jacket. Where did you get it?</strong>\"\nJake beamed. \"Thanks! <strong>Are you from around here?</strong>\"\n\"Yeah, born and raised. <strong>Are you enjoying the event?</strong>\"\n\"Definitely,\" Jake replied. \"<strong>Has it been a busy week for you?</strong>\"\nShe nodded, \"Super busy. <strong>How was your weekend?</strong>\"\n\"Pretty relaxing, actually,\" Jake said. He spotted another friend across the room. \"<strong>Hi, Sarah, do you have a quick second?</strong>\"\nSarah joined them, and Jake turned to the group. \"<strong>What are your thoughts on the new art exhibit?</strong>\"\nThey all shared opinions, and Jake added, \"<strong>I was hoping I could pick your brain about</strong> creative ideas for my class.\"\nThe conversation flowed, and new friendships blossomed over coffee and curiosity.",
-                    story_es: "Más tarde esa noche, la cafetería estaba llena de caras nuevas. Jake entabló conversación con otra invitada.\n-<strong>¿A qué te dedicas?</strong> -preguntó.\n-Soy diseñadora gráfica -respondió ella. ¿Y tú?\n-Soy maestro -dijo Jake-. Y bien, <strong>¿qué te trae por aquí?</strong>\nElla sonrió-Solo necesitaba un descanso. Por cierto, <strong>me encanta tu chaqueta. ¿Dónde la conseguiste?</strong>\nJake se iluminó-¡Gracias! <strong>¿Eres de por aquí?</strong>\n-Sí, nací y crecí aquí. <strong>¿Disfrutando el evento?</strong>\n-Sin duda -respondió Jake-. <strong>¿Has tenido una semana ocupada?</strong>\nElla asintió-Súper ocupada. <strong>¿Qué tal tu fin de semana?</strong>\n-Bastante relajado, la verdad -dijo Jake. Vio a otra amiga al fondo-<strong>Hola, ¿tienes un segundo?</strong>\nElla se acercó y Jake preguntó al grupo-<strong>¿Qué opinan sobre la nueva exposición de arte?</strong>\nTodos compartieron sus opiniones, y Jake añadió-<strong>Quería ver si podía consultarte sobre</strong> ideas creativas para mi clase.\nLa conversación fluyó y nuevas amistades nacieron entre café y curiosidad."
+                correct: "B",
+                explanation: "La demografía en la gestión pública trasciende el conteo; es la base para evaluar problemas, planificar recursos y la viabilidad de políticas, determinando la demanda de servicios y la base fiscal."
+            },
+            {
+                id: 2,
+                question: "¿Cuáles son los tres componentes de la \"ecuación compensadora\" que determinan la dinámica poblacional de un territorio?",
+                options: {
+                    A: "Fecundidad, Mortalidad y Migración.",
+                    B: "Pobreza, Educación y Empleo.",
+                    C: "Urbanización, Industrialización y Tecnología."
                 },
-                {
-                    // Nueva historia para el bloque 21-30
-                    story_en: "In the world of project management, <strong>whether it's predictive agile</strong> or traditional, success is key. You must be <strong>accountable for the use</strong> of your resources. This helps you work <strong>more effectively</strong>, <strong>allowing your team to focus on solving</strong> the real problems to <strong>deliver accurate result</strong>.\nTo <strong>enhance your project's performance</strong>, try <strong>Being fluent in multiple ways</strong> of working. Prioritize <strong>the continuous improvement</strong> of your processes. This strategy is great for <strong>helping you spot</strong> risks that <strong>might otherwise go unnoticed</strong> by the stakeholders.",
-                    story_es: "En el mundo de la gestión de proyectos, <strong>ya sea predictivo o ágil</strong>, el éxito es clave. Debes ser <strong>responsable del uso</strong> de tus recursos. Esto te ayuda a trabajar <strong>más eficazmente</strong>, <strong>permitiendo a tu equipo enfocarse en resolver</strong> los problemas reales para <strong>entregar resultados precisos</strong>.\nPara <strong>mejorar el rendimiento de tu proyecto</strong>, intenta <strong>ser fluido de múltiples formas</strong> de trabajo. Prioriza <strong>la mejora continua</strong> de tus procesos. Esta estrategia es genial para <strong>ayudarte a detectar</strong> riesgos que <strong>podrían pasar desapercibidos</strong> por los interesados."
+                correct: "A",
+                explanation: "La ecuación compensadora explica el cambio poblacional mediante la interacción de nacimientos (fecundidad), defunciones (mortalidad) y movimientos migratorios (migración)."
+            },
+            {
+                id: 3,
+                question: "De acuerdo con las proyecciones de la CEPAL (revisión 2024), ¿cuál es la tendencia de la tasa de crecimiento poblacional en América Latina para el año 2050?",
+                options: {
+                    A: "Se mantendrá estable en el 1.5% anual.",
+                    B: "Aumentará debido a la inmigración.",
+                    C: "Se acercará a cero, indicando un fin de la explosión demográfica."
+                },
+                correct: "C",
+                explanation: "La revisión de 2024 de la CEPAL indica que la tasa de crecimiento poblacional disminuye aceleradamente y se acercará a cero para el año 2050."
+            },
+            {
+                id: 4,
+                question: "¿Qué fenómeno demográfico explica principalmente el estrechamiento de la base de la pirámide poblacional en la región?",
+                options: {
+                    A: "El aumento de la mortalidad infantil.",
+                    B: "La caída de la fecundidad por debajo del nivel de reemplazo (2.1 hijos por mujer).",
+                    C: "La emigración masiva de niños hacia Europa."
+                },
+                correct: "B",
+                explanation: "La región ha caído por debajo del nivel de reemplazo poblacional (2.1), situándose en 1.7 hijos por mujer, lo que estrecha la base de la pirámide."
+            },
+            {
+                id: 5,
+                question: "¿Qué grupo etario ha mostrado un descenso acelerado en su tasa de fecundidad en la última década, contribuyendo a la baja natalidad general?",
+                options: {
+                    A: "Mujeres mayores de 40 años.",
+                    B: "Adolescentes y mujeres jóvenes (15-24 años).",
+                    C: "Mujeres en zonas rurales exclusivamente."
+                },
+                correct: "B",
+                explanation: "El descenso de la fecundidad ha sido impulsado notablemente por la caída en la fecundidad adolescente y de mujeres jóvenes (15-24 años)."
+            },
+            {
+                id: 6,
+                question: "Según las proyecciones demográficas, ¿en qué año aproximado la población de personas mayores superará a la de niños y niñas en América Latina?",
+                options: {
+                    A: "Ya ocurrió en el año 2020.",
+                    B: "Se proyecta para el año 2046.",
+                    C: "No ocurrirá antes del año 2100."
+                },
+                correct: "B",
+                explanation: "Se proyecta que en la región de América Latina y el Caribe, la población de personas mayores superará a la de niños y niñas en el año 2046."
+            },
+            {
+                id: 7,
+                question: "¿Qué impacto tuvo la pandemia de COVID-19 sobre la esperanza de vida en América Latina durante el año 2021?",
+                options: {
+                    A: "Un aumento leve debido a las mejoras en higiene.",
+                    B: "No tuvo impacto significativo en las estadísticas vitales.",
+                    C: "Una pérdida de casi 3 años, retrocediendo a niveles de inicios de siglo."
+                },
+                correct: "C",
+                explanation: "La pandemia provocó una pérdida de casi 3 años de esperanza de vida en promedio en la región en 2021, retrocediendo a niveles de años anteriores."
+            },
+            {
+                id: 8,
+                question: "En el contexto de la gestión territorial, ¿qué desafío principal plantea el envejecimiento de la población?",
+                options: {
+                    A: "La necesidad de construir más escuelas primarias.",
+                    B: "El aumento de la relación de dependencia y la presión sobre los sistemas de pensiones y salud.",
+                    C: "El exceso de fuerza laboral joven sin empleo."
+                },
+                correct: "B",
+                explanation: "El envejecimiento implica un aumento de la población dependiente (mayores de 65), presionando los sistemas de seguridad social, salud y cuidados."
+            },
+            {
+                id: 9,
+                question: "¿Qué característica distingue a los patrones migratorios recientes en América Latina frente a décadas pasadas?",
+                options: {
+                    A: "El cese total de la migración hacia Estados Unidos.",
+                    B: "El predominio de la migración intrarregional (entre países de la misma región) y el retorno.",
+                    C: "La migración exclusivamente por motivos de estudios superiores."
+                },
+                correct: "B",
+                explanation: "Históricamente era emigración neta fuera de la región, pero recientemente ha crecido la movilidad intrarregional (ej. Venezuela) y el retorno."
+            },
+            {
+                id: 10,
+                question: "Según el informe Groundswell del Banco Mundial, ¿cuántos migrantes climáticos internos podría haber en América Latina para 2050 si no se toman medidas?",
+                options: {
+                    A: "17 millones.",
+                    B: "5 millones.",
+                    C: "500 mil."
+                },
+                correct: "A",
+                explanation: "El informe Groundswell estima que para 2050 podría haber hasta 17 millones de migrantes climáticos internos en América Latina."
+            },
+            {
+                id: 11,
+                question: "¿Cuál es el principal vacío legal internacional respecto a las personas desplazadas por el cambio climático?",
+                options: {
+                    A: "No se les permite trabajar en el sector agrícola.",
+                    B: "No existe un reconocimiento explícito de la figura de \"refugiado climático\" en la Convención de 1951.",
+                    C: "Se les prohíbe el acceso a servicios de salud básicos en cualquier país."
+                },
+                correct: "B",
+                explanation: "La Convención de 1951 no reconoce la figura de refugiado por causas ambientales o climáticas, lo que genera un vacío de protección."
+            },
+            {
+                id: 12,
+                question: "¿Por qué es fundamental el análisis de la distribución espacial para un administrador público territorial?",
+                options: {
+                    A: "Para calcular el PIB nacional con mayor exactitud.",
+                    B: "Porque el espacio geográfico condiciona los fenómenos sociales y la asignación eficiente de recursos.",
+                    C: "Para diseñar banderas y escudos municipales más representativos."
+                },
+                correct: "B",
+                explanation: "El espacio geográfico no es un contenedor pasivo; condiciona los fenómenos y la distribución de la población determina dónde asignar recursos e infraestructura."
+            },
+            {
+                id: 13,
+                question: "¿Qué funcionalidad clave ofrece el Geoportal del DANE para la gestión local?",
+                options: {
+                    A: "Permite visualizar datos del Censo Nacional a nivel de manzana censal.",
+                    B: "Ofrece pronósticos del clima en tiempo real.",
+                    C: "Permite realizar trámites de identificación personal (cédulas)."
+                },
+                correct: "A",
+                explanation: "El Geoportal del DANE permite consultar y visualizar información georreferenciada del Censo (CNPV 2018) a nivel detallado, incluyendo la manzana censal."
+            },
+            {
+                id: 14,
+                question: "¿Qué son los \"geovisores\" en el contexto de herramientas como el Geoportal?",
+                options: {
+                    A: "Gafas de realidad virtual para ver mapas en 3D.",
+                    B: "Herramientas interactivas para analizar variables específicas (como déficit habitacional) sobre el mapa.",
+                    C: "Drones que vigilan el crecimiento urbano ilegal."
+                },
+                correct: "B",
+                explanation: "Los geovisores son herramientas del portal que permiten visualizar variables específicas como déficit habitacional o vulnerabilidad en el mapa."
+            },
+            {
+                id: 15,
+                question: "¿Qué metodología utiliza el proyecto WorldPop para estimar población en zonas donde no hay censos recientes o son de difícil acceso?",
+                options: {
+                    A: "Encuestas telefónicas aleatorias.",
+                    B: "Modelado estadístico \"bottom-up\" usando imágenes satelitales y cartografía social.",
+                    C: "Conteo manual casa por casa realizado por voluntarios internacionales."
+                },
+                correct: "B",
+                explanation: "WorldPop utiliza un enfoque \"bottom-up\" integrando imágenes satelitales y microcensos para estimar población en áreas donde no hay censo completo."
+            },
+            {
+                id: 16,
+                question: "¿Qué ventaja ofrece el uso de Big Data frente a las estadísticas tradicionales en la gestión pública?",
+                options: {
+                    A: "Los datos son 100% exactos y no requieren limpieza.",
+                    B: "Ofrece mayor volumen, velocidad y variedad, permitiendo análisis casi en tiempo real.",
+                    C: "Es mucho más costoso y lento, pero más seguro."
+                },
+                correct: "B",
+                explanation: "El Big Data se caracteriza por las \"3 Vs\" (Volumen, Velocidad, Variedad) y permite análisis en tiempo real, superando la latencia de los censos."
+            },
+            {
+                id: 17,
+                question: "En el ámbito de la seguridad y convivencia, ¿cómo puede la Inteligencia Artificial ayudar a la administración municipal?",
+                options: {
+                    A: "Reemplazando totalmente a los jueces humanos.",
+                    B: "Mediante la predicción de zonas de riesgo (hotspots) basada en patrones históricos.",
+                    C: "Eliminando la necesidad de patrullaje policial."
+                },
+                correct: "B",
+                explanation: "La IA permite el análisis de datos históricos de criminalidad para predecir zonas de riesgo y desplegar recursos estratégicamente (policía predictiva)."
+            },
+            {
+                id: 18,
+                question: "¿Qué paradigma promueve el Sistema Nacional Integrado de Cuidados (SNIC) de Uruguay?",
+                options: {
+                    A: "Que el cuidado es responsabilidad exclusiva de las mujeres en el hogar.",
+                    B: "La corresponsabilidad entre Estado, mercado, comunidad y familias.",
+                    C: "La privatización total de los servicios de cuidado infantil y geriátrico."
+                },
+                correct: "B",
+                explanation: "El SNIC de Uruguay se basa en un modelo de corresponsabilidad donde el Estado, mercado, comunidad y familias comparten la carga del cuidado."
+            },
+            {
+                id: 19,
+                question: "Según la OIT, si se valorara económicamente el trabajo de cuidados no remunerado, ¿qué porcentaje del PIB mundial representaría aproximadamente?",
+                options: {
+                    A: "Menos del 1%.",
+                    B: "Alrededor del 9%.",
+                    C: "Más del 50%."
+                },
+                correct: "B",
+                explanation: "La OIT estima que el trabajo de cuidado no remunerado representaría el 9% del PIB mundial si se valorara con un salario mínimo."
+            },
+            {
+                id: 20,
+                question: "¿Qué herramienta tecnológica permite a la ciudadanía monitorear la ejecución física y financiera de obras públicas en un mapa?",
+                options: {
+                    A: "Facebook Marketplace.",
+                    B: "MapaInversiones.",
+                    C: "Google Earth."
+                },
+                correct: "B",
+                explanation: "MapaInversiones es una plataforma del BID que visualiza el gasto público y la inversión en mapas para fomentar la transparencia."
+            },
+            {
+                id: 21,
+                question: "¿Qué se entiende por \"Bono Demográfico\" en el contexto económico?",
+                options: {
+                    A: "Un subsidio que el gobierno da a las familias numerosas.",
+                    B: "Un periodo donde la población en edad de trabajar es mayor que la población dependiente.",
+                    C: "El aumento de la población jubilada que gasta sus ahorros."
+                },
+                correct: "B",
+                explanation: "El bono demográfico ocurre cuando la población en edad de trabajar (productiva) es mayor que la dependiente, lo que impulsa el crecimiento."
+            },
+            {
+                id: 22,
+                question: "¿Qué implica el término \"Invierno Demográfico\" para la sostenibilidad fiscal?",
+                options: {
+                    A: "Una época del año donde aumentan los gastos en calefacción pública.",
+                    B: "La reducción de la base de cotizantes activos que financian los sistemas de seguridad social.",
+                    C: "La congelación de los salarios de los funcionarios públicos."
+                },
+                correct: "B",
+                explanation: "Se refiere a la reducción de la fuerza laboral activa que sostiene los sistemas de reparto, amenazando la sostenibilidad fiscal."
+            },
+            {
+                id: 23,
+                question: "¿Qué es la \"economía plateada\" mencionada como oportunidad para la gestión territorial?",
+                options: {
+                    A: "La minería de plata en zonas rurales.",
+                    B: "El conjunto de actividades económicas, productos y servicios orientados a satisfacer las necesidades de la población mayor.",
+                    C: "Un sistema de economía informal que no paga impuestos."
+                },
+                correct: "B",
+                explanation: "La economía plateada se refiere a las oportunidades económicas derivadas de las necesidades de la población mayor (salud, ocio, cuidados)."
+            },
+            {
+                id: 24,
+                question: "¿Cuál es el rol del administrador público frente a los datos demográficos según el perfil del curso?",
+                options: {
+                    A: "Recolectar datos puerta a puerta.",
+                    B: "Interpretar los datos para justificar decisiones estratégicas y diseñar políticas públicas.",
+                    C: "Archivar los datos históricos en bibliotecas físicas."
+                },
+                correct: "B",
+                explanation: "El rol es de analista y estratega: usar los datos para interpretar pirámides, anticipar demandas y justificar decisiones de política pública."
+            },
+            {
+                id: 25,
+                question: "¿Qué acción permite realizar el análisis de \"déficit habitacional\" disponible en los geovisores del DANE?",
+                options: {
+                    A: "Identificar barrios con alta densidad de viviendas inadecuadas para focalizar subsidios de mejoramiento.",
+                    B: "Calcular el impuesto predial de las fincas rurales.",
+                    C: "Vender propiedades del Estado a inmobiliarias privadas."
+                },
+                correct: "A",
+                explanation: "Los geovisores de déficit habitacional permiten identificar zonas específicas con necesidades de vivienda para focalizar la inversión pública."
+            },
+            {
+                id: 26,
+                question: "¿Qué diferencia principal existe entre un censo tradicional y las estimaciones basadas en modelos como las de WorldPop?",
+                options: {
+                    A: "El censo es anual; WorldPop es cada 10 años.",
+                    B: "El censo es un conteo directo (top-down); WorldPop usa estimaciones indirectas basadas en covariables (bottom-up).",
+                    C: "No hay diferencia, son lo mismo."
+                },
+                correct: "B",
+                explanation: "El censo tradicional es \"top-down\" (conteo total desagregado), mientras que modelos como WorldPop pueden usar enfoques \"bottom-up\"."
+            },
+            {
+                id: 27,
+                question: "¿Qué servicio ofrece el programa de \"Teleasistencia\" dentro de un Sistema de Cuidados?",
+                options: {
+                    A: "Clases de computación para niños.",
+                    B: "Un dispositivo de alerta (botón/pulsera) para que personas dependientes pidan ayuda en emergencias.",
+                    C: "Reparación remota de electrodomésticos para ancianos."
+                },
+                correct: "B",
+                explanation: "La teleasistencia es un servicio de alerta (botón/pulsera) para personas con dependencia leve o moderada ante emergencias en el hogar."
+            },
+            {
+                id: 28,
+                question: "¿Por qué se considera que la migración venezolana reciente ha impactado la demografía de los países receptores?",
+                options: {
+                    A: "Porque ha aumentado significativamente la edad promedio de la población receptora.",
+                    B: "Porque ha aportado población joven en edad laboral, compensando temporalmente el envejecimiento local.",
+                    C: "Porque ha reducido la tasa de urbanización en las ciudades capitales."
+                },
+                correct: "B",
+                explanation: "La migración venezolana suele ser de población joven en edad productiva, lo que puede compensar momentáneamente el envejecimiento de la fuerza laboral local."
+            },
+            {
+                id: 29,
+                question: "En el ciclo de políticas públicas, ¿en qué fase es crucial el uso de la demografía?",
+                options: {
+                    A: "Solo en la evaluación final.",
+                    B: "En el diagnóstico y diseño, para identificar la población objetivo y cuantificar la demanda.",
+                    C: "Únicamente en la fase de comunicación y propaganda."
+                },
+                correct: "B",
+                explanation: "La demografía es crucial en el diagnóstico para identificar la población objetivo y en el diseño para planificar la capacidad de los servicios necesarios."
+            },
+            {
+                id: 30,
+                question: "¿Cuál es la conclusión principal sobre la relación entre demografía y tecnología en la gestión pública moderna?",
+                options: {
+                    A: "La tecnología es opcional; lo importante es la intuición del líder político.",
+                    B: "El uso de datos georreferenciados y Big Data es indispensable para una gestión eficiente, transparente y focalizada.",
+                    C: "La tecnología debe usarse solo para reemplazar empleados públicos."
+                },
+                correct: "B",
+                explanation: "La conclusión es que el uso de tecnologías geoespaciales y Big Data es obligatorio para una gestión territorial eficiente, transparente y adaptada a la realidad."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = []; 
+        let currentRoundCorrectLabel = ''; 
+        let currentRoundCorrectText = '';  
+
+        // Referencias al DOM
+        const loginScreen = document.getElementById('login-screen');
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const questionCounterEl = document.getElementById('question-counter');
+        const scoreDisplayEl = document.getElementById('score-display');
+        const progressBarEl = document.getElementById('progress-bar');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        
+        const feedbackBox = document.getElementById('feedback-box');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const feedbackExplanation = document.getElementById('feedback-explanation');
+
+        // FUNCIÓN LOGIN
+        function validateLogin() {
+            const nameInput = document.getElementById('input-name').value.trim();
+            const codeInput = document.getElementById('input-code').value.trim();
+            const keyInput = document.getElementById('input-key').value.trim();
+            const errorMsg = document.getElementById('login-error');
+
+            if (nameInput === "" || codeInput === "" || keyInput !== REQUIRED_KEY) {
+                errorMsg.classList.remove('hidden');
+                if (keyInput !== REQUIRED_KEY && keyInput !== "") {
+                    errorMsg.innerHTML = '<i class="fas fa-lock mr-1"></i> Clave de acceso incorrecta.';
+                } else {
+                    errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i> Todos los campos son obligatorios.';
                 }
+                return;
+            }
+
+            // Login Exitoso
+            studentName = nameInput;
+            studentCode = codeInput;
+            
+            // Actualizar textos de bienvenida
+            document.getElementById('welcome-name').textContent = studentName.split(" ")[0]; // Solo primer nombre
+            document.getElementById('result-student-name').textContent = studentName;
+            document.getElementById('result-student-code').textContent = studentCode;
+
+            // Transición
+            loginScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+
+        // Función para mezclar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const data = quizData[currentQuestionIndex];
+            
+            // Actualizar UI básica
+            questionCounterEl.textContent = `Pregunta ${currentQuestionIndex + 1} de ${quizData.length}`;
+            scoreDisplayEl.textContent = `Puntaje: ${score}`;
+            const progress = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBarEl.style.width = `${progress}%`;
+            
+            // Resetear estados
+            feedbackBox.classList.add('hidden');
+            nextBtn.disabled = true;
+            nextBtn.classList.add('cursor-not-allowed', 'bg-gray-300', 'text-gray-500');
+            nextBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white', 'cursor-pointer');
+            
+            // Cargar texto
+            questionTextEl.textContent = `${data.id}. ${data.question}`;
+            
+            // Aleatorización
+            let optionsList = [
+                { originalKey: 'A', text: data.options.A },
+                { originalKey: 'B', text: data.options.B },
+                { originalKey: 'C', text: data.options.C }
             ];
 
-            const accessKeys = { "*123": "2026-07-20", "*456": "2026-07-30" };
-            const accessGate = document.getElementById('access-gate');
-            const accessKeyInput = document.getElementById('access-key-input');
-            const errorMessage = document.getElementById('error-message');
-            const startContainer = document.getElementById('start-container');
-            const gameContainer = document.getElementById('game-container');
-            const finalReviewContainer = document.getElementById('final-review-container');
-            const storytellingContainer = document.getElementById('storytelling-container');
-            const reviewModal = document.getElementById('review-modal');
-            const revealArea = document.getElementById('reveal-area');
-            
-            let loginAttempts = 0;
-            const MAX_ATTEMPTS = 3;
-            let allPhrases = [];
-            let phrases = []; // Frases del lote actual
-            let boxes = [];
-            let currentBoxIndex = 0;
-            let currentBatchIndex = 0;
-            let gameHasBeenPlayed = false;
+            shuffleArray(optionsList);
 
-            // --- INICIO CÓDIGO AUDIO ANDROID MEJORADO ---
-            // Esta lógica es crucial para que Android permita reproducir audio
-            // Se ejecuta en cualquier toque inicial del usuario
-            let androidAudioUnlocked = false;
+            const displayLabels = ['A', 'B', 'C'];
+            optionsContainer.innerHTML = '';
             
-            function unlockAndroidAudio(){
-                if(androidAudioUnlocked) return;
+            optionsList.forEach((opt, index) => {
+                const displayLabel = displayLabels[index];
                 
-                // Intento con SpeechSynthesis
-                if ('speechSynthesis' in window) {
-                    try{
-                        const dummy = new SpeechSynthesisUtterance(' ');
-                        dummy.volume = 0; // Silencio
-                        dummy.duration = 0;
-                        speechSynthesis.speak(dummy);
-                        console.log('Audio Context (SpeechSynthesis) desbloqueado');
-                    } catch(e) { console.warn("Error desbloqueando SpeechSynthesis", e); }
+                if (opt.originalKey === data.correct) {
+                    currentRoundCorrectLabel = displayLabel;
+                    currentRoundCorrectText = opt.text;
                 }
 
-                // Intento con ResponsiveVoice (si usa AudioContext interno)
-                if (typeof responsiveVoice !== 'undefined' && responsiveVoice.context) {
-                    try {
-                        responsiveVoice.context.resume().then(() => {
-                             console.log('Audio Context (ResponsiveVoice) resumido');
-                        });
-                    } catch(e) { console.warn("Error resumiendo ResponsiveVoice context", e); }
-                }
-
-                androidAudioUnlocked = true;
-            }
-
-            // Escuchamos eventos globales para desbloquear el audio lo antes posible
-            window.addEventListener('click', unlockAndroidAudio, { once: true });
-            window.addEventListener('touchstart', unlockAndroidAudio, { once: true });
-            window.addEventListener('keydown', unlockAndroidAudio, { once: true });
-            // --- FIN CÓDIGO AUDIO ANDROID ---
-
-            let utterance = null;
-            if ('speechSynthesis' in window) {
-                utterance = new SpeechSynthesisUtterance();
-                utterance.onend = () => {
-                    if (revealArea) revealArea.classList.remove('highlight-active');
-                    console.log('Reproducción completada.');
-                };
-                utterance.onerror = (error) => {
-                    console.error('Error con speechSynthesis, usando fallback:', error);
-                };
-            }
-
-            stopAllAudio();
-
-            function parseCSV(data) {
-                const lines = data.trim().split('\n').slice(1);
-                return lines.map(line => {
-                    // Regex para manejar comillas dentro del CSV
-                    const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(v => v.trim().replace(/^"|"$/g, ''));
-                    return { english: values[0], spanish: values[1], pronunciation: values[2], imageUrl: values[3] };
-                }).filter(p => p.english && p.spanish && p.pronunciation && p.imageUrl);
-            }
-            allPhrases = parseCSV(csvData);
-
-            function validateAccessKey() {
-                unlockAndroidAudio(); // Intentar desbloquear audio aquí también
-                const key = accessKeyInput.value.trim();
-                errorMessage.classList.add('hidden');
-                if (!accessKeys[key]) {
-                    loginAttempts++;
-                    errorMessage.textContent = `Clave inválida. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
-                    errorMessage.classList.remove('hidden');
-                } else {
-                    const expirationDateString = accessKeys[key];
-                    const expirationDate = new Date(expirationDateString + "T23:59:59");
-                    const today = new Date();
-                    if (today > expirationDate) {
-                        loginAttempts++;
-                        const formattedDate = new Date(expirationDate).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
-                        errorMessage.textContent = `La clave caducó el ${formattedDate}. Te quedan ${MAX_ATTEMPTS - loginAttempts} intento(s).`;
-                        errorMessage.classList.remove('hidden');
-                    } else {
-                        loginAttempts = 0;
-                        showBatchSelectionScreen();
-                        return;
-                    }
-                }
-                if (loginAttempts >= MAX_ATTEMPTS) {
-                    errorMessage.textContent = "Has excedido el número de intentos. La aplicación se ha bloqueado.";
-                    accessKeyInput.disabled = true;
-                    document.getElementById('validate-key-btn').disabled = true;
-                    document.getElementById('validate-key-btn').classList.add('bg-gray-400', 'cursor-not-allowed');
-                }
-            }
-            
-            function showBatchSelectionScreen() {
-                stopAllAudio();
-                accessGate.classList.add('hidden');
-                gameContainer.classList.add('hidden');
-                finalReviewContainer.classList.add('hidden');
-                storytellingContainer.classList.add('hidden');
-                startContainer.innerHTML = '';
+                const btn = document.createElement('div');
+                btn.className = 'option-btn w-full p-4 rounded-lg border-2 border-gray-200 cursor-pointer bg-white flex items-start gap-3';
+                btn.onclick = () => checkAnswer(displayLabel, btn, opt.text);
                 
-                // Título
-                const header = document.createElement('div');
-                header.className = 'text-center mb-8';
-                header.innerHTML = `
-                    <h2 class="text-2xl font-bold text-gray-800">Elige tu sesión</h2>
-                    <p class="text-gray-600 mt-2">Puedes jugar con el sistema de cajas o ir directamente a estudiar la historia.</p>
+                btn.innerHTML = `
+                    <div class="font-bold text-gray-500 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 border border-gray-300">${displayLabel}</div>
+                    <div class="text-gray-700 text-base md:text-lg">${opt.text}</div>
                 `;
-                startContainer.appendChild(header);
+                btn.dataset.displayLabel = displayLabel; 
+                optionsContainer.appendChild(btn);
+            });
+        }
 
-                // Grid de tarjetas para selección
-                const gridContainer = document.createElement('div');
-                gridContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+        function checkAnswer(selectedLabel, selectedBtn, selectedText) {
+            const allButtons = optionsContainer.children;
+            if ([...allButtons].some(btn => btn.classList.contains('cursor-default'))) return;
 
-                const batchSize = 10;
-                const numBatches = Math.ceil(allPhrases.length / batchSize);
-                
-                for (let i = 0; i < numBatches; i++) {
-                    const start = i * batchSize + 1;
-                    const end = Math.min((i + 1) * batchSize, allPhrases.length);
-                    
-                    const card = document.createElement('div');
-                    card.className = 'bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow flex flex-col justify-between h-full';
-                    
-                    card.innerHTML = `
-                        <div class="mb-4 text-center">
-                            <h3 class="text-xl font-bold text-blue-900">Frases ${start} - ${end}</h3>
-                            <p class="text-sm text-gray-500 mt-1">10 Frases Nuevas</p>
-                        </div>
-                        <div class="space-y-3">
-                            <button class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 group">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                                  <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                                </svg>
-                                Jugar Memoria
-                            </button>
-                            <button class="w-full bg-yellow-100 text-yellow-800 font-bold py-2 px-4 rounded-lg hover:bg-yellow-200 transition flex items-center justify-center gap-2 border border-yellow-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-                                </svg>
-                                Ir a Repaso/Story
-                            </button>
-                        </div>
-                    `;
-
-                    // Asignar eventos a los botones creados
-                    const btns = card.querySelectorAll('button');
-                    btns[0].onclick = () => startGameWithBatch(i); // Botón Jugar
-                    btns[1].onclick = () => startReviewDirectly(i); // Botón Directo a Repaso
-
-                    gridContainer.appendChild(card);
-                }
-
-                startContainer.appendChild(gridContainer);
-                startContainer.classList.remove('hidden');
-            }
-
-            function shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-            }
-
-            function initializeGameState() {
-                shuffleArray(phrases);
-                boxes = Array.from({ length: 7 }, () => []);
-                boxes[0] = [...phrases];
-                currentBoxIndex = 0;
-            }
-
-            function stopAllAudio() {
-                if (typeof responsiveVoice !== 'undefined') {
-                    responsiveVoice.cancel();
-                }
-                if ('speechSynthesis' in window) {
-                    speechSynthesis.cancel();
-                     if (revealArea) revealArea.classList.remove('highlight-active'); 
-                     document.querySelectorAll('.story-text.selected').forEach(el => el.classList.remove('selected'));
-                }
-            }
+            const currentData = quizData[currentQuestionIndex];
+            const isCorrect = selectedLabel === currentRoundCorrectLabel;
             
-            function speak(text, lang, rate = 0.8, onEndCallback = () => {}) {
-                stopAllAudio();
-                const cleanText = text.replace(/<strong>|<\/strong>/g, '');
+            userAnswers.push({
+                questionId: currentData.id,
+                question: currentData.question,
+                isCorrect: isCorrect,
+                userText: selectedText,
+                correctText: currentRoundCorrectText,
+                userLabel: selectedLabel,
+                correctLabel: currentRoundCorrectLabel
+            });
+
+            if (isCorrect) score++;
+            scoreDisplayEl.textContent = `Puntaje: ${score}`;
+
+            [...allButtons].forEach(btn => {
+                btn.onclick = null;
+                btn.classList.remove('cursor-pointer', 'hover:bg-e5e7eb', 'hover:transform');
+                btn.classList.add('cursor-default');
                 
-                // Intentar usar ResponsiveVoice primero para español si es Android, a veces suena mejor
-                // Pero mantendremos lógica original: primero WebSpeech API, luego ResponsiveVoice fallback
+                const btnLabel = btn.dataset.displayLabel;
                 
-                if (speechSynthesis && utterance) {
-                    utterance.text = cleanText;
-                    utterance.lang = lang;
-                    utterance.rate = rate;
-                    utterance.onend = () => {
-                        onEndCallback(); 
-                        if (revealArea) revealArea.classList.remove('highlight-active');
-                        console.log('Reproducción completada.');
-                    };
-                    utterance.onerror = (event) => {
-                        console.error('Error con speechSynthesis, usando fallback:', event);
-                        useResponsiveVoiceFallback(cleanText, lang, rate, onEndCallback);
-                    };
-                    speechSynthesis.speak(utterance);
-                } else {
-                    useResponsiveVoiceFallback(cleanText, lang, rate, onEndCallback);
+                if (btnLabel === currentRoundCorrectLabel) {
+                    btn.classList.remove('border-gray-200', 'bg-white');
+                    btn.classList.add('border-green-500', 'bg-green-50');
+                    btn.querySelector('div:first-child').classList.add('bg-green-500', 'text-white', 'border-green-600');
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-check text-green-600 ml-auto self-center text-xl';
+                    btn.appendChild(icon);
                 }
-            }
-
-            function useResponsiveVoiceFallback(text, lang, rate, onEndCallback = () => {}) {
-                const voiceMap = { 'en-US': 'US English Female', 'es-ES': 'Spanish Female' };
-                const voice = voiceMap[lang] || 'US English Female';
-                responsiveVoice.speak(text, voice, {
-                    rate: rate,
-                    onend: () => {
-                        onEndCallback();
-                        console.log('Reproducción completada con ResponsiveVoice.');
-                    },
-                    onerror: (error) => console.error('Error al reproducir audio con ResponsiveVoice:', error)
-                });
-            }
-
-            function playAll(lang, rate) {
-                stopAllAudio();
-                const separator = '; ';
-                const textToPlay = (lang === 'en-US' ? phrases.map(p => p.english) : phrases.map(p => p.spanish)).join(separator);
-                speak(textToPlay, lang, rate);
-            }
-
-            function setPhrasesForBatch(batchIndex) {
-                currentBatchIndex = batchIndex;
-                const batchSize = 10;
-                const startIndex = batchIndex * batchSize;
-                phrases = allPhrases.slice(startIndex, startIndex + batchSize);
-            }
-
-            function startGameWithBatch(batchIndex) {
-                unlockAndroidAudio();
-                stopAllAudio();
-                gameHasBeenPlayed = true;
-                setPhrasesForBatch(batchIndex);
                 
-                startContainer.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
-                finalReviewContainer.classList.add('hidden');
-                storytellingContainer.classList.add('hidden');
-                initializeGameState();
-                renderUI();
-            }
+                if (btnLabel === selectedLabel && !isCorrect) {
+                    btn.classList.remove('border-gray-200', 'bg-white');
+                    btn.classList.add('border-red-500', 'bg-red-50');
+                    btn.querySelector('div:first-child').classList.add('bg-red-500', 'text-white', 'border-red-600');
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-times text-red-600 ml-auto self-center text-xl';
+                    btn.appendChild(icon);
+                } else if (btnLabel !== currentRoundCorrectLabel && btnLabel !== selectedLabel) {
+                    btn.classList.add('opacity-50');
+                }
+            });
 
-            // NUEVA FUNCIÓN: Ir directo al repaso sin jugar
-            function startReviewDirectly(batchIndex) {
-                unlockAndroidAudio();
-                stopAllAudio();
-                setPhrasesForBatch(batchIndex);
-                
-                startContainer.classList.add('hidden');
-                gameContainer.classList.add('hidden');
-                // Mostramos el repaso directamente con las frases cargadas
-                displayFinalReview(false, true); 
-            }
-
-            function startReview() {
-                stopAllAudio();
-                // Si venimos del menú general sin batch, mostramos todo (lógica antigua) o mantenemos el último.
-                // Aquí asumiremos que 'phrases' ya tiene lo correcto.
-                startContainer.classList.add('hidden');
-                gameContainer.classList.add('hidden');
-                storytellingContainer.classList.add('hidden');
-                displayFinalReview(false);
-            }
-
-            function finishGame() {
-                stopAllAudio();
-                startContainer.classList.add('hidden');
-                gameContainer.classList.add('hidden');
-                finalReviewContainer.classList.add('hidden');
-                storytellingContainer.classList.add('hidden');
-                accessGate.classList.remove('hidden');
-                accessKeyInput.value = '';
-                loginAttempts = 0;
-                accessKeyInput.disabled = false;
-                document.getElementById('validate-key-btn').disabled = false;
-                document.getElementById('validate-key-btn').classList.remove('bg-gray-400', 'cursor-not-allowed');
-                gameHasBeenPlayed = false;
-            }
+            feedbackBox.classList.remove('hidden');
+            feedbackBox.classList.remove('bg-green-50', 'border-green-500', 'bg-red-50', 'border-red-500'); 
             
-            function renderUI() {
-                const boxContainer = document.getElementById('box-selectors');
-                if (boxContainer) {
-                    boxContainer.innerHTML = boxes.map((box, index) =>
-                        `<button data-action="select-box" data-box-index="${index}" class="px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${index === currentBoxIndex ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-700 hover:bg-gray-200'}">Caja ${index + 1} (${box.length})</button>`
-                    ).join('');
-                }
-                displayCard();
+            if (isCorrect) {
+                feedbackBox.classList.add('bg-green-50', 'border-green-500');
+                feedbackMessage.innerHTML = '<span class="text-green-700"><i class="fas fa-check-circle mr-2"></i>¡Correcto!</span>';
+            } else {
+                feedbackBox.classList.add('bg-red-50', 'border-red-500');
+                feedbackMessage.innerHTML = `<span class="text-red-700"><i class="fas fa-times-circle mr-2"></i>Incorrecto. La respuesta era la ${currentRoundCorrectLabel}.</span>`;
             }
+            feedbackExplanation.innerHTML = `<b>Justificación:</b> ${currentData.explanation}`;
 
-            function displayCard() {
-                const cardContainer = document.getElementById('card-container');
-                if (!cardContainer) return;
-                cardContainer.innerHTML = '';
-                const currentBox = boxes[currentBoxIndex];
-                if (currentBox.length === 0) {
-                    cardContainer.innerHTML = `<div class="text-center text-gray-500 animate-fade-in"><svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h4a2 2 0 002-2V7m-4 12h.01M12 3h.01M4 12h.01M20 12h.01M4 7h.01M4 17h.01M20 7h.01M20 17h.01" /></svg><h2 class="mt-2 text-xl font-semibold">Caja Vacía</h2><p class="mt-1 text-sm">No hay frases en esta caja. Si todas las frases están en la caja 7, ve a "Repaso Final".</p></div>`;
-                     if (boxes.length > 6 && boxes[6].length === phrases.length) {
-                        cardContainer.innerHTML += `<button id="go-to-review-btn" class="mt-4 bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition animate-fade-in">Ir a Repaso Final</button>`;
-                    }
-                    return;
-                }
-                const cardData = currentBox[0];
-                cardContainer.innerHTML = `
-                    <div class="w-full animate-fade-in flex flex-col items-center">
-                        <div class="w-full max-w-md h-64 mb-4 rounded-lg overflow-hidden shadow-lg bg-gray-200 relative">
-                             <img src="${cardData.imageUrl}" alt="Pista visual" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/500x500/e0e0e0/757575?text=Imagen+no+disponible';">
-                        </div>
-                        <div id="reveal-area" class="w-full max-w-md min-h-[80px] bg-gray-50 border border-gray-200 flex items-center justify-center text-center p-4 rounded-lg mb-4 text-lg font-semibold text-gray-800 shadow-sm">
-                            <span class="text-gray-400 text-sm italic">Elige una opción abajo para revelar</span>
-                        </div>
-                        <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 w-full max-w-md mb-6">
-                            <button data-action="reveal-en" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-1 rounded-md hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition font-medium text-sm">Inglés</button>
-                            <button data-action="reveal-es" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-1 rounded-md hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition font-medium text-sm">Español</button>
-                            <button data-action="reveal-pr" class="col-span-1 sm:col-span-1 bg-white border border-gray-300 text-gray-700 py-2 px-1 rounded-md hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition font-medium text-sm">Pron.</button>
-                            <button data-action="speak-en" title="Pronunciar en Inglés" class="col-span-1 sm:col-span-1 bg-purple-100 text-purple-700 border border-purple-200 p-2 rounded-md hover:bg-purple-200 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
-                            <button data-action="speak-es" title="Pronunciar en Español" class="col-span-1 sm:col-span-1 bg-gray-100 text-gray-700 border border-gray-200 p-2 rounded-md hover:bg-gray-200 transition flex justify-center items-center"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z"></path></svg></button>
-                        </div>
-                        <div class="flex gap-4 w-full max-w-md">
-                            <button data-action="box-1" class="w-1/2 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition shadow flex justify-center items-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                                A la Caja 1
-                            </button>
-                            <button data-action="next-box" class="w-1/2 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition shadow flex justify-center items-center gap-2">
-                                Siguiente Caja
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </button>
-                        </div>
-                    </div>`;
-            }
-
-            function displayFinalReview(isCompleted = false, directAccess = false) {
-                stopAllAudio();
-                gameContainer.classList.add('hidden');
-                storytellingContainer.classList.add('hidden');
-                finalReviewContainer.classList.remove('hidden');
-
-                const title = isCompleted ? "¡Felicidades! Has completado el set." : (directAccess ? "Estudio y Repaso" : "Repaso General");
-                const subtitle = directAccess ? "Explora las frases o ve a la historia." : "Aquí están todas las frases estudiadas.";
-
-                finalReviewContainer.innerHTML = `
-                    <h2 class="text-3xl font-bold text-green-600 mb-2">${title}</h2>
-                     <p class="text-gray-600 mb-8">${subtitle} <strong>Haz clic en una imagen para ver los detalles.</strong></p>
-                    <div id="review-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8"></div>
-                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-4 max-w-4xl mx-auto">
-                        <div class="flex flex-col gap-4">
-                             <button id="storytelling-btn" class="w-full bg-yellow-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-yellow-600 transition flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                                Ver Storytelling
-                             </button>
-                            <button id="reset-game-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition">Elegir otro bloque</button>
-                        </div>
-                         <div class="flex flex-col gap-4">
-                            <button id="play-all-en-normal-btn" class="w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-700 transition">Inglés (Normal)</button>
-                            <button id="play-all-en-slow-btn" class="w-full bg-purple-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-purple-900 transition">Inglés (Lento)</button>
-                        </div>
-                         <div class="flex flex-col gap-4">
-                            <button id="play-all-es-normal-btn" class="w-full bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-gray-800 transition">Español (Normal)</button>
-                            <button id="play-all-es-slow-btn" class="w-full bg-gray-900 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-black transition">Español (Lento)</button>
-                        </div>
-                    </div>
-                     <button id="finish-game-btn" class="mt-6 bg-red-600 text-white font-bold py-2 px-8 rounded-lg shadow-lg hover:bg-red-700 transition">Terminar Sesión</button>
-                `;
-
-                // Generar grid
-                document.getElementById('review-grid').innerHTML = phrases.map(phrase =>
-                    `<div class="aspect-square rounded-lg overflow-hidden shadow-md transition-transform hover:scale-105 cursor-pointer group relative" 
-                         data-english="${phrase.english}" 
-                         data-spanish="${phrase.spanish}"
-                         data-pronunciation="${phrase.pronunciation}"
-                         data-image="${phrase.imageUrl}">
-                        <img src="${phrase.imageUrl}" alt="${phrase.spanish}" class="w-full h-full object-cover pointer-events-none">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all"></div>
-                    </div>`
-                ).join('');
-                setupEventListeners();
-            }
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('cursor-not-allowed', 'bg-gray-300', 'text-gray-500');
+            nextBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white', 'cursor-pointer');
             
-            function showReviewModal(english, spanish, pronunciation, imageUrl) {
-                document.getElementById('modal-english-phrase').textContent = english;
-                document.getElementById('modal-spanish-phrase').textContent = spanish;
-                document.getElementById('modal-pronunciation').textContent = pronunciation;
-                document.getElementById('modal-image').src = imageUrl;
-                
-                reviewModal.classList.remove('hidden');
-                setTimeout(() => { 
-                    reviewModal.classList.remove('opacity-0');
-                    reviewModal.querySelector('.modal-content').classList.remove('scale-95');
-                }, 10);
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.innerHTML = 'Ver Resultados <i class="fas fa-trophy ml-2"></i>';
             }
+        }
 
-            function hideReviewModal() {
-                reviewModal.classList.add('opacity-0');
-                reviewModal.querySelector('.modal-content').classList.add('scale-95');
-                setTimeout(() => {
-                    reviewModal.classList.add('hidden');
-                }, 300); 
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
             }
+        }
 
-            function displayStorytelling() {
-                stopAllAudio();
-                finalReviewContainer.classList.add('hidden');
-                storytellingContainer.classList.remove('hidden');
-                document.querySelectorAll('.story-text.selected').forEach(el => el.classList.remove('selected')); 
-
-                // Si por alguna razón el índice excede el array (ej. bugs futuros), fallback al último
-                const safeBatchIndex = Math.min(currentBatchIndex, storytellingData.length - 1);
-                const story = storytellingData[safeBatchIndex];
-                
-                const storyEnArray = story.story_en.split('\n');
-                const storyEsArray = story.story_es.split('\n');
-
-                storytellingContainer.innerHTML = `
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-3xl font-bold text-yellow-600">Storytelling</h2>
-                        <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-yellow-200">Sesión ${safeBatchIndex + 1}</span>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                        <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
-                            <h3 class="text-xl font-semibold mb-3 text-purple-700 flex items-center gap-2">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
-                                English Story
-                            </h3>
-                            <div id="story-en-container" class="space-y-2 leading-relaxed">
-                                ${storyEnArray.map((p, i) => `<p class="story-text p-2 rounded-md cursor-pointer hover:bg-purple-100 transition" data-lang="en" data-index="${i}">${p}</p>`).join('')}
-                            </div>
-                            <button id="play-story-en" class="mt-4 w-full bg-purple-600 text-white font-bold py-3 px-4 rounded-lg shadow hover:bg-purple-700 transition flex justify-center items-center gap-2">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
-                                Reproducir en Inglés
-                            </button>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                            <h3 class="text-xl font-semibold mb-3 text-gray-800 flex items-center gap-2">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
-                                Historia en Español
-                            </h3>
-                            <div id="story-es-container" class="space-y-2 leading-relaxed">
-                                 ${storyEsArray.map((p, i) => `<p class="story-text p-2 rounded-md cursor-pointer hover:bg-gray-200 transition" data-lang="es" data-index="${i}">${p}</p>`).join('')}
-                            </div>
-                            <button id="play-story-es" class="mt-4 w-full bg-gray-800 text-white font-bold py-3 px-4 rounded-lg shadow hover:bg-gray-900 transition flex justify-center items-center gap-2">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" /></svg>
-                                Reproducir en Español
-                            </button>
-                        </div>
-                    </div>
-                    <button id="back-to-review-btn" class="mt-8 bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition">Volver al Repaso</button>
-                `;
-                setupEventListeners();
-            }
-
-            function highlightText(lang, index) {
-                document.querySelectorAll('.story-text.selected').forEach(el => el.classList.remove('selected'));
-                const enEl = document.querySelector(`.story-text[data-lang="en"][data-index="${index}"]`);
-                const esEl = document.querySelector(`.story-text[data-lang="es"][data-index="${index}"]`);
-                if (enEl) {
-                    enEl.classList.add('selected');
-                    enEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-                if (esEl) {
-                    esEl.classList.add('selected');
-                }
-            }
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
             
-            function readStoryAndHighlight(storyText, lang, rate) {
-                stopAllAudio();
-                const sentences = storyText.split('\n').filter(s => s.trim() !== '');
-                let sentenceIndex = 0;
-                
-                function playNextSentence() {
-                    if (sentenceIndex >= sentences.length) {
-                        highlightText(lang, -1); 
-                        return;
-                    }
+            const finalScoreEl = document.getElementById('final-score');
+            const finalPercentageEl = document.getElementById('final-percentage');
+            finalScoreEl.textContent = `${score}/${quizData.length}`;
+            
+            const scoreMessage = document.getElementById('score-message');
+            
+            const percentage = (score / quizData.length) * 100;
+            finalPercentageEl.textContent = `${percentage.toFixed(0)}%`;
+            
+            if (percentage >= 80) {
+                scoreMessage.textContent = "¡Excelente trabajo! Dominas el tema.";
+                finalScoreEl.classList.add('text-green-600');
+            } else if (percentage >= 60) {
+                scoreMessage.textContent = "Buen trabajo, pero repasa algunos conceptos.";
+                finalScoreEl.classList.add('text-yellow-600');
+            } else {
+                scoreMessage.textContent = "Sigue estudiando, puedes mejorar.";
+                finalScoreEl.classList.add('text-red-600');
+            }
 
-                    if (typeof responsiveVoice !== 'undefined') responsiveVoice.cancel();
-                    
-                    highlightText(lang, sentenceIndex);
-                    
-                    const textToSpeak = sentences[sentenceIndex].replace(/<strong>|<\/strong>/g, '');
-                    
-                    if (speechSynthesis && utterance) {
-                        utterance.text = textToSpeak;
-                        utterance.lang = lang;
-                        utterance.rate = rate;
-                        utterance.onend = () => {
-                             sentenceIndex++;
-                             playNextSentence();
-                        };
-                        utterance.onerror = (event) => {
-                            console.error('Error al hablar una frase, saltando al siguiente:', event);
-                            sentenceIndex++;
-                            playNextSentence();
-                        };
-                        speechSynthesis.speak(utterance);
-                    } else {
-                         const voiceMap = { 'en-US': 'US English Female', 'es-ES': 'Spanish Female' };
-                         const voice = voiceMap[lang] || 'US English Female';
-                         responsiveVoice.speak(textToSpeak, voice, {
-                            rate: rate,
-                            onend: () => {
-                                sentenceIndex++;
-                                playNextSentence();
-                            },
-                             onerror: (error) => {
-                                console.error('Error de ResponsiveVoice, saltando al siguiente:', error);
-                                sentenceIndex++;
-                                playNextSentence();
+            const summaryContainer = document.getElementById('answers-summary');
+            summaryContainer.innerHTML = '';
+            
+            userAnswers.forEach((ans, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-start gap-3 p-3 rounded bg-white shadow-sm border border-gray-100 break-inside-avoid';
+                
+                const iconClass = ans.isCorrect ? 'fa-check text-green-500' : 'fa-times text-red-500';
+                
+                item.innerHTML = `
+                    <div class="mt-1"><i class="fas ${iconClass}"></i></div>
+                    <div class="flex-1">
+                        <p class="text-sm font-semibold text-gray-800">Pregunta ${ans.questionId}</p>
+                        <p class="text-xs text-gray-500 mb-2">${ans.question}</p>
+                        
+                        <div class="text-sm border-l-2 pl-2 ${ans.isCorrect ? 'border-green-400' : 'border-red-400'}">
+                            ${ans.isCorrect 
+                                ? `<span class="text-green-700">Respuesta correcta: ${ans.userText}</span>` 
+                                : `<div class="mb-1 text-red-700">Tu respuesta (${ans.userLabel}): ${ans.userText}</div>
+                                   <div class="text-green-700 font-semibold">Correcta (${ans.correctLabel}): ${ans.correctText}</div>`
                             }
-                         });
-                    }
-                }
-                playNextSentence();
-            }
+                        </div>
+                    </div>
+                `;
+                summaryContainer.appendChild(item);
+            });
+        }
 
+        function restartApp() {
+            // Recargar para volver al login
+            location.reload();
+        }
 
-            function moveCard(advance) {
-                const cardToMove = boxes[currentBoxIndex].shift();
-                if (!cardToMove) return;
-                const nextBoxIndex = advance ? currentBoxIndex + 1 : 0;
-                if (advance && nextBoxIndex < boxes.length) {
-                    boxes[nextBoxIndex].push(cardToMove);
-                } else if (advance) {
-                    boxes[boxes.length - 1].push(cardToMove);
-                } else {
-                    boxes[0].push(cardToMove);
-                }
-                
-                if (boxes.length > 6 && boxes[6].length === phrases.length) {
-                    displayFinalReview(true);
-                } else {
-                    renderUI();
-                }
-            }
-            
-            function setupEventListeners() {
-                // Eventos de botones principales (usando Optional Chaining por si no existen en el DOM actual)
-                document.getElementById('validate-key-btn')?.addEventListener('click', validateAccessKey);
-                document.getElementById('reset-game-btn')?.addEventListener('click', showBatchSelectionScreen);
-                document.getElementById('finish-game-btn')?.addEventListener('click', finishGame);
-                document.getElementById('go-to-review-btn')?.addEventListener('click', () => displayFinalReview(true));
-
-                document.getElementById('play-all-en-normal-btn')?.addEventListener('click', () => playAll('en-US', 0.8));
-                document.getElementById('play-all-en-slow-btn')?.addEventListener('click', () => playAll('en-US', 0.5));
-                document.getElementById('play-all-es-normal-btn')?.addEventListener('click', () => playAll('es-ES', 0.8));
-                document.getElementById('play-all-es-slow-btn')?.addEventListener('click', () => playAll('es-ES', 0.5));
-                document.getElementById('storytelling-btn')?.addEventListener('click', displayStorytelling);
-
-                document.getElementById('back-to-review-btn')?.addEventListener('click', () => displayFinalReview(false, true)); // Volver al grid sin resetear
-                
-                // Storytelling
-                document.getElementById('play-story-en')?.addEventListener('click', () => {
-                    const safeBatchIndex = Math.min(currentBatchIndex, storytellingData.length - 1);
-                    const storyText = storytellingData[safeBatchIndex].story_en;
-                    readStoryAndHighlight(storyText, 'en-US', 0.7);
-                });
-                document.getElementById('play-story-es')?.addEventListener('click', () => {
-                    const safeBatchIndex = Math.min(currentBatchIndex, storytellingData.length - 1);
-                    const storyText = storytellingData[safeBatchIndex].story_es;
-                    readStoryAndHighlight(storyText, 'es-ES', 0.7);
-                });
-
-                document.getElementById('story-en-container')?.addEventListener('click', (e) => {
-                     const target = e.target.closest('.story-text');
-                    if (target) {
-                        highlightText(target.dataset.lang, target.dataset.index);
-                        const textToSpeak = target.textContent.replace(/<strong>|<\/strong>/g, '').trim();
-                        speak(textToSpeak, target.dataset.lang === 'en' ? 'en-US' : 'es-ES', 0.8);
-                    }
-                });
-                 document.getElementById('story-es-container')?.addEventListener('click', (e) => {
-                     const target = e.target.closest('.story-text');
-                    if (target) {
-                        highlightText(target.dataset.lang, target.dataset.index);
-                        const textToSpeak = target.textContent.replace(/<strong>|<\/strong>/g, '').trim();
-                        speak(textToSpeak, target.dataset.lang === 'en' ? 'en-US' : 'es-ES', 0.8);
-                    }
-                });
-
-                // Selector de cajas
-                const boxContainer = document.getElementById('box-selectors');
-                if (boxContainer) boxContainer.onclick = (e) => {
-                    const target = e.target.closest('button[data-action="select-box"]');
-                    if (target) {
-                        const newIndex = parseInt(target.dataset.boxIndex, 10);
-                        if (newIndex !== currentBoxIndex) {
-                            currentBoxIndex = newIndex;
-                            renderUI();
-                        }
-                    }
-                };
-
-                // Contenedor de la tarjeta (delegación de eventos)
-                const cardContainer = document.getElementById('card-container');
-                if (cardContainer) cardContainer.onclick = (e) => {
-                    // Desbloqueo de audio en cualquier clic dentro de la tarjeta
-                    unlockAndroidAudio();
-                    
-                    const target = e.target.closest('button');
-                    if (!target || !target.dataset.action) return;
-                    const action = target.dataset.action;
-                    const card = boxes[currentBoxIndex]?.[0];
-                    const currentRevealArea = document.getElementById('reveal-area');
-                    if (!card || !currentRevealArea) return;
-                    
-                    switch (action) {
-                        case 'reveal-en': 
-                            currentRevealArea.textContent = card.english; 
-                            currentRevealArea.classList.remove('italic', 'text-gray-400');
-                            break;
-                        case 'reveal-es': 
-                            currentRevealArea.textContent = card.spanish; 
-                            currentRevealArea.classList.remove('italic', 'text-gray-400');
-                            break;
-                        case 'reveal-pr': 
-                            currentRevealArea.textContent = card.pronunciation; 
-                            currentRevealArea.classList.remove('italic', 'text-gray-400');
-                            break;
-                        case 'speak-en': 
-                            currentRevealArea.textContent = card.english;
-                            currentRevealArea.classList.remove('italic', 'text-gray-400');
-                            currentRevealArea.classList.add('highlight-active');
-                            speak(card.english, 'en-US'); 
-                            break;
-                        case 'speak-es': 
-                            currentRevealArea.textContent = card.spanish;
-                            currentRevealArea.classList.remove('italic', 'text-gray-400');
-                            currentRevealArea.classList.add('highlight-active');
-                            speak(card.spanish, 'es-ES'); 
-                            break;
-                        case 'next-box': moveCard(true); break;
-                        case 'box-1': moveCard(false); break;
-                    }
-                };
-                
-                // Grid de repaso
-                document.getElementById('review-grid')?.addEventListener('click', (e) => {
-                    unlockAndroidAudio();
-                    const target = e.target.closest('div[data-english]');
-                    if (target) {
-                        showReviewModal(
-                            target.dataset.english, 
-                            target.dataset.spanish, 
-                            target.dataset.pronunciation, 
-                            target.dataset.image
-                        );
-                    }
-                });
-                
-                // Modal
-                document.getElementById('modal-close-btn')?.addEventListener('click', hideReviewModal);
-                document.getElementById('modal-close-x')?.addEventListener('click', hideReviewModal);
-                reviewModal?.addEventListener('click', (e) => {
-                    if (e.target === reviewModal) {
-                        hideReviewModal();
-                    }
-                });
-
-                // Input de clave
-                const keyInput = document.getElementById('access-key-input');
-                if (keyInput) {
-                    keyInput.onkeydown = (e) => { if (e.key === 'Enter') validateAccessKey(); };
-                    keyInput.oninput = () => errorMessage.classList.add('hidden');
-                }
-            }
-
-            // Inicialización
-            setupEventListeners();
-        });
     </script>
 </body>
 </html>
